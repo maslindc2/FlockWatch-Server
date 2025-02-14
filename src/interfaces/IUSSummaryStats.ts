@@ -6,13 +6,13 @@
  * Total Backyard Flocks Affected by it
  * Total Commercial Flocks Nationwide
  */
-import Mongoose  from "mongoose"
+import Mongoose from "mongoose";
 
 interface IUSSummaryStats extends Mongoose.Document {
-    totalStatesAffected: number,  // Number of states with infections
-    totalBirdsAffectedNationwide: number,  // Total birds affected nationwide
-    totalFlocksAffectedNationwide: number,  // Total flocks affected nationwide
-    totalBackyardFlocksNationwide: number,  // Backyard flocks affected nationwide
-    totalCommercialFlocksNationwide: number,  // Commercial flocks affected nationwide
+    totalStatesAffected: number; // Number of states with infections
+    totalBirdsAffectedNationwide: number; // Total birds affected nationwide
+    totalFlocksAffectedNationwide: number; // Total flocks affected nationwide
+    totalBackyardFlocksNationwide: number; // Backyard flocks affected nationwide
+    totalCommercialFlocksNationwide: number; // Commercial flocks affected nationwide
 }
-export {IUSSummaryStats}
+export { IUSSummaryStats };
