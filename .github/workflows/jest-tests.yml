@@ -13,13 +13,16 @@ jobs:
   test:
     runs-on: ubuntu-latest
     services:
-      mongodb:
+      mongo:
         image: mongo:8.0
         ports:
           - 27017:27017
+        env:
+          MONGO_INITDB_ROOT_USERNAME: admin
+          MONGO_INITDB_ROOT_PASSWORD: flockwatch
         options: >-
           --health-cmd "mongo --eval 'db.runCommand({ ping: 1 })'"
-          --health-interval 10s
+          --health-interval 300s
           --health-timeout 5s
           --health-retries 5
 
@@ -39,4 +42,4 @@ jobs:
       - name: Run Jest Tests
         run: npm test
         env:
-          MONGODB_URI: mongodb://localhost:27017/flock_watch_test
+          MONGODB_URI: mongodb://admin:flockwatch@localhost:27017/flock_watch_test?authSource=admin
