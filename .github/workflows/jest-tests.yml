@@ -17,13 +17,15 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ secrets.NODE_VERSION }}
           cache: "npm"
 
       - name: Start MongoDB
         uses: supercharge/mongodb-github-action@1.12.0
         with:
-          mongodb-version: '8.0'
+          mongodb-version: ${{ secrets.MONGODB_VERSION }}
+          mongodb-root-username: ${{ secrets.MONGODB_USER }}
+          mongodb-root-password: ${{ secrets.MONGODB_PASSWORD }}
 
       - name: Install Dependencies
         run: npm install
@@ -31,4 +33,5 @@ jobs:
       - name: Run Jest Tests
         run: npm test
         env:
-          MONGODB_URI: mongodb://admin:flockwatch@localhost:27017/flock_watch_test?authSource=admin
+          MONGODB_URI: mongodb://${{ secrets.MONGODB_USER }}:${{ secrets.MONGODB_PASSWORD }}@localhost:27017/flock_watch_test?authSource=admin
+
