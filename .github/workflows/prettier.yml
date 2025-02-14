@@ -6,6 +6,10 @@ on:
   pull_request:
     branches:
       - main
+
+permissions:
+  contents: write  # Grant write permissions for the token
+
 jobs:
   prettier:
     runs-on: ubuntu-latest
