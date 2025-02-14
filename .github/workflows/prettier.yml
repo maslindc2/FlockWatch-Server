@@ -8,7 +8,7 @@ on:
       - main
 
 permissions:
-  contents: write  # Grant write permissions for the token
+  contents: write
 
 jobs:
   prettier:
