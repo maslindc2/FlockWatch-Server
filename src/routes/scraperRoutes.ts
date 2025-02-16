@@ -4,12 +4,16 @@ import { logger } from "../utils/winstonLogger";
 const router = Router();
 
 router.get("/status", (req: Request, res: Response): void => {
-    // Current idea is to use this as a way to kick start the server
+    logger.http(
+        `Received GET request on Status Route.`
+    );
+
+    
     res.status(200).json({ message: "We are alive and ready!" });
 });
 
 router.post("/fetch-data", (req: Request, res: Response): void => {
-    logger.info(
+    logger.http(
         `Received POST request on Fetch Data Route. Params: ${req.query.runJob}`
     );
     /**
