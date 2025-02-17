@@ -5,7 +5,7 @@ class DatabaseService {
     private static isConnected: boolean = false;
     public static async connect(dbConnectionString: string): Promise<void> {
         if (this.isConnected) {
-            logger.info("MongoDB is already connected.");
+            logger.warn("MongoDB is already connected.");
             return;
         }
         try {
