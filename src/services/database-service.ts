@@ -1,5 +1,5 @@
 import * as Mongoose from "mongoose";
-import { logger } from "../utils/winstonLogger";
+import { logger } from "../utils/winston-logger";
 
 class DatabaseService {
     private static isConnected: boolean = false;

@@ -1,5 +1,5 @@
 import * as Mongoose from "mongoose";
-import { IUSSummaryStats } from "../interfaces/IUSSummaryStats";
+import { IUSSummaryStats } from "../interfaces/i-us-summary-stats";
 
 class USSummaryModel {
     private static schema = new Mongoose.Schema<IUSSummaryStats>({
@@ -10,7 +10,7 @@ class USSummaryModel {
         totalCommercialFlocksNationwide: Number,
     });
 
-    public static model = Mongoose.model<IUSSummaryStats>(
+    public static getModel = Mongoose.model<IUSSummaryStats>(
         "USSummary",
         this.schema
     );

@@ -1,7 +1,7 @@
 import express, { Application, Request, Response, NextFunction } from "express";
-import dataRoutes from "./routes/dataRoutes";
-import { logger } from "./utils/winstonLogger";
-import { DatabaseService } from "./services/DatabaseService";
+import dataRoutes from "./routes/data-routes";
+import { logger } from "./utils/winston-logger";
+import { DatabaseService } from "./services/database-service";
 
 class App {
     public app: Application;

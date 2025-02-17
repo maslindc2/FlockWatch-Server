@@ -1,5 +1,5 @@
 import * as Mongoose from "mongoose";
-import { ILastReportDate } from "../interfaces/ILastReportDate";
+import { ILastReportDate } from "../interfaces/i-last-report-date";
 
 class LastReportDateModel {
     private static schema = new Mongoose.Schema<ILastReportDate>({
@@ -7,14 +7,10 @@ class LastReportDateModel {
         currentUpdateTime: Date,
     });
 
-    public static model = Mongoose.model<ILastReportDate>(
+    public static getModel = Mongoose.model<ILastReportDate>(
         "LastReportDate",
         this.schema
     );
-
-    public static async getLastReportDate() {
-        return this.model.find({}).select("-_id -__v");
-    }
 }
 
 export { LastReportDateModel };

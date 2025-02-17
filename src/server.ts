@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
 import { App } from "./app";
-import { logger } from "./utils/winstonLogger";
+import { logger } from "./utils/winston-logger";
 
 const PORT: number = 5050;
 
