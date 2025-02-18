@@ -9,12 +9,10 @@ class USSummaryModel {
         totalBackyardFlocksNationwide: Number,
         totalCommercialFlocksNationwide: Number,
     });
-
     public static getModel = Mongoose.model<IUSSummaryStats>(
         "USSummary",
         this.schema
     );
-    
 }
 
 export { USSummaryModel };

@@ -1,18 +1,11 @@
 import {FlockCasesByStateModel} from "../../src/models/flock-cases-by-state-model";
 
-jest.mock("mongoose", () => {
-    const actualMongoose = jest.requireActual("mongoose");
-    return {
-        ...actualMongoose,
-        model: jest.fn().mockReturnValue({
-            find: jest.fn().mockResolvedValue([{state: "Pennsylvania", totalBirdsAffected: 2344370, totalFlocksAffected: 13, commercialFlocksAffected: 7, backyardFlocksAffected: 6, birdsPerFlock: 180336, lastReportedDate: new Date(2025, 2, 12, 0, 0, 0, 0), latitude: 40.99773861, longitude: -76.19300025}])
-        }),
-    };
-});
-
-describe("FlockCasesByStateModel", async () => {
-
-    it("should have the correct fields based on model's interface", async () => {
+describe("FlockCasesByStateModel", () => {
+    it("should have the correct model name", () => {
+        const schemaName = FlockCasesByStateModel.getModel.modelName;
+        expect(schemaName).toEqual("FlockCasesByState");
+    });
+    it("should have the correct fields", () => {
         const schemaFields = FlockCasesByStateModel.getModel.schema.obj;
         expect(schemaFields).toHaveProperty("state");
         expect(schemaFields).toHaveProperty("totalBirdsAffected");
@@ -24,32 +17,16 @@ describe("FlockCasesByStateModel", async () => {
         expect(schemaFields).toHaveProperty("latitude");
         expect(schemaFields).toHaveProperty("longitude");
     });
-    it("should enforce the correct data types and fail to save incorrect data types", async () => {
-        const incorrectDateDataType = {
-            state: "California",
-            totalBirdsAffected: 100,
-            totalFlocksAffected: 100,
-            commercialFlocksAffected: 100,
-            backyardFlocksAffected: 100,
-            birdsPerFlock: 100,
-            lastReportedDate: "String instead of Date object",
-            latitude: 35.99088,
-            longitude: -119.123
-        }
-        const mockDocumentCreation = jest.fn().mockRejectedValue(new Error("Validation Error"));
-        FlockCasesByStateModel.getModel.create = mockDocumentCreation;
-        await expect(FlockCasesByStateModel.getModel.create(incorrectDateDataType)).rejects.toThrow("Validation Error");
-        
+    it("should have the correct datatypes for each field", () => {
+        const schemaFields = FlockCasesByStateModel.getModel.schema.obj;
+        expect(schemaFields.state).toBe(String)
+        expect(schemaFields.totalBirdsAffected).toBe(Number)
+        expect(schemaFields.totalFlocksAffected).toBe(Number)
+        expect(schemaFields.commercialFlocksAffected).toBe(Number)
+        expect(schemaFields.backyardFlocksAffected).toBe(Number)
+        expect(schemaFields.birdsPerFlock).toBe(Number)
+        expect(schemaFields.lastReportedDate).toBe(Date)
+        expect(schemaFields.latitude).toBe(Number)
+        expect(schemaFields.longitude).toBe(Number)
     });
-    it("should ")
-    it("should call find() when retrieving all flock cases", async ()=> {
-        const mockFind = jest.spyOn(FlockCasesByStateModel.getModel, "find");
-        await FlockCasesByStateModel.getModel.find({});
-        expect(mockFind).toHaveBeenCalled();
-    });
-    it("should return flock cases data", async () => {
-        const data = await FlockCasesByStateModel.getModel.find({});
-        expect(data).toEqual([{state: "Texas", totalBirdsAffected: 100}])
-    });
-
 });

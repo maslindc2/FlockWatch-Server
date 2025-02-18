@@ -4,7 +4,7 @@ import { ILastReportDate } from "../interfaces/i-last-report-date";
 class LastReportDateModel {
     private static schema = new Mongoose.Schema<ILastReportDate>({
         lastScrapedDate: Date,
-        currentUpdateTime: Date,
+        currentUpdateTime: Number,
     });
 
     public static getModel = Mongoose.model<ILastReportDate>(
