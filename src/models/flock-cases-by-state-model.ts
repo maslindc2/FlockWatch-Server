@@ -11,7 +11,7 @@ class FlockCasesByStateModel {
         birdsPerFlock: Number,
         lastReportedDate: Date,
         latitude: Number,
-        longitude: Number
+        longitude: Number,
     });
 
     public static getModel = Mongoose.model<IFlockCasesByState>(

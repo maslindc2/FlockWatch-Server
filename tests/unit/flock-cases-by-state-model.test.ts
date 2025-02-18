@@ -1,4 +1,4 @@
-import {FlockCasesByStateModel} from "../../src/models/flock-cases-by-state-model";
+import { FlockCasesByStateModel } from "../../src/models/flock-cases-by-state-model";
 
 describe("FlockCasesByStateModel", () => {
     it("should have the correct model name", () => {
@@ -19,14 +19,14 @@ describe("FlockCasesByStateModel", () => {
     });
     it("should have the correct datatypes for each field", () => {
         const schemaFields = FlockCasesByStateModel.getModel.schema.obj;
-        expect(schemaFields.state).toBe(String)
-        expect(schemaFields.totalBirdsAffected).toBe(Number)
-        expect(schemaFields.totalFlocksAffected).toBe(Number)
-        expect(schemaFields.commercialFlocksAffected).toBe(Number)
-        expect(schemaFields.backyardFlocksAffected).toBe(Number)
-        expect(schemaFields.birdsPerFlock).toBe(Number)
-        expect(schemaFields.lastReportedDate).toBe(Date)
-        expect(schemaFields.latitude).toBe(Number)
-        expect(schemaFields.longitude).toBe(Number)
+        expect(schemaFields.state).toBe(String);
+        expect(schemaFields.totalBirdsAffected).toBe(Number);
+        expect(schemaFields.totalFlocksAffected).toBe(Number);
+        expect(schemaFields.commercialFlocksAffected).toBe(Number);
+        expect(schemaFields.backyardFlocksAffected).toBe(Number);
+        expect(schemaFields.birdsPerFlock).toBe(Number);
+        expect(schemaFields.lastReportedDate).toBe(Date);
+        expect(schemaFields.latitude).toBe(Number);
+        expect(schemaFields.longitude).toBe(Number);
     });
 });

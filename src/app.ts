@@ -18,9 +18,12 @@ class App {
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: false }));
         this.app.use("/data", dataRoutes);
-        this.app.use("/", (req: Request, res: Response, next: NextFunction): void => {
-            res.json({ message: "Nothing here but us Chickens" });
-        });
+        this.app.use(
+            "/",
+            (req: Request, res: Response, next: NextFunction): void => {
+                res.json({ message: "Nothing here but us Chickens" });
+            }
+        );
     }
 }
 

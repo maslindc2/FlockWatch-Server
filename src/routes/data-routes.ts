@@ -17,6 +17,6 @@ router.get("/last-report-date", async (req: Request, res: Response) => {
 
 // Get US Summary statistics
 router.get("/us-summary", async (req: Request, res: Response) => {
-    dataController.getUSSummary(req, res)
+    dataController.getUSSummary(req, res);
 });
 export default router;
