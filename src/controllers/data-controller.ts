@@ -33,7 +33,7 @@ class DataController {
             res.json(data);
         } catch (error) {
             logger.error(`Error fetching US Summary: ${error}`);
-            res.status(500).json({ error: "Failed to fetch flock cases!" });
+            res.status(500).json({ error: "Failed to US Summary!" });
         }
     }
 
@@ -44,7 +44,7 @@ class DataController {
             res.json(data);
         } catch (error) {
             logger.error(`Error fetching US Summary: ${error}`);
-            res.status(500).json({ error: "Failed to fetch flock cases!" });
+            res.status(500).json({ error: "Failed to fetch last report date!" });
         }
     }
 }
