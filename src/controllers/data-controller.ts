@@ -44,7 +44,9 @@ class DataController {
             res.json(data);
         } catch (error) {
             logger.error(`Error fetching US Summary: ${error}`);
-            res.status(500).json({ error: "Failed to fetch last report date!" });
+            res.status(500).json({
+                error: "Failed to fetch last report date!",
+            });
         }
     }
 }

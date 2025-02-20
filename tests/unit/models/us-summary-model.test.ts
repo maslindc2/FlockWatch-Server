@@ -1,4 +1,4 @@
-import { USSummaryModel } from "../../src/models/us-summary-model";
+import { USSummaryModel } from "../../../src/models/us-summary-model";
 
 describe("USSummaryModel", () => {
     it("should have the correct fields", () => {

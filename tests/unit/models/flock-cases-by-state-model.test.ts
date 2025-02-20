@@ -1,4 +1,4 @@
-import { FlockCasesByStateModel } from "../../src/models/flock-cases-by-state-model";
+import { FlockCasesByStateModel } from "../../../src/models/flock-cases-by-state-model";
 
 describe("FlockCasesByStateModel", () => {
     it("should have the correct model name", () => {

@@ -1,4 +1,4 @@
-import { LastReportDateModel } from "../../src/models/last-report-date-model";
+import { LastReportDateModel } from "../../../src/models/last-report-date-model";
 describe("LastReportDateModel", () => {
     it("should have the correct fields", () => {
         const schemaFields = LastReportDateModel.getModel.schema.obj;
