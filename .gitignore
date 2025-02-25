@@ -131,3 +131,6 @@ dist
 
 # Create DB local development scripts
 createDB/
+
+# DB Data
+data/

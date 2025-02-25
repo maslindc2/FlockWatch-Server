@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { DataController } from "../controllers/data-controller";
 import { logger } from "../utils/winston-logger";
+import { CSVParser } from "../utils/csv-parser";
 
 const router = Router();
 const dataController = new DataController();
@@ -18,5 +19,10 @@ router.get("/last-report-date", async (req: Request, res: Response) => {
 // Get US Summary statistics
 router.get("/us-summary", async (req: Request, res: Response) => {
     dataController.getUSSummary(req, res);
+});
+
+router.get("/process-csv", async(req: Request, res:Response) => {
+    const results = await CSVParser.gatherData()
+    res.status(200).send(results)
 });
 export default router;
