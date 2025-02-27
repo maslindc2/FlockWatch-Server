@@ -9,14 +9,18 @@ describe("FlockCasesByStateService", () => {
     });
 
     it("should call find and select with the correct parameters", async () => {
-        const findSpy = jest.spyOn(FlockCasesByStateModel.getModel, "find").mockReturnValue({
-            select: jest.fn().mockResolvedValue([]),
-        } as any);
+        const findSpy = jest
+            .spyOn(FlockCasesByStateModel.getModel, "find")
+            .mockReturnValue({
+                select: jest.fn().mockResolvedValue([]),
+            } as any);
 
         await service.getAllFlockCases();
 
         expect(findSpy).toHaveBeenCalledWith({});
-        expect(findSpy.mock.results[0].value.select).toHaveBeenCalledWith("-_id -__v");
+        expect(findSpy.mock.results[0].value.select).toHaveBeenCalledWith(
+            "-_id -__v"
+        );
 
         findSpy.mockRestore();
     });

@@ -1,7 +1,7 @@
 /**
  * This interface is for flock cases for each individual state
- * CSV to use is "Map Comparisons.csv" 
- * 
+ * CSV to use is "Map Comparisons.csv"
+ *
  * We will capture the state name, birds affected, flocks affected, commercial and backyard flocks, birds per flock, reported date
  * and latitude longitude of the state for our map view.
  * Birds Per Flock is used to gauge outbreak intensity it's just a rough estimate it might be completely meaningless though
@@ -10,7 +10,8 @@
 import Mongoose from "mongoose";
 
 interface IFlockCasesByState extends Mongoose.Document {
-    state: string; // e.g., "Texas", "CA"
+    stateAbbreviation: string; // e.g. TX or WA
+    state: string; // e.g. "Texas" or "California"
     totalBirdsAffected: number; // Total birds affected in the state
     totalFlocksAffected: number; // Total infected flocks in the state
     commercialFlocksAffected: number; // Number of affected commercial flocks
