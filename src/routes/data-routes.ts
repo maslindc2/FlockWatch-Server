@@ -25,29 +25,6 @@ router.get("/us-summary", async (req: Request, res: Response) => {
 });
 
 router.get("/process-csv", async (req: Request, res: Response) => {
-    const csvFilePath = path.resolve(
-        __dirname,
-        "../../data/Map Comparisons.csv"
-    );
-    logger.silly(`Parsing CSV File at ${csvFilePath}`);
-    const csvData = ReadCSV.readCSVFile(csvFilePath, "utf-16le")
-    const customHeaders = [
-        "State Abbreviation",
-        "State Name",
-        "Backyard Flocks",
-        "Birds Affected",
-        "Color",
-        "Commercial Flocks",
-        "Last Reported Detection Text",
-        "Total Flocks",
-        "State Boundary",
-        "State Label",
-        "Latitude (generated)",
-        "Longitude (generated)"
-    ];
-    const parsedData = CSVParser.parseCSV(csvData, "\t", 2, customHeaders)
-    const dataFiltered = parsedData.filter((row: { [x: string]: string }) => row["State Name"]?.trim() && row["Birds Affected"] !== "0");
-    const transformedData = FlockCasesByStateTransformer.transformData(dataFiltered);
-    res.status(200).send(transformedData);
+    dataController.updateAllFlockCases(req, res);
 });
 export default router;
