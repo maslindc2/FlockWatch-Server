@@ -2,10 +2,9 @@ import * as path from "path";
 import { logger } from "../utils/winston-logger";
 import { Router, Request, Response } from "express";
 import { DataController } from "../controllers/data-controller";
-import {
-    CSVParser,
-    FlockCasesByStateStrategy,
-} from "../utils/csv-parser/index";
+import { ReadCSV } from "../utils/csv-parser/read-csv";
+import { CSVParser } from "../utils/csv-parser/csv-parser";
+import { FlockCasesByStateTransformer } from "../utils/csv-parser/transformers/flock-cases-by-state-transformer";
 
 const router = Router();
 const dataController = new DataController();
@@ -26,14 +25,12 @@ router.get("/us-summary", async (req: Request, res: Response) => {
 });
 
 router.get("/process-csv", async (req: Request, res: Response) => {
-    const strategy = new FlockCasesByStateStrategy();
-    const parser = new CSVParser(strategy);
     const csvFilePath = path.resolve(
         __dirname,
         "../../data/Map Comparisons.csv"
     );
     logger.silly(`Parsing CSV File at ${csvFilePath}`);
-    const csvData = parser.readCSVFile(csvFilePath, "utf-16le")
+    const csvData = ReadCSV.readCSVFile(csvFilePath, "utf-16le")
     const customHeaders = [
         "State Abbreviation",
         "State Name",
@@ -48,9 +45,9 @@ router.get("/process-csv", async (req: Request, res: Response) => {
         "Latitude (generated)",
         "Longitude (generated)"
     ];
-    const parsedData = parser.parseCSV(csvData, "\t", 2, customHeaders)
+    const parsedData = CSVParser.parseCSV(csvData, "\t", 2, customHeaders)
     const dataFiltered = parsedData.filter((row: { [x: string]: string }) => row["State Name"]?.trim() && row["Birds Affected"] !== "0");
-    //const transformedData = strategy.transformData(parsedData);
-    res.status(200).send(dataFiltered);
+    const transformedData = FlockCasesByStateTransformer.transformData(dataFiltered);
+    res.status(200).send(transformedData);
 });
 export default router;

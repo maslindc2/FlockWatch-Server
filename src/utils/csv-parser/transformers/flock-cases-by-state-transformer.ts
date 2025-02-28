@@ -1,11 +1,12 @@
-import { IFlockCasesByState } from "../../../interfaces/i-flock-cases-by-state";
 import { logger } from "../../winston-logger";
-import { CSVParserStrategy } from "../csv-parser";
 
-export class FlockCasesByStateStrategy
-    implements CSVParserStrategy<IFlockCasesByState>
+/**
+ * Flock Watch uses transformers to transform an array of data into the fields and datatype required for a particular model.
+ * Each species will require it's own transformer of course as USDA structures the data differently for each species.
+ */
+export class FlockCasesByStateTransformer
 {
-    transformData(parsedData: any[]): any[] {
+    public static transformData(parsedData: any[]): any[] {
         return parsedData.map((row, index) => {
             try {
                 return {
@@ -37,7 +38,7 @@ export class FlockCasesByStateStrategy
      * @param dateAsString Takes in a string containing the date.
      * @returns Converts the date into a JavaScript Date Object
      */
-    public extractDate(dateAsString: string): Date | null {
+    private static extractDate(dateAsString: string): Date | null {
         const match = dateAsString.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
 
         if (!match) {
