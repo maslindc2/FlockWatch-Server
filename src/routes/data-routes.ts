@@ -2,9 +2,6 @@ import * as path from "path";
 import { logger } from "../utils/winston-logger";
 import { Router, Request, Response } from "express";
 import { DataController } from "../controllers/data-controller";
-import { ReadCSV } from "../utils/csv-parser/read-csv";
-import { CSVParser } from "../utils/csv-parser/csv-parser";
-import { FlockCasesByStateTransformer } from "../utils/csv-parser/transformers/flock-cases-by-state-transformer";
 
 const router = Router();
 const dataController = new DataController();
@@ -24,7 +21,34 @@ router.get("/us-summary", async (req: Request, res: Response) => {
     dataController.getUSSummary(req, res);
 });
 
-router.get("/process-csv", async (req: Request, res: Response) => {
-    dataController.updateAllFlockCases(req, res);
+router.get("/update-data", async (req: Request, res: Response) => {
+    logger.http(`Received Request from ${req.url}`)
+    
+    await fetch("http://localhost:8081/scraper/process-data", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            authID: "80801"
+        })
+    })
+    .then(async (scraperRes) => {
+        if (scraperRes.status == 200){
+            logger.http(`Received data from scraping service at ${req.url}`);
+            const jsonResponse = await scraperRes.json();
+            if (jsonResponse.length === 0) {
+                logger.error("Received JSON array of length 0 from Scraping Service");
+                //TODO: Remove this as it won't be on a route in production
+                res.sendStatus(500);
+            }else{
+                res.json(jsonResponse);
+            }
+        }else{
+            logger.error(`Failed to update data received status ${scraperRes.status}`)
+            //TODO: Remove this as it won't be on a route in production
+            res.sendStatus(scraperRes.status);
+        }
+    });
 });
 export default router;
