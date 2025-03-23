@@ -20,7 +20,7 @@ class FlockCasesByStateModel {
     });
 
     public static getModel = Mongoose.model<IFlockCasesByState>(
-        "FlockCasesByState",
+        "flock-cases-by-state",
         FlockCasesByStateModel.schema
     );
 }

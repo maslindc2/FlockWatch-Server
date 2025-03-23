@@ -2,7 +2,7 @@ import * as dotenv from "dotenv";
 import { App } from "./app";
 import { logger } from "./utils/winston-logger";
 
-const PORT: number = 5050;
+const PORT: number = Number(process.env.PORT) || 5050;
 
 dotenv.config();
 

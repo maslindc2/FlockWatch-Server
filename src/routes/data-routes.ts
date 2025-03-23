@@ -23,32 +23,37 @@ router.get("/us-summary", async (req: Request, res: Response) => {
 
 router.get("/update-data", async (req: Request, res: Response) => {
     logger.http(`Received Request from ${req.url}`)
-    
-    await fetch("http://localhost:8081/scraper/process-data", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            authID: "80801"
+    try {
+        await fetch("http://localhost:6767/scraper/process-data", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                authID: "80801"
+            })
         })
-    })
-    .then(async (scraperRes) => {
-        if (scraperRes.status == 200){
-            logger.http(`Received data from scraping service at ${req.url}`);
-            const jsonResponse = await scraperRes.json();
-            if (jsonResponse.length === 0) {
-                logger.error("Received JSON array of length 0 from Scraping Service");
-                //TODO: Remove this as it won't be on a route in production
-                res.sendStatus(500);
+        .then(async (scraperRes) => {
+            if (scraperRes.status == 200){
+                logger.http(`Received data from scraping service at ${req.url}`);
+                const jsonResponse = await scraperRes.json();
+                if (jsonResponse.length === 0) {
+                    logger.error("Received JSON array of length 0 from Scraping Service");
+                    //TODO: Remove this as it won't be on a route in production
+                    res.sendStatus(500);
+                }else{
+                    res.json(jsonResponse);
+                }
             }else{
-                res.json(jsonResponse);
+                logger.error(`Failed to update data received status ${scraperRes.status}`)
+                //TODO: Remove this as it won't be on a route in production
+                res.sendStatus(scraperRes.status);
             }
-        }else{
-            logger.error(`Failed to update data received status ${scraperRes.status}`)
-            //TODO: Remove this as it won't be on a route in production
-            res.sendStatus(scraperRes.status);
-        }
-    });
+        });
+    } catch (error) {
+        logger.error(`Failed to make request to scraper ${error}`);
+        res.sendStatus(500);
+    }
+    
 });
 export default router;

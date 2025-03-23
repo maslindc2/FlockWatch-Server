@@ -13,7 +13,7 @@ class LastReportDateModel {
     });
 
     public static getModel = Mongoose.model<ILastReportDate>(
-        "LastReportDate",
+        "last-report-date",
         this.schema
     );
 }

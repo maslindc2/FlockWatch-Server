@@ -1,6 +1,10 @@
 import { USSummaryModel } from "../../../src/models/us-summary-model";
 
 describe("USSummaryModel", () => {
+    it("should have the correct model name", () => {
+        const schemaName = USSummaryModel.getModel.modelName;
+        expect(schemaName).toEqual("us-summary");
+    });
     it("should have the correct fields", () => {
         const schemaFields = USSummaryModel.getModel.schema.obj;
         expect(schemaFields).toHaveProperty("totalStatesAffected");

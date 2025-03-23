@@ -19,7 +19,7 @@ class USSummaryModel {
         totalCommercialFlocksNationwide: Number,
     });
     public static getModel = Mongoose.model<IUSSummaryStats>(
-        "USSummary",
+        "us-summary",
         this.schema
     );
 }

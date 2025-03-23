@@ -3,7 +3,7 @@ import { FlockCasesByStateModel } from "../../../src/models/flock-cases-by-state
 describe("FlockCasesByStateModel", () => {
     it("should have the correct model name", () => {
         const schemaName = FlockCasesByStateModel.getModel.modelName;
-        expect(schemaName).toEqual("FlockCasesByState");
+        expect(schemaName).toEqual("flock-cases-by-state");
     });
     it("should have the correct fields", () => {
         const schemaFields = FlockCasesByStateModel.getModel.schema.obj;
