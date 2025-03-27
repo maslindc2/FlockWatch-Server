@@ -40,10 +40,10 @@ class DataController {
     public async getLastReportDate(req: Request, res: Response) {
         try {
             const data = await this.lastReportDateService.getLastReportDate();
-            logger.http(`Received Request at US Summary ${req.url}`);
+            logger.http(`Received Request at Last Report Date ${req.url}`);
             res.json(data);
         } catch (error) {
-            logger.error(`Error fetching US Summary: ${error}`);
+            logger.error(`Error fetching Last Report Date: ${error}`);
             res.status(500).json({
                 error: "Failed to fetch last report date!",
             });

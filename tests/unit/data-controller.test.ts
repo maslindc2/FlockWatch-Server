@@ -107,9 +107,12 @@ describe("DataController", () => {
                 lastScrapedDate: {
                     $date: "2025-02-16T00:00:00.000Z",
                 },
-                currentUpdateTime: {
-                    $date: "2025-02-12T08:00:00.000Z",
+                updateFrequency: {
+                    $number: 24,
                 },
+                authID: {
+                    $string: crypto.randomUUID,
+                }
             }),
         ];
         jest.spyOn(

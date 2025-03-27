@@ -27,7 +27,7 @@ describe("FlockCasesByStateService", () => {
 
     it("should return expected mock data", async () => {
         const mockData = [
-            {
+            {   
                 state: "Pennsylvania",
                 totalBirdsAffected: 6,
                 totalFlocksAffected: 2344370,

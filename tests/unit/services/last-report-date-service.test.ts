@@ -28,15 +28,9 @@ describe("FlockCasesByStateService", () => {
     it("should return expected mock data", async () => {
         const mockData = [
             {
-                state: "Pennsylvania",
-                totalBirdsAffected: 6,
-                totalFlocksAffected: 2344370,
-                commercialFlocksAffected: 7,
-                backyardFlocksAffected: 7,
-                birdsPerFlock: 390728,
-                lastReportedDate: new Date(Date.UTC(2025, 2 - 1, 5)),
-                latitude: 40.99773861,
-                longitude: -76.19300025,
+                lastScrapedDate: new Date(Date.UTC(2025, 2 - 1, 5)),
+                updateFrequency: 24,
+                authID: crypto.randomUUID
             },
         ];
 

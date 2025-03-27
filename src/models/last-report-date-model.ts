@@ -1,5 +1,5 @@
 import * as Mongoose from "mongoose";
-import { ILastReportDate } from "../interfaces/i-last-report-date";
+import { ILastReportDate } from "../interfaces/models/i-last-report-date";
 
 /**
  * This model is used for scheduling scrape jobs currently USDA updates weekdays by 12 pm eastern time.
@@ -9,7 +9,8 @@ import { ILastReportDate } from "../interfaces/i-last-report-date";
 class LastReportDateModel {
     private static schema = new Mongoose.Schema<ILastReportDate>({
         lastScrapedDate: Date,
-        currentUpdateTime: Number,
+        updateFrequency: Number,
+        authID: String
     });
 
     public static getModel = Mongoose.model<ILastReportDate>(

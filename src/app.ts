@@ -1,17 +1,15 @@
 import express, { Application, Request, Response, NextFunction } from "express";
 import dataRoutes from "./routes/data-routes";
-import { logger } from "./utils/winston-logger";
 import { DatabaseService } from "./services/database-service";
+import { LastReportDateService } from "./services/model-services/last-report-date-service";
+import { logger } from "./utils/winston-logger";
 
 class App {
     public app: Application;
-
     constructor() {
         this.app = express();
         this.middleware();
-
-        // Connect to DB
-        DatabaseService.connect(process.env.MONGODB_URI!);
+        this.serverStart();
     }
 
     private middleware(): void {
@@ -24,6 +22,18 @@ class App {
                 res.json({ message: "Nothing here but us Chickens" });
             }
         );
+    }
+
+    private async serverStart(): Promise<void> {
+        try {
+            await DatabaseService.connect(process.env.MONGODB_URI!);
+            const lastReportDateService = new LastReportDateService();
+            await lastReportDateService.initializeLastReportDate();
+            logger.info(`FlockWatch Server is ready!`);
+        } catch (error) {
+            logger.error(`Failed to start FlockWatch Server: ${error}`);
+            process.exit(1);
+        }
     }
 }
 

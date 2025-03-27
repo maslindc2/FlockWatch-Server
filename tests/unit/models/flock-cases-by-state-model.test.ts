@@ -7,26 +7,27 @@ describe("FlockCasesByStateModel", () => {
     });
     it("should have the correct fields", () => {
         const schemaFields = FlockCasesByStateModel.getModel.schema.obj;
+        expect(schemaFields).toHaveProperty("stateAbbreviation");
         expect(schemaFields).toHaveProperty("state");
-        expect(schemaFields).toHaveProperty("totalBirdsAffected");
-        expect(schemaFields).toHaveProperty("totalFlocksAffected");
-        expect(schemaFields).toHaveProperty("commercialFlocksAffected");
-        expect(schemaFields).toHaveProperty("backyardFlocksAffected");
-        expect(schemaFields).toHaveProperty("birdsPerFlock");
-        expect(schemaFields).toHaveProperty("lastReportedDate");
+        expect(schemaFields).toHaveProperty("backyardFlocks");
+        expect(schemaFields).toHaveProperty("commercialFlocks");
+        expect(schemaFields).toHaveProperty("birdsAffected");
+        expect(schemaFields).toHaveProperty("totalFlocks");
         expect(schemaFields).toHaveProperty("latitude");
         expect(schemaFields).toHaveProperty("longitude");
+        expect(schemaFields).toHaveProperty("lastReportedDate");
+
     });
     it("should have the correct datatypes for each field", () => {
         const schemaFields = FlockCasesByStateModel.getModel.schema.obj;
+        expect(schemaFields.stateAbbreviation).toBe(String);
         expect(schemaFields.state).toBe(String);
-        expect(schemaFields.totalBirdsAffected).toBe(Number);
-        expect(schemaFields.totalFlocksAffected).toBe(Number);
-        expect(schemaFields.commercialFlocksAffected).toBe(Number);
-        expect(schemaFields.backyardFlocksAffected).toBe(Number);
-        expect(schemaFields.birdsPerFlock).toBe(Number);
-        expect(schemaFields.lastReportedDate).toBe(Date);
+        expect(schemaFields.backyardFlocks).toBe(Number);
+        expect(schemaFields.commercialFlocks).toBe(Number);
+        expect(schemaFields.birdsAffected).toBe(Number);
+        expect(schemaFields.totalFlocks).toBe(Number);
         expect(schemaFields.latitude).toBe(Number);
         expect(schemaFields.longitude).toBe(Number);
+        expect(schemaFields.lastReportedDate).toBe(Date);
     });
 });

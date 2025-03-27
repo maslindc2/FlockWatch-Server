@@ -1,5 +1,5 @@
 import * as Mongoose from "mongoose";
-import { IUSSummaryStats } from "../interfaces/i-us-summary-stats";
+import { IUSSummaryStatsDocument } from "../interfaces/models/i-us-summary-stats-document";
 
 /**
  * USSummary Model this model contains the highlight information about the current status of Avian Flu
@@ -11,14 +11,14 @@ import { IUSSummaryStats } from "../interfaces/i-us-summary-stats";
  * - totalCommercialFlocksNationwide created by summing the Commercial Flocks column
  */
 class USSummaryModel {
-    private static schema = new Mongoose.Schema<IUSSummaryStats>({
+    private static schema = new Mongoose.Schema<IUSSummaryStatsDocument>({
         totalStatesAffected: Number,
         totalBirdsAffectedNationwide: Number,
         totalFlocksAffectedNationwide: Number,
         totalBackyardFlocksNationwide: Number,
         totalCommercialFlocksNationwide: Number,
     });
-    public static getModel = Mongoose.model<IUSSummaryStats>(
+    public static getModel = Mongoose.model<IUSSummaryStatsDocument>(
         "us-summary",
         this.schema
     );
