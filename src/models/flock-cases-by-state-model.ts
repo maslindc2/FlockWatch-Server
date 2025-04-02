@@ -16,7 +16,7 @@ class FlockCasesByStateModel {
         latitude: Number,
         longitude: Number,
         lastReportedDate: Date
-    });
+    }, { collection: "flock-cases-by-state"});
 
     public static getModel = Mongoose.model<IFlockCasesByStateDocument>(
         "flock-cases-by-state",

@@ -17,7 +17,7 @@ class USSummaryModel {
         totalFlocksAffectedNationwide: Number,
         totalBackyardFlocksNationwide: Number,
         totalCommercialFlocksNationwide: Number,
-    });
+    }, {collection: "us-summary"});
     public static getModel = Mongoose.model<IUSSummaryStatsDocument>(
         "us-summary",
         this.schema

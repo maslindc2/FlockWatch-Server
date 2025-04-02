@@ -3,12 +3,14 @@
 const fs = require("fs");
 
 // Read each of the JSON files containing data from mongo
-const lastReportDateAsJSON = fs.readFileSync("init-mongo/last-report-dates-data.json");
-const usSummariesAsJSON = fs.readFileSync("init-mongo/us-summaries-data.json");
+const lastReportDateAsJSON = fs.readFileSync("init-mongo/last-report-date-data.json");
+const flockCasesByStateAsJSON = fs.readFileSync("init-mongo/flock-cases-by-state.json");
+const usSummaryAsJSON = fs.readFileSync("init-mongo/us-summary-data.json");
 
 //Parse all the JSON files containing the data we are going to insert
 const lastReportDateObj = JSON.parse(lastReportDateAsJSON);
-const usSummariesObj = JSON.parse(usSummariesAsJSON);
+const flockCasesByStateObj = JSON.parse(flockCasesByStateAsJSON);
+const usSummaryObj = JSON.parse(usSummaryAsJSON);
 
 // Connect to the local mongodb instance using the admin login
 db = connect(`mongodb://admin:flockwatch@localhost:27017/`);
@@ -18,7 +20,8 @@ db = db.getSiblingDB("flockwatch");
 
 // Get (or create if it does not exist) the collections we need
 const lastReportDateCollection = db.getCollection("last-report-date");
-const usSummariesCollection = db.getCollection("us-summaries");
+const flockCasesByStateCollection = db.getCollection("flock-cases-by-state");
+const usSummaryCollection = db.getCollection("us-summary");
 
 /**
  * Clear out each collection.
@@ -27,8 +30,10 @@ const usSummariesCollection = db.getCollection("us-summaries");
  * that needs to be used this will ensure the DB only includes that test set.
  */
 lastReportDateCollection.deleteMany({});
-usSummariesCollection.deleteMany({});
+flockCasesByStateCollection.deleteMany({});
+usSummaryCollection.deleteMany({});
 
 // Use insert many to insert all of the information
 lastReportDateCollection.insertMany(lastReportDateObj);
-usSummariesCollection.insertMany(usSummariesObj);
+flockCasesByStateCollection.insertMany(flockCasesByStateObj);
+usSummaryCollection.insertMany(usSummaryObj);

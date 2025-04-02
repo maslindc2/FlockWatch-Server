@@ -11,7 +11,7 @@ class LastReportDateModel {
         lastScrapedDate: Date,
         updateFrequency: Number,
         authID: String
-    });
+    }, { collection: "last-report-date"});
 
     public static getModel = Mongoose.model<ILastReportDate>(
         "last-report-date",
