@@ -8,7 +8,7 @@ describe("FlockCasesByStateService", () => {
         service = new LastReportDateService();
     });
 
-    it("should call find and select with the correct parameters", async () => {
+    it("should call find and hide the internal id, version, and authID", async () => {
         const findSpy = jest
             .spyOn(LastReportDateModel.getModel, "find")
             .mockReturnValue({
@@ -19,7 +19,7 @@ describe("FlockCasesByStateService", () => {
 
         expect(findSpy).toHaveBeenCalledWith({});
         expect(findSpy.mock.results[0].value.select).toHaveBeenCalledWith(
-            "-_id -__v"
+            "-_id -__v -authID"
         );
 
         findSpy.mockRestore();
