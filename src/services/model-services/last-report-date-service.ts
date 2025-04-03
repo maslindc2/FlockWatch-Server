@@ -23,6 +23,8 @@ class LastReportDateService {
                 authID: crypto.randomUUID()
             }
             return await LastReportDateModel.getModel.create(modelObj);
+        }else{
+            return existingRecord;
         }
     }
 

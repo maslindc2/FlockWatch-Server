@@ -1,7 +1,7 @@
 import { USSummaryService } from "../../../src/services/model-services/us-summary-service";
 import { USSummaryModel } from "../../../src/models/us-summary-model";
 
-describe("FlockCasesByStateService", () => {
+describe("USSummaryService Unit Tests", () => {
     let service: USSummaryService;
 
     beforeEach(() => {
