@@ -10,7 +10,6 @@ describe("FlockCasesByStateService Integration", () => {
     let flockCasesByStateService: FlockCasesByStateService;
     beforeAll(async () => {
         try {
-            
             await Mongoose.connect(process.env.MONGODB_URI!);
             console.log("MongoDB connected successfully.");
         } catch (error) {
@@ -26,7 +25,7 @@ describe("FlockCasesByStateService Integration", () => {
     it("should create a state data entry", async () => {
         // First define the object that we want to store using the data type we are using
         const flockData: IFlockCasesByState[] = [
-            {   
+            {
                 stateAbbreviation: "PA",
                 state: "Pennsylvania",
                 backyardFlocks: 2344370,
@@ -44,22 +43,25 @@ describe("FlockCasesByStateService Integration", () => {
 
         // Now get query the database and get all the entries in the database should be only 1 entry
         const queryFromDB = await flockCasesByStateService.getAllFlockCases();
-        
+
         // We should only get 1 state entry back from the database
         expect(queryFromDB.length).toBe(1);
-        
+
         // Since we use Mongoose we need to strip the proxied object portion from our result
         // This is done by Stringify and then parsing.
-        const stripProxiedObject = (obj: IFlockCasesByState[]) => JSON.parse(JSON.stringify(obj));
+        const stripProxiedObject = (obj: IFlockCasesByState[]) =>
+            JSON.parse(JSON.stringify(obj));
 
         // Now our state data from our DB should equal our flockData that we made earlier
-        expect(stripProxiedObject(queryFromDB)).toEqual(stripProxiedObject(flockData));
+        expect(stripProxiedObject(queryFromDB)).toEqual(
+            stripProxiedObject(flockData)
+        );
     });
 
     it("should throw an error", async () => {
         // First define the object that we want to store using the data type we are using
         const flockData: IFlockCasesByState[] = [
-            {   
+            {
                 stateAbbreviation: "PA",
                 state: "Pennsylvania",
                 backyardFlocks: 2344370,
@@ -73,12 +75,19 @@ describe("FlockCasesByStateService Integration", () => {
         ];
 
         // When findOneAndUpdate is called we want to throw an error
-        jest.spyOn(FlockCasesByStateModel.getModel, "findOneAndUpdate").mockImplementation(() => {
+        jest.spyOn(
+            FlockCasesByStateModel.getModel,
+            "findOneAndUpdate"
+        ).mockImplementation(() => {
             throw new Error("Database error");
         });
 
         // Call the create or update state data in our service and pass our flock data array
-        await expect(flockCasesByStateService.createOrUpdateStateData(flockData)).rejects.toThrow("Failed to update Model information resulted in Error: Database error");
+        await expect(
+            flockCasesByStateService.createOrUpdateStateData(flockData)
+        ).rejects.toThrow(
+            "Failed to update Model information resulted in Error: Database error"
+        );
     });
     afterEach(async () => {
         // Drop the database so it's ready for our next test

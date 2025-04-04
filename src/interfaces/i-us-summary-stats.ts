@@ -15,4 +15,4 @@ interface IUSSummaryStats {
     totalBackyardFlocksNationwide: number; // Backyard flocks affected nationwide
     totalCommercialFlocksNationwide: number; // Commercial flocks affected nationwide
 }
-export {IUSSummaryStats};
+export { IUSSummaryStats };

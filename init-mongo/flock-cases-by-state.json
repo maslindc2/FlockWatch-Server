@@ -1,664 +1,665 @@
-[{
-    "state": "Alaska",
-    "backyardFlocks": 11,
-    "birdsAffected": 1370,
-    "commercialFlocks": 0,
-    "lastReportedDate": {
-      "$date": "2024-11-26T00:00:00.000Z"
+[
+    {
+        "state": "Alaska",
+        "backyardFlocks": 11,
+        "birdsAffected": 1370,
+        "commercialFlocks": 0,
+        "lastReportedDate": {
+            "$date": "2024-11-26T00:00:00.000Z"
+        },
+        "latitude": 23.220494732,
+        "longitude": -118.42924009,
+        "stateAbbreviation": "AK",
+        "totalFlocks": 11
     },
-    "latitude": 23.220494732,
-    "longitude": -118.42924009,
-    "stateAbbreviation": "AK",
-    "totalFlocks": 11
-  },
-  {
-    "state": "Alabama",
-    "backyardFlocks": 3,
-    "birdsAffected": 470990,
-    "commercialFlocks": 3,
-    "lastReportedDate": {
-      "$date": "2024-12-19T00:00:00.000Z"
+    {
+        "state": "Alabama",
+        "backyardFlocks": 3,
+        "birdsAffected": 470990,
+        "commercialFlocks": 3,
+        "lastReportedDate": {
+            "$date": "2024-12-19T00:00:00.000Z"
+        },
+        "latitude": 31.818745963,
+        "longitude": -87.1718069,
+        "stateAbbreviation": "AL",
+        "totalFlocks": 6
     },
-    "latitude": 31.818745963,
-    "longitude": -87.1718069,
-    "stateAbbreviation": "AL",
-    "totalFlocks": 6
-  },
-  {
-    "state": "Arkansas",
-    "backyardFlocks": 9,
-    "birdsAffected": 666060,
-    "commercialFlocks": 8,
-    "lastReportedDate": {
-      "$date": "2025-01-24T00:00:00.000Z"
+    {
+        "state": "Arkansas",
+        "backyardFlocks": 9,
+        "birdsAffected": 666060,
+        "commercialFlocks": 8,
+        "lastReportedDate": {
+            "$date": "2025-01-24T00:00:00.000Z"
+        },
+        "latitude": 34.838658403,
+        "longitude": -91.630148264,
+        "stateAbbreviation": "AR",
+        "totalFlocks": 17
     },
-    "latitude": 34.838658403,
-    "longitude": -91.630148264,
-    "stateAbbreviation": "AR",
-    "totalFlocks": 17
-  },
-  {
-    "state": "Arizona",
-    "backyardFlocks": 5,
-    "birdsAffected": 1146680,
-    "commercialFlocks": 2,
-    "lastReportedDate": {
-      "$date": "2025-02-19T00:00:00.000Z"
+    {
+        "state": "Arizona",
+        "backyardFlocks": 5,
+        "birdsAffected": 1146680,
+        "commercialFlocks": 2,
+        "lastReportedDate": {
+            "$date": "2025-02-19T00:00:00.000Z"
+        },
+        "latitude": 34.365887912,
+        "longitude": -113.820090446,
+        "stateAbbreviation": "AZ",
+        "totalFlocks": 7
     },
-    "latitude": 34.365887912,
-    "longitude": -113.820090446,
-    "stateAbbreviation": "AZ",
-    "totalFlocks": 7
-  },
-  {
-    "state": "California",
-    "backyardFlocks": 39,
-    "birdsAffected": 23714012,
-    "commercialFlocks": 105,
-    "lastReportedDate": {
-      "$date": "2025-02-13T00:00:00.000Z"
+    {
+        "state": "California",
+        "backyardFlocks": 39,
+        "birdsAffected": 23714012,
+        "commercialFlocks": 105,
+        "lastReportedDate": {
+            "$date": "2025-02-13T00:00:00.000Z"
+        },
+        "latitude": 35.990882883,
+        "longitude": -119.123136847,
+        "stateAbbreviation": "CA",
+        "totalFlocks": 144
     },
-    "latitude": 35.990882883,
-    "longitude": -119.123136847,
-    "stateAbbreviation": "CA",
-    "totalFlocks": 144
-  },
-  {
-    "state": "Colorado",
-    "backyardFlocks": 33,
-    "birdsAffected": 9735762,
-    "commercialFlocks": 12,
-    "lastReportedDate": {
-      "$date": "2025-02-12T00:00:00.000Z"
+    {
+        "state": "Colorado",
+        "backyardFlocks": 33,
+        "birdsAffected": 9735762,
+        "commercialFlocks": 12,
+        "lastReportedDate": {
+            "$date": "2025-02-12T00:00:00.000Z"
+        },
+        "latitude": 39.027173313,
+        "longitude": -104.724048702,
+        "stateAbbreviation": "CO",
+        "totalFlocks": 45
     },
-    "latitude": 39.027173313,
-    "longitude": -104.724048702,
-    "stateAbbreviation": "CO",
-    "totalFlocks": 45
-  },
-  {
-    "state": "Connecticut",
-    "backyardFlocks": 5,
-    "birdsAffected": 280,
-    "commercialFlocks": 0,
-    "lastReportedDate": {
-      "$date": "2025-02-06T00:00:00.000Z"
+    {
+        "state": "Connecticut",
+        "backyardFlocks": 5,
+        "birdsAffected": 280,
+        "commercialFlocks": 0,
+        "lastReportedDate": {
+            "$date": "2025-02-06T00:00:00.000Z"
+        },
+        "latitude": 41.425363885,
+        "longitude": -72.838687412,
+        "stateAbbreviation": "CT",
+        "totalFlocks": 5
     },
-    "latitude": 41.425363885,
-    "longitude": -72.838687412,
-    "stateAbbreviation": "CT",
-    "totalFlocks": 5
-  },
-  {
-    "state": "Delaware",
-    "backyardFlocks": 3,
-    "birdsAffected": 1904270,
-    "commercialFlocks": 6,
-    "lastReportedDate": {
-      "$date": "2025-02-13T00:00:00.000Z"
+    {
+        "state": "Delaware",
+        "backyardFlocks": 3,
+        "birdsAffected": 1904270,
+        "commercialFlocks": 6,
+        "lastReportedDate": {
+            "$date": "2025-02-13T00:00:00.000Z"
+        },
+        "latitude": 39.250823396,
+        "longitude": -75.510880913,
+        "stateAbbreviation": "DE",
+        "totalFlocks": 9
     },
-    "latitude": 39.250823396,
-    "longitude": -75.510880913,
-    "stateAbbreviation": "DE",
-    "totalFlocks": 9
-  },
-  {
-    "state": "Florida",
-    "backyardFlocks": 46,
-    "birdsAffected": 15982,
-    "commercialFlocks": 0,
-    "lastReportedDate": {
-      "$date": "2025-02-21T00:00:00.000Z"
+    {
+        "state": "Florida",
+        "backyardFlocks": 46,
+        "birdsAffected": 15982,
+        "commercialFlocks": 0,
+        "lastReportedDate": {
+            "$date": "2025-02-21T00:00:00.000Z"
+        },
+        "latitude": 28.829148699,
+        "longitude": -83.294855221,
+        "stateAbbreviation": "FL",
+        "totalFlocks": 46
     },
-    "latitude": 28.829148699,
-    "longitude": -83.294855221,
-    "stateAbbreviation": "FL",
-    "totalFlocks": 46
-  },
-  {
-    "state": "Georgia",
-    "backyardFlocks": 3,
-    "birdsAffected": 206480,
-    "commercialFlocks": 3,
-    "lastReportedDate": {
-      "$date": "2025-01-21T00:00:00.000Z"
+    {
+        "state": "Georgia",
+        "backyardFlocks": 3,
+        "birdsAffected": 206480,
+        "commercialFlocks": 3,
+        "lastReportedDate": {
+            "$date": "2025-01-21T00:00:00.000Z"
+        },
+        "latitude": 32.694567486,
+        "longitude": -82.545612169,
+        "stateAbbreviation": "GA",
+        "totalFlocks": 6
     },
-    "latitude": 32.694567486,
-    "longitude": -82.545612169,
-    "stateAbbreviation": "GA",
-    "totalFlocks": 6
-  },
-  {
-    "state": "Hawaii",
-    "backyardFlocks": 2,
-    "birdsAffected": 79,
-    "commercialFlocks": 0,
-    "lastReportedDate": {
-      "$date": "2024-11-18T00:00:00.000Z"
+    {
+        "state": "Hawaii",
+        "backyardFlocks": 2,
+        "birdsAffected": 79,
+        "commercialFlocks": 0,
+        "lastReportedDate": {
+            "$date": "2024-11-18T00:00:00.000Z"
+        },
+        "latitude": 25.796043332,
+        "longitude": -107.035603149,
+        "stateAbbreviation": "HI",
+        "totalFlocks": 2
     },
-    "latitude": 25.796043332,
-    "longitude": -107.035603149,
-    "stateAbbreviation": "HI",
-    "totalFlocks": 2
-  },
-  {
-    "state": "Iowa",
-    "backyardFlocks": 22,
-    "birdsAffected": 30255524,
-    "commercialFlocks": 44,
-    "lastReportedDate": {
-      "$date": "2025-02-20T00:00:00.000Z"
+    {
+        "state": "Iowa",
+        "backyardFlocks": 22,
+        "birdsAffected": 30255524,
+        "commercialFlocks": 44,
+        "lastReportedDate": {
+            "$date": "2025-02-20T00:00:00.000Z"
+        },
+        "latitude": 42.021093637,
+        "longitude": -93.803460366,
+        "stateAbbreviation": "IA",
+        "totalFlocks": 66
     },
-    "latitude": 42.021093637,
-    "longitude": -93.803460366,
-    "stateAbbreviation": "IA",
-    "totalFlocks": 66
-  },
-  {
-    "state": "Idaho",
-    "backyardFlocks": 58,
-    "birdsAffected": 13787,
-    "commercialFlocks": 1,
-    "lastReportedDate": {
-      "$date": "2025-01-30T00:00:00.000Z"
+    {
+        "state": "Idaho",
+        "backyardFlocks": 58,
+        "birdsAffected": 13787,
+        "commercialFlocks": 1,
+        "lastReportedDate": {
+            "$date": "2025-01-30T00:00:00.000Z"
+        },
+        "latitude": 45.302660786,
+        "longitude": -114.995770671,
+        "stateAbbreviation": "ID",
+        "totalFlocks": 59
     },
-    "latitude": 45.302660786,
-    "longitude": -114.995770671,
-    "stateAbbreviation": "ID",
-    "totalFlocks": 59
-  },
-  {
-    "state": "Illinois",
-    "backyardFlocks": 8,
-    "birdsAffected": 115210,
-    "commercialFlocks": 3,
-    "lastReportedDate": {
-      "$date": "2025-01-22T00:00:00.000Z"
+    {
+        "state": "Illinois",
+        "backyardFlocks": 8,
+        "birdsAffected": 115210,
+        "commercialFlocks": 3,
+        "lastReportedDate": {
+            "$date": "2025-01-22T00:00:00.000Z"
+        },
+        "latitude": 39.485949202,
+        "longitude": -89.555784485,
+        "stateAbbreviation": "IL",
+        "totalFlocks": 11
     },
-    "latitude": 39.485949202,
-    "longitude": -89.555784485,
-    "stateAbbreviation": "IL",
-    "totalFlocks": 11
-  },
-  {
-    "state": "Indiana",
-    "backyardFlocks": 10,
-    "birdsAffected": 6915957,
-    "commercialFlocks": 22,
-    "lastReportedDate": {
-      "$date": "2025-02-21T00:00:00.000Z"
+    {
+        "state": "Indiana",
+        "backyardFlocks": 10,
+        "birdsAffected": 6915957,
+        "commercialFlocks": 22,
+        "lastReportedDate": {
+            "$date": "2025-02-21T00:00:00.000Z"
+        },
+        "latitude": 38.982642957,
+        "longitude": -86.593510183,
+        "stateAbbreviation": "IN",
+        "totalFlocks": 32
     },
-    "latitude": 38.982642957,
-    "longitude": -86.593510183,
-    "stateAbbreviation": "IN",
-    "totalFlocks": 32
-  },
-  {
-    "state": "Kansas",
-    "backyardFlocks": 29,
-    "birdsAffected": 1895112,
-    "commercialFlocks": 13,
-    "lastReportedDate": {
-      "$date": "2025-02-04T00:00:00.000Z"
+    {
+        "state": "Kansas",
+        "backyardFlocks": 29,
+        "birdsAffected": 1895112,
+        "commercialFlocks": 13,
+        "lastReportedDate": {
+            "$date": "2025-02-04T00:00:00.000Z"
+        },
+        "latitude": 38.780395518,
+        "longitude": -97.028309113,
+        "stateAbbreviation": "KS",
+        "totalFlocks": 42
     },
-    "latitude": 38.780395518,
-    "longitude": -97.028309113,
-    "stateAbbreviation": "KS",
-    "totalFlocks": 42
-  },
-  {
-    "state": "Kentucky",
-    "backyardFlocks": 2,
-    "birdsAffected": 285040,
-    "commercialFlocks": 2,
-    "lastReportedDate": {
-      "$date": "2022-10-11T00:00:00.000Z"
+    {
+        "state": "Kentucky",
+        "backyardFlocks": 2,
+        "birdsAffected": 285040,
+        "commercialFlocks": 2,
+        "lastReportedDate": {
+            "$date": "2022-10-11T00:00:00.000Z"
+        },
+        "latitude": 37.717808582,
+        "longitude": -85.360227477,
+        "stateAbbreviation": "KY",
+        "totalFlocks": 4
     },
-    "latitude": 37.717808582,
-    "longitude": -85.360227477,
-    "stateAbbreviation": "KY",
-    "totalFlocks": 4
-  },
-  {
-    "state": "Louisiana",
-    "backyardFlocks": 3,
-    "birdsAffected": 80,
-    "commercialFlocks": 0,
-    "lastReportedDate": {
-      "$date": "2025-02-07T00:00:00.000Z"
+    {
+        "state": "Louisiana",
+        "backyardFlocks": 3,
+        "birdsAffected": 80,
+        "commercialFlocks": 0,
+        "lastReportedDate": {
+            "$date": "2025-02-07T00:00:00.000Z"
+        },
+        "latitude": 30.919146696,
+        "longitude": -91.188012389,
+        "stateAbbreviation": "LA",
+        "totalFlocks": 3
     },
-    "latitude": 30.919146696,
-    "longitude": -91.188012389,
-    "stateAbbreviation": "LA",
-    "totalFlocks": 3
-  },
-  {
-    "state": "Massachusetts",
-    "backyardFlocks": 7,
-    "birdsAffected": 600,
-    "commercialFlocks": 0,
-    "lastReportedDate": {
-      "$date": "2025-01-24T00:00:00.000Z"
+    {
+        "state": "Massachusetts",
+        "backyardFlocks": 7,
+        "birdsAffected": 600,
+        "commercialFlocks": 0,
+        "lastReportedDate": {
+            "$date": "2025-01-24T00:00:00.000Z"
+        },
+        "latitude": 41.952497548,
+        "longitude": -70.945832965,
+        "stateAbbreviation": "MA",
+        "totalFlocks": 7
     },
-    "latitude": 41.952497548,
-    "longitude": -70.945832965,
-    "stateAbbreviation": "MA",
-    "totalFlocks": 7
-  },
-  {
-    "state": "Maryland",
-    "backyardFlocks": 3,
-    "birdsAffected": 2808744,
-    "commercialFlocks": 11,
-    "lastReportedDate": {
-      "$date": "2025-02-04T00:00:00.000Z"
+    {
+        "state": "Maryland",
+        "backyardFlocks": 3,
+        "birdsAffected": 2808744,
+        "commercialFlocks": 11,
+        "lastReportedDate": {
+            "$date": "2025-02-04T00:00:00.000Z"
+        },
+        "latitude": 38.987243948,
+        "longitude": -77.024711723,
+        "stateAbbreviation": "MD",
+        "totalFlocks": 14
     },
-    "latitude": 38.987243948,
-    "longitude": -77.024711723,
-    "stateAbbreviation": "MD",
-    "totalFlocks": 14
-  },
-  {
-    "state": "Maine",
-    "backyardFlocks": 21,
-    "birdsAffected": 1333,
-    "commercialFlocks": 0,
-    "lastReportedDate": {
-      "$date": "2025-02-20T00:00:00.000Z"
+    {
+        "state": "Maine",
+        "backyardFlocks": 21,
+        "birdsAffected": 1333,
+        "commercialFlocks": 0,
+        "lastReportedDate": {
+            "$date": "2025-02-20T00:00:00.000Z"
+        },
+        "latitude": 44.997116304,
+        "longitude": -69.109332742,
+        "stateAbbreviation": "ME",
+        "totalFlocks": 21
     },
-    "latitude": 44.997116304,
-    "longitude": -69.109332742,
-    "stateAbbreviation": "ME",
-    "totalFlocks": 21
-  },
-  {
-    "state": "Michigan",
-    "backyardFlocks": 31,
-    "birdsAffected": 7185957,
-    "commercialFlocks": 16,
-    "lastReportedDate": {
-      "$date": "2025-02-13T00:00:00.000Z"
+    {
+        "state": "Michigan",
+        "backyardFlocks": 31,
+        "birdsAffected": 7185957,
+        "commercialFlocks": 16,
+        "lastReportedDate": {
+            "$date": "2025-02-13T00:00:00.000Z"
+        },
+        "latitude": 45.313945856,
+        "longitude": -85.808139703,
+        "stateAbbreviation": "MI",
+        "totalFlocks": 47
     },
-    "latitude": 45.313945856,
-    "longitude": -85.808139703,
-    "stateAbbreviation": "MI",
-    "totalFlocks": 47
-  },
-  {
-    "state": "Minnesota",
-    "backyardFlocks": 44,
-    "birdsAffected": 9120019,
-    "commercialFlocks": 141,
-    "lastReportedDate": {
-      "$date": "2025-02-12T00:00:00.000Z"
+    {
+        "state": "Minnesota",
+        "backyardFlocks": 44,
+        "birdsAffected": 9120019,
+        "commercialFlocks": 141,
+        "lastReportedDate": {
+            "$date": "2025-02-12T00:00:00.000Z"
+        },
+        "latitude": 46.898567503,
+        "longitude": -94.24849362,
+        "stateAbbreviation": "MN",
+        "totalFlocks": 185
     },
-    "latitude": 46.898567503,
-    "longitude": -94.24849362,
-    "stateAbbreviation": "MN",
-    "totalFlocks": 185
-  },
-  {
-    "state": "Missouri",
-    "backyardFlocks": 24,
-    "birdsAffected": 5109599,
-    "commercialFlocks": 35,
-    "lastReportedDate": {
-      "$date": "2025-02-12T00:00:00.000Z"
+    {
+        "state": "Missouri",
+        "backyardFlocks": 24,
+        "birdsAffected": 5109599,
+        "commercialFlocks": 35,
+        "lastReportedDate": {
+            "$date": "2025-02-12T00:00:00.000Z"
+        },
+        "latitude": 38.573255503,
+        "longitude": -92.134800041,
+        "stateAbbreviation": "MO",
+        "totalFlocks": 59
     },
-    "latitude": 38.573255503,
-    "longitude": -92.134800041,
-    "stateAbbreviation": "MO",
-    "totalFlocks": 59
-  },
-  {
-    "state": "Mississippi",
-    "backyardFlocks": 3,
-    "birdsAffected": 360288,
-    "commercialFlocks": 4,
-    "lastReportedDate": {
-      "$date": "2024-12-30T00:00:00.000Z"
+    {
+        "state": "Mississippi",
+        "backyardFlocks": 3,
+        "birdsAffected": 360288,
+        "commercialFlocks": 4,
+        "lastReportedDate": {
+            "$date": "2024-12-30T00:00:00.000Z"
+        },
+        "latitude": 32.169952154,
+        "longitude": -90.359162209,
+        "stateAbbreviation": "MS",
+        "totalFlocks": 7
     },
-    "latitude": 32.169952154,
-    "longitude": -90.359162209,
-    "stateAbbreviation": "MS",
-    "totalFlocks": 7
-  },
-  {
-    "state": "Montana",
-    "backyardFlocks": 28,
-    "birdsAffected": 164477,
-    "commercialFlocks": 0,
-    "lastReportedDate": {
-      "$date": "2024-11-12T00:00:00.000Z"
+    {
+        "state": "Montana",
+        "backyardFlocks": 28,
+        "birdsAffected": 164477,
+        "commercialFlocks": 0,
+        "lastReportedDate": {
+            "$date": "2024-11-12T00:00:00.000Z"
+        },
+        "latitude": 46.320554141,
+        "longitude": -111.763606891,
+        "stateAbbreviation": "MT",
+        "totalFlocks": 28
     },
-    "latitude": 46.320554141,
-    "longitude": -111.763606891,
-    "stateAbbreviation": "MT",
-    "totalFlocks": 28
-  },
-  {
-    "state": "North Carolina",
-    "backyardFlocks": 8,
-    "birdsAffected": 3876031,
-    "commercialFlocks": 14,
-    "lastReportedDate": {
-      "$date": "2025-01-28T00:00:00.000Z"
+    {
+        "state": "North Carolina",
+        "backyardFlocks": 8,
+        "birdsAffected": 3876031,
+        "commercialFlocks": 14,
+        "lastReportedDate": {
+            "$date": "2025-01-28T00:00:00.000Z"
+        },
+        "latitude": 35.668521511,
+        "longitude": -79.887874722,
+        "stateAbbreviation": "NC",
+        "totalFlocks": 22
     },
-    "latitude": 35.668521511,
-    "longitude": -79.887874722,
-    "stateAbbreviation": "NC",
-    "totalFlocks": 22
-  },
-  {
-    "state": "North Dakota",
-    "backyardFlocks": 29,
-    "birdsAffected": 440646,
-    "commercialFlocks": 9,
-    "lastReportedDate": {
-      "$date": "2024-12-18T00:00:00.000Z"
+    {
+        "state": "North Dakota",
+        "backyardFlocks": 29,
+        "birdsAffected": 440646,
+        "commercialFlocks": 9,
+        "lastReportedDate": {
+            "$date": "2024-12-18T00:00:00.000Z"
+        },
+        "latitude": 47.387464625,
+        "longitude": -98.032345431,
+        "stateAbbreviation": "ND",
+        "totalFlocks": 38
     },
-    "latitude": 47.387464625,
-    "longitude": -98.032345431,
-    "stateAbbreviation": "ND",
-    "totalFlocks": 38
-  },
-  {
-    "state": "Nebraska",
-    "backyardFlocks": 19,
-    "birdsAffected": 7052867,
-    "commercialFlocks": 10,
-    "lastReportedDate": {
-      "$date": "2025-02-14T00:00:00.000Z"
+    {
+        "state": "Nebraska",
+        "backyardFlocks": 19,
+        "birdsAffected": 7052867,
+        "commercialFlocks": 10,
+        "lastReportedDate": {
+            "$date": "2025-02-14T00:00:00.000Z"
+        },
+        "latitude": 41.530382216,
+        "longitude": -97.777590381,
+        "stateAbbreviation": "NE",
+        "totalFlocks": 29
     },
-    "latitude": 41.530382216,
-    "longitude": -97.777590381,
-    "stateAbbreviation": "NE",
-    "totalFlocks": 29
-  },
-  {
-    "state": "New Hampshire",
-    "backyardFlocks": 3,
-    "birdsAffected": 440,
-    "commercialFlocks": 0,
-    "lastReportedDate": {
-      "$date": "2023-01-23T00:00:00.000Z"
+    {
+        "state": "New Hampshire",
+        "backyardFlocks": 3,
+        "birdsAffected": 440,
+        "commercialFlocks": 0,
+        "lastReportedDate": {
+            "$date": "2023-01-23T00:00:00.000Z"
+        },
+        "latitude": 43.976054342,
+        "longitude": -71.648830101,
+        "stateAbbreviation": "NH",
+        "totalFlocks": 3
     },
-    "latitude": 43.976054342,
-    "longitude": -71.648830101,
-    "stateAbbreviation": "NH",
-    "totalFlocks": 3
-  },
-  {
-    "state": "New Jersey",
-    "backyardFlocks": 6,
-    "birdsAffected": 1556,
-    "commercialFlocks": 0,
-    "lastReportedDate": {
-      "$date": "2025-02-22T00:00:00.000Z"
+    {
+        "state": "New Jersey",
+        "backyardFlocks": 6,
+        "birdsAffected": 1556,
+        "commercialFlocks": 0,
+        "lastReportedDate": {
+            "$date": "2025-02-22T00:00:00.000Z"
+        },
+        "latitude": 40.309552565,
+        "longitude": -74.866423729,
+        "stateAbbreviation": "NJ",
+        "totalFlocks": 6
     },
-    "latitude": 40.309552565,
-    "longitude": -74.866423729,
-    "stateAbbreviation": "NJ",
-    "totalFlocks": 6
-  },
-  {
-    "state": "New Mexico",
-    "backyardFlocks": 2,
-    "birdsAffected": 129260,
-    "commercialFlocks": 3,
-    "lastReportedDate": {
-      "$date": "2024-04-17T00:00:00.000Z"
+    {
+        "state": "New Mexico",
+        "backyardFlocks": 2,
+        "birdsAffected": 129260,
+        "commercialFlocks": 3,
+        "lastReportedDate": {
+            "$date": "2024-04-17T00:00:00.000Z"
+        },
+        "latitude": 33.826614599,
+        "longitude": -105.748708663,
+        "stateAbbreviation": "NM",
+        "totalFlocks": 5
     },
-    "latitude": 33.826614599,
-    "longitude": -105.748708663,
-    "stateAbbreviation": "NM",
-    "totalFlocks": 5
-  },
-  {
-    "state": "Nevada",
-    "backyardFlocks": 4,
-    "birdsAffected": 1680,
-    "commercialFlocks": 0,
-    "lastReportedDate": {
-      "$date": "2025-02-18T00:00:00.000Z"
+    {
+        "state": "Nevada",
+        "backyardFlocks": 4,
+        "birdsAffected": 1680,
+        "commercialFlocks": 0,
+        "lastReportedDate": {
+            "$date": "2025-02-18T00:00:00.000Z"
+        },
+        "latitude": 38.028360103,
+        "longitude": -115.725369424,
+        "stateAbbreviation": "NV",
+        "totalFlocks": 4
     },
-    "latitude": 38.028360103,
-    "longitude": -115.725369424,
-    "stateAbbreviation": "NV",
-    "totalFlocks": 4
-  },
-  {
-    "state": "New York",
-    "backyardFlocks": 35,
-    "birdsAffected": 128252,
-    "commercialFlocks": 2,
-    "lastReportedDate": {
-      "$date": "2025-02-21T00:00:00.000Z"
+    {
+        "state": "New York",
+        "backyardFlocks": 35,
+        "birdsAffected": 128252,
+        "commercialFlocks": 2,
+        "lastReportedDate": {
+            "$date": "2025-02-21T00:00:00.000Z"
+        },
+        "latitude": 42.491043484,
+        "longitude": -74.647831396,
+        "stateAbbreviation": "NY",
+        "totalFlocks": 37
     },
-    "latitude": 42.491043484,
-    "longitude": -74.647831396,
-    "stateAbbreviation": "NY",
-    "totalFlocks": 37
-  },
-  {
-    "state": "Ohio",
-    "backyardFlocks": 13,
-    "birdsAffected": 25037836,
-    "commercialFlocks": 75,
-    "lastReportedDate": {
-      "$date": "2025-02-25T00:00:00.000Z"
+    {
+        "state": "Ohio",
+        "backyardFlocks": 13,
+        "birdsAffected": 25037836,
+        "commercialFlocks": 75,
+        "lastReportedDate": {
+            "$date": "2025-02-25T00:00:00.000Z"
+        },
+        "latitude": 39.828294059,
+        "longitude": -82.398334111,
+        "stateAbbreviation": "OH",
+        "totalFlocks": 88
     },
-    "latitude": 39.828294059,
-    "longitude": -82.398334111,
-    "stateAbbreviation": "OH",
-    "totalFlocks": 88
-  },
-  {
-    "state": "Oklahoma",
-    "backyardFlocks": 10,
-    "birdsAffected": 244320,
-    "commercialFlocks": 4,
-    "lastReportedDate": {
-      "$date": "2024-12-24T00:00:00.000Z"
+    {
+        "state": "Oklahoma",
+        "backyardFlocks": 10,
+        "birdsAffected": 244320,
+        "commercialFlocks": 4,
+        "lastReportedDate": {
+            "$date": "2024-12-24T00:00:00.000Z"
+        },
+        "latitude": 34.758001045,
+        "longitude": -97.274606256,
+        "stateAbbreviation": "OK",
+        "totalFlocks": 14
     },
-    "latitude": 34.758001045,
-    "longitude": -97.274606256,
-    "stateAbbreviation": "OK",
-    "totalFlocks": 14
-  },
-  {
-    "state": "Oregon",
-    "backyardFlocks": 45,
-    "birdsAffected": 907209,
-    "commercialFlocks": 3,
-    "lastReportedDate": {
-      "$date": "2025-02-03T00:00:00.000Z"
+    {
+        "state": "Oregon",
+        "backyardFlocks": 45,
+        "birdsAffected": 907209,
+        "commercialFlocks": 3,
+        "lastReportedDate": {
+            "$date": "2025-02-03T00:00:00.000Z"
+        },
+        "latitude": 44.590367254,
+        "longitude": -120.167975394,
+        "stateAbbreviation": "OR",
+        "totalFlocks": 48
     },
-    "latitude": 44.590367254,
-    "longitude": -120.167975394,
-    "stateAbbreviation": "OR",
-    "totalFlocks": 48
-  },
-  {
-    "state": "Pennsylvania",
-    "backyardFlocks": 48,
-    "birdsAffected": 7093220,
-    "commercialFlocks": 39,
-    "lastReportedDate": {
-      "$date": "2025-02-24T00:00:00.000Z"
+    {
+        "state": "Pennsylvania",
+        "backyardFlocks": 48,
+        "birdsAffected": 7093220,
+        "commercialFlocks": 39,
+        "lastReportedDate": {
+            "$date": "2025-02-24T00:00:00.000Z"
+        },
+        "latitude": 40.997738614,
+        "longitude": -76.193000245,
+        "stateAbbreviation": "PA",
+        "totalFlocks": 87
     },
-    "latitude": 40.997738614,
-    "longitude": -76.193000245,
-    "stateAbbreviation": "PA",
-    "totalFlocks": 87
-  },
-  {
-    "state": "Puerto Rico",
-    "backyardFlocks": 1,
-    "birdsAffected": 380,
-    "commercialFlocks": 0,
-    "lastReportedDate": {
-      "$date": "2025-01-13T00:00:00.000Z"
+    {
+        "state": "Puerto Rico",
+        "backyardFlocks": 1,
+        "birdsAffected": 380,
+        "commercialFlocks": 0,
+        "lastReportedDate": {
+            "$date": "2025-01-13T00:00:00.000Z"
+        },
+        "latitude": 21.400413152,
+        "longitude": -80.693731098,
+        "stateAbbreviation": "PR",
+        "totalFlocks": 1
     },
-    "latitude": 21.400413152,
-    "longitude": -80.693731098,
-    "stateAbbreviation": "PR",
-    "totalFlocks": 1
-  },
-  {
-    "state": "Rhode Island",
-    "backyardFlocks": 2,
-    "birdsAffected": 110,
-    "commercialFlocks": 0,
-    "lastReportedDate": {
-      "$date": "2025-01-24T00:00:00.000Z"
+    {
+        "state": "Rhode Island",
+        "backyardFlocks": 2,
+        "birdsAffected": 110,
+        "commercialFlocks": 0,
+        "lastReportedDate": {
+            "$date": "2025-01-24T00:00:00.000Z"
+        },
+        "latitude": 41.614917577,
+        "longitude": -71.396126933,
+        "stateAbbreviation": "RI",
+        "totalFlocks": 2
     },
-    "latitude": 41.614917577,
-    "longitude": -71.396126933,
-    "stateAbbreviation": "RI",
-    "totalFlocks": 2
-  },
-  {
-    "state": "South Carolina",
-    "backyardFlocks": 4,
-    "birdsAffected": 1350,
-    "commercialFlocks": 1,
-    "lastReportedDate": {
-      "$date": "2024-12-31T00:00:00.000Z"
+    {
+        "state": "South Carolina",
+        "backyardFlocks": 4,
+        "birdsAffected": 1350,
+        "commercialFlocks": 1,
+        "lastReportedDate": {
+            "$date": "2024-12-31T00:00:00.000Z"
+        },
+        "latitude": 33.789224776,
+        "longitude": -81.68267352,
+        "stateAbbreviation": "SC",
+        "totalFlocks": 5
     },
-    "latitude": 33.789224776,
-    "longitude": -81.68267352,
-    "stateAbbreviation": "SC",
-    "totalFlocks": 5
-  },
-  {
-    "state": "South Dakota",
-    "backyardFlocks": 26,
-    "birdsAffected": 6101690,
-    "commercialFlocks": 114,
-    "lastReportedDate": {
-      "$date": "2025-02-11T00:00:00.000Z"
+    {
+        "state": "South Dakota",
+        "backyardFlocks": 26,
+        "birdsAffected": 6101690,
+        "commercialFlocks": 114,
+        "lastReportedDate": {
+            "$date": "2025-02-11T00:00:00.000Z"
+        },
+        "latitude": 43.909435958,
+        "longitude": -98.175625231,
+        "stateAbbreviation": "SD",
+        "totalFlocks": 140
     },
-    "latitude": 43.909435958,
-    "longitude": -98.175625231,
-    "stateAbbreviation": "SD",
-    "totalFlocks": 140
-  },
-  {
-    "state": "Tennessee",
-    "backyardFlocks": 8,
-    "birdsAffected": 456070,
-    "commercialFlocks": 5,
-    "lastReportedDate": {
-      "$date": "2025-01-16T00:00:00.000Z"
+    {
+        "state": "Tennessee",
+        "backyardFlocks": 8,
+        "birdsAffected": 456070,
+        "commercialFlocks": 5,
+        "lastReportedDate": {
+            "$date": "2025-01-16T00:00:00.000Z"
+        },
+        "latitude": 35.901700026,
+        "longitude": -85.514510149,
+        "stateAbbreviation": "TN",
+        "totalFlocks": 13
     },
-    "latitude": 35.901700026,
-    "longitude": -85.514510149,
-    "stateAbbreviation": "TN",
-    "totalFlocks": 13
-  },
-  {
-    "state": "Texas",
-    "backyardFlocks": 12,
-    "birdsAffected": 1896610,
-    "commercialFlocks": 2,
-    "lastReportedDate": {
-      "$date": "2025-01-09T00:00:00.000Z"
+    {
+        "state": "Texas",
+        "backyardFlocks": 12,
+        "birdsAffected": 1896610,
+        "commercialFlocks": 2,
+        "lastReportedDate": {
+            "$date": "2025-01-09T00:00:00.000Z"
+        },
+        "latitude": 31.130374443,
+        "longitude": -98.634638824,
+        "stateAbbreviation": "TX",
+        "totalFlocks": 14
     },
-    "latitude": 31.130374443,
-    "longitude": -98.634638824,
-    "stateAbbreviation": "TX",
-    "totalFlocks": 14
-  },
-  {
-    "state": "Utah",
-    "backyardFlocks": 12,
-    "birdsAffected": 4361177,
-    "commercialFlocks": 26,
-    "lastReportedDate": {
-      "$date": "2024-12-03T00:00:00.000Z"
+    {
+        "state": "Utah",
+        "backyardFlocks": 12,
+        "birdsAffected": 4361177,
+        "commercialFlocks": 26,
+        "lastReportedDate": {
+            "$date": "2024-12-03T00:00:00.000Z"
+        },
+        "latitude": 39.395267158,
+        "longitude": -111.658823339,
+        "stateAbbreviation": "UT",
+        "totalFlocks": 38
     },
-    "latitude": 39.395267158,
-    "longitude": -111.658823339,
-    "stateAbbreviation": "UT",
-    "totalFlocks": 38
-  },
-  {
-    "state": "Virginia",
-    "backyardFlocks": 9,
-    "birdsAffected": 479160,
-    "commercialFlocks": 3,
-    "lastReportedDate": {
-      "$date": "2025-01-31T00:00:00.000Z"
+    {
+        "state": "Virginia",
+        "backyardFlocks": 9,
+        "birdsAffected": 479160,
+        "commercialFlocks": 3,
+        "lastReportedDate": {
+            "$date": "2025-01-31T00:00:00.000Z"
+        },
+        "latitude": 37.79391517,
+        "longitude": -79.205633673,
+        "stateAbbreviation": "VA",
+        "totalFlocks": 12
     },
-    "latitude": 37.79391517,
-    "longitude": -79.205633673,
-    "stateAbbreviation": "VA",
-    "totalFlocks": 12
-  },
-  {
-    "state": "Vermont",
-    "backyardFlocks": 5,
-    "birdsAffected": 160,
-    "commercialFlocks": 0,
-    "lastReportedDate": {
-      "$date": "2025-01-24T00:00:00.000Z"
+    {
+        "state": "Vermont",
+        "backyardFlocks": 5,
+        "birdsAffected": 160,
+        "commercialFlocks": 0,
+        "lastReportedDate": {
+            "$date": "2025-01-24T00:00:00.000Z"
+        },
+        "latitude": 44.044748865,
+        "longitude": -72.482552014,
+        "stateAbbreviation": "VT",
+        "totalFlocks": 5
     },
-    "latitude": 44.044748865,
-    "longitude": -72.482552014,
-    "stateAbbreviation": "VT",
-    "totalFlocks": 5
-  },
-  {
-    "state": "Washington",
-    "backyardFlocks": 52,
-    "birdsAffected": 2167079,
-    "commercialFlocks": 3,
-    "lastReportedDate": {
-      "$date": "2025-02-10T00:00:00.000Z"
+    {
+        "state": "Washington",
+        "backyardFlocks": 52,
+        "birdsAffected": 2167079,
+        "commercialFlocks": 3,
+        "lastReportedDate": {
+            "$date": "2025-02-10T00:00:00.000Z"
+        },
+        "latitude": 47.556837171,
+        "longitude": -122.16233971,
+        "stateAbbreviation": "WA",
+        "totalFlocks": 55
     },
-    "latitude": 47.556837171,
-    "longitude": -122.16233971,
-    "stateAbbreviation": "WA",
-    "totalFlocks": 55
-  },
-  {
-    "state": "Wisconsin",
-    "backyardFlocks": 20,
-    "birdsAffected": 3685424,
-    "commercialFlocks": 19,
-    "lastReportedDate": {
-      "$date": "2024-12-27T00:00:00.000Z"
+    {
+        "state": "Wisconsin",
+        "backyardFlocks": 20,
+        "birdsAffected": 3685424,
+        "commercialFlocks": 19,
+        "lastReportedDate": {
+            "$date": "2024-12-27T00:00:00.000Z"
+        },
+        "latitude": 44.947205162,
+        "longitude": -90.336235388,
+        "stateAbbreviation": "WI",
+        "totalFlocks": 39
     },
-    "latitude": 44.947205162,
-    "longitude": -90.336235388,
-    "stateAbbreviation": "WI",
-    "totalFlocks": 39
-  },
-  {
-    "state": "West Virginia",
-    "backyardFlocks": 2,
-    "birdsAffected": 259,
-    "commercialFlocks": 0,
-    "lastReportedDate": {
-      "$date": "2025-01-03T00:00:00.000Z"
+    {
+        "state": "West Virginia",
+        "backyardFlocks": 2,
+        "birdsAffected": 259,
+        "commercialFlocks": 0,
+        "lastReportedDate": {
+            "$date": "2025-01-03T00:00:00.000Z"
+        },
+        "latitude": 38.730865435,
+        "longitude": -80.30383947,
+        "stateAbbreviation": "WV",
+        "totalFlocks": 2
     },
-    "latitude": 38.730865435,
-    "longitude": -80.30383947,
-    "stateAbbreviation": "WV",
-    "totalFlocks": 2
-  },
-  {
-    "state": "Wyoming",
-    "backyardFlocks": 14,
-    "birdsAffected": 450,
-    "commercialFlocks": 0,
-    "lastReportedDate": {
-      "$date": "2025-02-12T00:00:00.000Z"
-    },
-    "latitude": 43.061530011,
-    "longitude": -107.424921299,
-    "stateAbbreviation": "WY",
-    "totalFlocks": 14
-  }
+    {
+        "state": "Wyoming",
+        "backyardFlocks": 14,
+        "birdsAffected": 450,
+        "commercialFlocks": 0,
+        "lastReportedDate": {
+            "$date": "2025-02-12T00:00:00.000Z"
+        },
+        "latitude": 43.061530011,
+        "longitude": -107.424921299,
+        "stateAbbreviation": "WY",
+        "totalFlocks": 14
+    }
 ]

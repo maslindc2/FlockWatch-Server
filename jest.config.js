@@ -2,11 +2,9 @@
 module.exports = {
     preset: "ts-jest",
     testEnvironment: "node",
-    testPathIgnorePatterns: [
-        "src/utils/"
-    ],
+    testPathIgnorePatterns: ["src/utils/"],
     transform: {
         "^.+.tsx?$": ["ts-jest", {}],
     },
-    setupFiles: []
+    setupFiles: [],
 };

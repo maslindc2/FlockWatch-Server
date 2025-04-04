@@ -28,7 +28,7 @@ describe("FlockCasesByStateService", () => {
 
     it("should return expected mock data", async () => {
         const mockData: IFlockCasesByState[] = [
-            {   
+            {
                 stateAbbreviation: "PA",
                 state: "Pennsylvania",
                 backyardFlocks: 2344370,

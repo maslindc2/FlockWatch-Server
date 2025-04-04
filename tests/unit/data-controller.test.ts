@@ -112,7 +112,7 @@ describe("DataController", () => {
                 },
                 authID: {
                     $string: crypto.randomUUID,
-                }
+                },
             }),
         ];
         jest.spyOn(

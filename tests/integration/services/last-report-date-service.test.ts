@@ -24,39 +24,42 @@ describe("LastReportDateService Integration", () => {
     });
 
     it("should initialize the database with a new data entry", async () => {
-        
         const expectedModelObj = {
             lastScrapedDate: expect.any(Date),
             updateFrequency: expect.any(Number),
             authID: expect.any(String),
-        }
+        };
 
         // Initialize the database like it would on startup
-        const createdRecord = await lastReportDateService.initializeLastReportDate();
+        const createdRecord =
+            await lastReportDateService.initializeLastReportDate();
 
         // Now our state data from our DB should equal our flockData that we made earlier
         //expect(stripProxiedObject(record)).toBe(ILastReportDate);
         expect(createdRecord).toMatchObject(expectedModelObj);
-
     });
 
     it("should return the existing record in the database if initialize was called twice", async () => {
         const modelSpy = jest.spyOn(LastReportDateModel.getModel, "findOne");
-        
+
         // Initialize the database with our first call
-        const initialRecord = await lastReportDateService.initializeLastReportDate();
-        
+        const initialRecord =
+            await lastReportDateService.initializeLastReportDate();
+
         // Should get back the exact same record from our database since its been initialized already
-        const existingRecord = await lastReportDateService.initializeLastReportDate();
+        const existingRecord =
+            await lastReportDateService.initializeLastReportDate();
         // Since we use Mongoose we need to strip the proxied object portion from our result
         // This is done by Stringify and then parsing.
-        const stripProxiedObject = (obj: ILastReportDate) => JSON.parse(JSON.stringify(obj));
+        const stripProxiedObject = (obj: ILastReportDate) =>
+            JSON.parse(JSON.stringify(obj));
 
         // findOne should be called twice as we are in fact calling it twice
         expect(modelSpy).toHaveBeenCalledTimes(2);
         // We should get back the exact same record that we initialized the database with
-        expect(stripProxiedObject(initialRecord)).toMatchObject(stripProxiedObject(existingRecord));
-
+        expect(stripProxiedObject(initialRecord)).toMatchObject(
+            stripProxiedObject(existingRecord)
+        );
     });
 
     afterEach(async () => {

@@ -12,21 +12,25 @@ class FlockCasesByStateService {
      * Creates or updates the current state data in MongoDB
      * @param flockData This is the array of states, each index is an object containing all the fields in IFlockCasesByState
      */
-    public async createOrUpdateStateData(flockData: IFlockCasesByState[] ) {
+    public async createOrUpdateStateData(flockData: IFlockCasesByState[]) {
         try {
-            for (const currState in flockData){
+            for (const currState in flockData) {
                 await FlockCasesByStateModel.getModel.findOneAndUpdate(
                     // Find a record matching the current state name
-                    {state: flockData[currState].state},
+                    { state: flockData[currState].state },
                     // Store the object we got from our scraping service
                     flockData[currState],
                     // Create it if it's not there already
-                    {upsert: true}
+                    { upsert: true }
                 );
-            }    
+            }
         } catch (error) {
-            logger.error(`Failed to update data for Flock Cases By State: ${error}`)
-            throw new Error(`Failed to update Model information resulted in ${error}`);
+            logger.error(
+                `Failed to update data for Flock Cases By State: ${error}`
+            );
+            throw new Error(
+                `Failed to update Model information resulted in ${error}`
+            );
         }
     }
 }

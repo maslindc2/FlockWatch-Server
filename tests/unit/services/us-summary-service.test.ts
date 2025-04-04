@@ -36,7 +36,7 @@ describe("USSummaryService Unit Tests", () => {
                 totalFlocks: 7,
                 latitude: 40.99773861,
                 longitude: -76.19300025,
-                lastReportedDate: new Date(Date.UTC(2025, 2 - 1, 5)),  
+                lastReportedDate: new Date(Date.UTC(2025, 2 - 1, 5)),
             },
         ];
 
