@@ -11,13 +11,16 @@ import { IUSSummaryStatsDocument } from "../interfaces/models/i-us-summary-stats
  * - totalCommercialFlocksNationwide created by summing the Commercial Flocks column
  */
 class USSummaryModel {
-    private static schema = new Mongoose.Schema<IUSSummaryStatsDocument>({
-        totalStatesAffected: Number,
-        totalBirdsAffectedNationwide: Number,
-        totalFlocksAffectedNationwide: Number,
-        totalBackyardFlocksNationwide: Number,
-        totalCommercialFlocksNationwide: Number,
-    });
+    private static schema = new Mongoose.Schema<IUSSummaryStatsDocument>(
+        {
+            totalStatesAffected: Number,
+            totalBirdsAffectedNationwide: Number,
+            totalFlocksAffectedNationwide: Number,
+            totalBackyardFlocksNationwide: Number,
+            totalCommercialFlocksNationwide: Number,
+        },
+        { collection: "us-summary" }
+    );
     public static getModel = Mongoose.model<IUSSummaryStatsDocument>(
         "us-summary",
         this.schema

@@ -16,7 +16,6 @@ describe("FlockCasesByStateModel", () => {
         expect(schemaFields).toHaveProperty("latitude");
         expect(schemaFields).toHaveProperty("longitude");
         expect(schemaFields).toHaveProperty("lastReportedDate");
-
     });
     it("should have the correct datatypes for each field", () => {
         const schemaFields = FlockCasesByStateModel.getModel.schema.obj;
