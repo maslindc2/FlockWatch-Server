@@ -55,6 +55,10 @@ router.get("/update-data", async (req: Request, res: Response) => {
         await flockCasesByStateService.createOrUpdateStateData(
             flockCasesByState
         );
+        // Create an instance of our us summary stats service
+        const usSummaryStats = new USSummaryService();
+        // Create or update the USSummaryStats using the data we got back from the scraping service
+        await usSummaryStats.createOrUpdateUSummaryStats(data?.usSummaryStats);
         //TODO: This is temporary for now but when this is an automated service it won't be here anymore
         res.sendStatus(200);
     }

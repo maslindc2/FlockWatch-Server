@@ -35,9 +35,10 @@ class UpdateDataService {
     private async requestDataFromScrapingService(
         authID: String
     ): Promise<IFlockCasesByState[] | null> {
+        const fwScrapingURL = process.env.SCRAPING_SERVICE_URL || "http://localhost:8080/scraper/process-data";
         try {
             const res = await fetch(
-                "http://localhost:8080/scraper/process-data",
+                fwScrapingURL,
                 {
                     method: "POST",
                     headers: {
