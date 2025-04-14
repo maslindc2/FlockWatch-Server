@@ -27,6 +27,7 @@ describe("FlockCasesByStateService", () => {
     });
 
     it("should return expected mock data", async () => {
+        // Create some fake state data
         const mockData: IFlockCasesByState[] = [
             {
                 stateAbbreviation: "PA",

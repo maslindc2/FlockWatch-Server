@@ -3,11 +3,11 @@ import { IFlockCasesByState } from "../interfaces/i-flock-cases-by-state";
 import { IUSSummaryStats } from "../interfaces/i-us-summary-stats";
 import { ILatestFlockData } from "../interfaces/i-latest-flock-data";
 
-class UpdateDataService {
+class RequestDataService {
     private createUSSummaryData(
         jsonFromScraper: IFlockCasesByState[]
     ): IUSSummaryStats {
-        let usSummaryStats = {
+        const usSummaryStats = {
             totalStatesAffected: 0,
             totalBirdsAffectedNationwide: 0,
             totalFlocksAffectedNationwide: 0,
@@ -33,22 +33,21 @@ class UpdateDataService {
         return usSummaryStats;
     }
     private async requestDataFromScrapingService(
-        authID: String
+        authID: string
     ): Promise<IFlockCasesByState[] | null> {
-        const fwScrapingURL = process.env.SCRAPING_SERVICE_URL || "http://localhost:8080/scraper/process-data";
+        const fwScrapingURL =
+            process.env.SCRAPING_SERVICE_URL ||
+            "http://localhost:8080/scraper/process-data";
         try {
-            const res = await fetch(
-                fwScrapingURL,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        authID: authID,
-                    }),
-                }
-            );
+            const res = await fetch(fwScrapingURL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    authID: authID,
+                }),
+            });
             if (!res.ok) {
                 logger.error(
                     `Failed to update data, received status ${res.status}`
@@ -70,7 +69,7 @@ class UpdateDataService {
     }
 
     public async fetchLatestFlockData(
-        authID: String
+        authID: string
     ): Promise<ILatestFlockData | null> {
         const jsonFromScraper: IFlockCasesByState[] | null =
             await this.requestDataFromScrapingService(authID);
@@ -80,7 +79,7 @@ class UpdateDataService {
 
         const usSummaryStats = this.createUSSummaryData(jsonFromScraper);
 
-        let latestFlockData: ILatestFlockData = {
+        const latestFlockData: ILatestFlockData = {
             usSummaryStats: usSummaryStats,
             flockCasesByState: jsonFromScraper,
         };
@@ -88,4 +87,4 @@ class UpdateDataService {
         return latestFlockData;
     }
 }
-export { UpdateDataService };
+export { RequestDataService };

@@ -3,6 +3,7 @@ import dataRoutes from "./routes/data-routes";
 import { DatabaseService } from "./services/database-service";
 import { LastReportDateService } from "./services/model-services/last-report-date-service";
 import { logger } from "./utils/winston-logger";
+import { FlockDataSyncService } from "./services/flock-data-sync-service";
 
 class App {
     public app: Application;
@@ -29,6 +30,9 @@ class App {
             await DatabaseService.connect(process.env.MONGODB_URI!);
             const lastReportDateService = new LastReportDateService();
             await lastReportDateService.initializeLastReportDate();
+            //const flockDataSync = new FlockDataSyncService();
+            //await flockDataSync.syncIfOutdated();
+
             logger.info(`FlockWatch Server is ready!`);
         } catch (error) {
             logger.error(`Failed to start FlockWatch Server: ${error}`);

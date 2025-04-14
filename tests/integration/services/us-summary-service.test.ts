@@ -28,12 +28,13 @@ describe("USSummaryService Integration", () => {
             totalBirdsAffectedNationwide: 166156928,
             totalCommercialFlocksNationwide: 763,
             totalFlocksAffectedNationwide: 1604,
-            totalStatesAffected: 51
-        }
+            totalStatesAffected: 51,
+        };
         // Create the summary stats using the object we just made
         await usSummaryService.createOrUpdateUSummaryStats(modelObj);
         // We should get the exact same object from our db but as an array
-        const queryFromDB:IUSSummaryStats[] = await usSummaryService.getUSSummary();
+        const queryFromDB: IUSSummaryStats[] =
+            await usSummaryService.getUSSummary();
         // Now our state data from our DB should equal our flockData that we made earlier
         expect(queryFromDB[0]).toMatchObject(modelObj);
     });

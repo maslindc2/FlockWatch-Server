@@ -26,7 +26,6 @@ describe("LastReportDateService Integration", () => {
     it("should initialize the database with a new data entry", async () => {
         const expectedModelObj = {
             lastScrapedDate: expect.any(Date),
-            updateFrequency: expect.any(Number),
             authID: expect.any(String),
         };
 

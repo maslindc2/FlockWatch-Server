@@ -37,9 +37,9 @@ class DataController {
         }
     }
 
-    public async getLastReportDate(req: Request, res: Response) {
+    public async getLastScrapedDate(req: Request, res: Response) {
         try {
-            const data = await this.lastReportDateService.getLastReportDate();
+            const data = await this.lastReportDateService.getLastScrapedDate();
             logger.http(`Received Request at Last Report Date ${req.url}`);
             res.json(data);
         } catch (error) {
