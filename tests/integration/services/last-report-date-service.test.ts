@@ -34,7 +34,6 @@ describe("LastReportDateService Integration", () => {
             await lastReportDateService.initializeLastReportDate();
 
         // Now our state data from our DB should equal our flockData that we made earlier
-        //expect(stripProxiedObject(record)).toBe(ILastReportDate);
         expect(createdRecord).toMatchObject(expectedModelObj);
     });
 

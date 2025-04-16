@@ -134,3 +134,6 @@ createDB/
 
 # DB Data
 data/
+# stryker temp files
+.stryker-tmp
+testing-reports/

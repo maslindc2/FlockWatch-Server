@@ -89,6 +89,7 @@ describe("FlockCasesByStateService Integration", () => {
             "Failed to update Model information resulted in Error: Database error"
         );
     });
+
     afterEach(async () => {
         // Drop the database so it's ready for our next test
         await FlockCasesByStateModel.getModel.db.dropDatabase();
