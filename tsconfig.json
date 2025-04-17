@@ -1,6 +1,5 @@
 {
     "exclude": [
-        "./coverage",
         "createDB/",
         "./dist",
         "tests",
@@ -8,7 +7,8 @@
         "jest.config.js",
         "./init-mongo",
         "eslint.config.mjs",
-        "stryker.config.mjs"
+        "stryker.config.mjs",
+        "testing-reports/"
     ],
     "ts-node": {
         "transpileOnly": true,

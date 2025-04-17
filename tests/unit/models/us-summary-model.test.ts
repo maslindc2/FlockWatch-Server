@@ -1,6 +1,10 @@
 import { USSummaryModel } from "../../../src/models/us-summary-model";
 
 describe("USSummaryModel", () => {
+    it("should have the correct collection name", () => {
+        const collectionName = USSummaryModel.getModel.collection.name;
+        expect(collectionName).toEqual("us-summary");
+    });
     it("should have the correct model name", () => {
         const schemaName = USSummaryModel.getModel.modelName;
         expect(schemaName).toEqual("us-summary");

@@ -1,5 +1,9 @@
 import { LastReportDateModel } from "../../../src/models/last-report-date-model";
 describe("LastReportDateModel", () => {
+    it("should have the correct collection name", () => {
+        const collectionName = LastReportDateModel.getModel.collection.name;
+        expect(collectionName).toEqual("last-report-date");
+    });
     it("should have the correct model name", () => {
         const schemaName = LastReportDateModel.getModel.modelName;
         expect(schemaName).toEqual("last-report-date");
