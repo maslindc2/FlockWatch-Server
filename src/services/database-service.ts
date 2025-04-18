@@ -10,14 +10,15 @@ class DatabaseService {
             logger.info("MongoDB connected successfully.");
         } catch (error) {
             logger.error("Error connecting to MongoDB:", error);
-            throw new Error("MongoDB connection failed");
+            throw new Error("MongoDB connection failed.");
         }
     }
     public static async disconnect(): Promise<void> {
         try {
             await mongoose.disconnect();
+            logger.info("MongoDB disconnected successfully.");
         } catch (error) {
-            logger.error("Failed to disconnect from MongoDB", error)
+            logger.error("Failed to disconnect from MongoDB.", error)
             throw new Error(`MongoDB database failed to disconnect: ${error}`);
         }
     }
