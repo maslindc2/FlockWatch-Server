@@ -136,4 +136,5 @@ createDB/
 data/
 # stryker temp files
 .stryker-tmp
-testing-reports/
+#testing-reports/
+mutation/

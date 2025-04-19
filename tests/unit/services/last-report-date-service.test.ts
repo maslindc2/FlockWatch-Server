@@ -8,7 +8,7 @@ describe("LastReportDateService Unit Tests", () => {
     beforeEach(() => {
         lastReportDateService = new LastReportDateService();
     });
-
+    
     it("createOrUpdateLastReportDate should be called with correct model object", async () => {
         // Hardcode the system time to a fake date
         jest.useFakeTimers().setSystemTime(new Date("2025-04-02T12:00:00Z"));

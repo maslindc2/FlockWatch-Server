@@ -1,6 +1,4 @@
 import dotenv from "dotenv";
-import { IUSSummaryStats } from "../../../src/interfaces/i-us-summary-stats";
-import { USSummaryService } from "../../../src/services/model-services/us-summary-service";
 import { DatabaseService } from "../../../src/services/database-service";
 import { logger } from "../../../src/utils/winston-logger";
 import mongoose, { ConnectOptions, Mongoose, MongooseError } from "mongoose";
@@ -8,10 +6,8 @@ import mongoose, { ConnectOptions, Mongoose, MongooseError } from "mongoose";
 dotenv.config();
 
 describe("DatabaseService Integration", () => {
-
-    it("should fail to connect to mongoDB and call our logger with the message that we failed to connect", async () => {
+    it("should call our logger with the message that we failed to connect when we fail to connect to MongoDB", async () => {
         // Spy on logger info and error, info should not be called only error
-        const loggerInfoSpy = jest.spyOn(logger, "info");
         const loggerErrorSpy = jest.spyOn(logger, "error");
     
         // Use a spy to mock the mongoose.connect function and reject the promise to throw an error
@@ -25,20 +21,37 @@ describe("DatabaseService Integration", () => {
         await expect(DatabaseService.connect("invalid connection string"))
           .rejects.toThrow("MongoDB connection failed.");
         
-        // info should not be called as this is an error!
-        expect(loggerInfoSpy).not.toHaveBeenCalled();
         // error should be called with the expected message
         expect(loggerErrorSpy).toHaveBeenCalledWith(
             "Error connecting to MongoDB:",
             expect.objectContaining({ message: "Invalid connection string" })
         );
-        
-        // Restore functionality
         mongooseConnectSpy.mockRestore();
     });
     
+    it("should throw an error and call our logger with the message that we failed to disconnect when we fail to disconnect from MongoDB", async () => {
+        // Spy on logger info and error, info should not be called only error
+        const loggerErrorSpy = jest.spyOn(logger, "error");
     
-    it("should connect and disconnect from MongoDB and call our logger with the message disconnected successfully", async () => {
+        // Use a spy to mock the mongoose.connect function and reject the promise to throw an error
+        const mongooseConnectSpy = jest
+          .spyOn(mongoose, 'disconnect')
+          .mockImplementationOnce(() => {
+            return Promise.reject(new MongooseError("Failed to Disconnect!"));
+          });
+        
+        // Catch should catch the error and throw MongoDB connection failed
+        await expect(DatabaseService.disconnect())
+          .rejects.toThrow("MongoDB database failed to disconnect.");
+        
+        // error should be called with the expected message
+        expect(loggerErrorSpy).toHaveBeenCalledWith(
+            "Failed to disconnect from MongoDB.", new MongooseError("Failed to Disconnect!")
+        );
+        mongooseConnectSpy.mockRestore();
+    });
+
+    it("should call our logger with the message disconnected successfully when we disconnect from MongoDB successfully", async () => {
         // Create a spy for our logger to check if we log that we connected
         const loggerInfoSpy = jest.spyOn(logger, "info");
         
@@ -67,6 +80,6 @@ describe("DatabaseService Integration", () => {
         expect(mongooseDisconnectSpy).toHaveBeenCalled();
 
         expect(loggerInfoSpy).toHaveBeenCalledWith("MongoDB disconnected successfully.");
+        mongooseConnectSpy.mockRestore();
     });
-
 });

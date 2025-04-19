@@ -20,6 +20,7 @@ describe("LastReportDateService Integration", () => {
     }, 10000);
 
     beforeEach(() => {
+        jest.resetModules();
         lastReportDateService = new LastReportDateService();
     });
 

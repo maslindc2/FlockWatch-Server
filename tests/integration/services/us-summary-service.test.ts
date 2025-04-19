@@ -18,6 +18,7 @@ describe("USSummaryService Integration", () => {
     }, 10000);
 
     beforeEach(() => {
+        jest.resetModules();
         usSummaryService = new USSummaryService();
     });
 

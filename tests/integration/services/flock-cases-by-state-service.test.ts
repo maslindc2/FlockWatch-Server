@@ -8,6 +8,7 @@ dotenv.config();
 
 describe("FlockCasesByStateService Integration", () => {
     let flockCasesByStateService: FlockCasesByStateService;
+
     beforeAll(async () => {
         try {
             await Mongoose.connect(process.env.MONGODB_URI!);
@@ -19,6 +20,7 @@ describe("FlockCasesByStateService Integration", () => {
     }, 10000);
 
     beforeEach(() => {
+        jest.resetModules();
         flockCasesByStateService = new FlockCasesByStateService();
     });
 
@@ -138,6 +140,7 @@ describe("FlockCasesByStateService Integration", () => {
         // Drop the database so it's ready for our next test
         await FlockCasesByStateModel.getModel.db.dropDatabase();
     });
+    
     afterAll(async () => {
         // Disconnect from mongo after all our tests
         await Mongoose.disconnect();

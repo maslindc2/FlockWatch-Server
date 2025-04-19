@@ -6,9 +6,14 @@ const config = {
     packageManager: "npm",
     reporters: ["html", "clear-text", "progress"],
     htmlReporter: {
-        fileName: "testing-reports/mutation/mutation.html"
+        fileName: "mutation/mutation.html"
     },
+    
     testRunner: "jest",
+    jest: {
+        projectType: "custom",
+        configFile: "jest.stryker.config.js",
+    },
     testRunner_comment:
         "Take a look at https://stryker-mutator.io/docs/stryker-js/jest-runner for information about the jest plugin.",
     coverageAnalysis: "perTest",
