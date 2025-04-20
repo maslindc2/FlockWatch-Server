@@ -19,10 +19,11 @@ module.exports = {
             testEnvironment: "node",
             testMatch: ["<rootDir>/tests/integration/**/*.test.ts"],
             testPathIgnorePatterns: ["src/utils/", ".stryker-temp/"],
-            coverageDirectory: "testing-reports/unit-and-integration/integration",
+            coverageDirectory:
+                "testing-reports/unit-and-integration/integration",
             transform: {
                 "^.+.tsx?$": ["ts-jest", {}],
             },
         },
-    ]
+    ],
 };

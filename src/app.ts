@@ -7,8 +7,13 @@ import { FlockDataSyncService } from "./services/flock-data-sync-service";
 
 class App {
     public app: Application;
-    constructor() {
+    private lastReportDateService: LastReportDateService;
+
+    constructor(
+        lastReportDateService: LastReportDateService = new LastReportDateService()
+    ) {
         this.app = express();
+        this.lastReportDateService = lastReportDateService;
         this.middleware();
         this.serverStart();
     }
@@ -28,8 +33,7 @@ class App {
     private async serverStart(): Promise<void> {
         try {
             await DatabaseService.connect(process.env.MONGODB_URI!);
-            const lastReportDateService = new LastReportDateService();
-            await lastReportDateService.initializeLastReportDate();
+            await this.lastReportDateService.initializeLastReportDate();
             //const flockDataSync = new FlockDataSyncService();
             //await flockDataSync.syncIfOutdated();
 

@@ -8,7 +8,7 @@ describe("USSummaryService Unit Tests", () => {
         usSummaryService = new USSummaryService();
     });
 
-    it("should call find and select with the correct parameters", async () => {
+    it("should call find and select hiding the id and version when getUSSummary is called", async () => {
         // Use a spy to see what parameters find was called on the USSummaryModel
         const findSpy = jest
             .spyOn(USSummaryModel.getModel, "find")
@@ -16,9 +16,8 @@ describe("USSummaryService Unit Tests", () => {
                 select: jest.fn().mockResolvedValue([]),
             } as any);
 
-
         await usSummaryService.getUSSummary();
-        
+
         // Find should be called with {} and the select should hide the internal ID and the version tag
         expect(findSpy).toHaveBeenCalledWith({});
         expect(findSpy.mock.results[0].value.select).toHaveBeenCalledWith(
@@ -28,7 +27,7 @@ describe("USSummaryService Unit Tests", () => {
         findSpy.mockRestore();
     });
 
-    it("should return expected mock data", async () => {
+    it("should return expected mock data when getUSSummary is called", async () => {
         // Create fake state information
         const fakeData = [
             {

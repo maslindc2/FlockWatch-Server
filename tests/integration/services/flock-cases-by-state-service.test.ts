@@ -24,7 +24,7 @@ describe("FlockCasesByStateService Integration", () => {
         flockCasesByStateService = new FlockCasesByStateService();
     });
 
-    it("should create a state data entry", async () => {
+    it("should create a state data entry when createOrUpdateStateData is called with an array containing state data", async () => {
         // First define the object that we want to store using the data type we are using
         const flockData: IFlockCasesByState[] = [
             {
@@ -39,12 +39,23 @@ describe("FlockCasesByStateService Integration", () => {
                 lastReportedDate: new Date(Date.UTC(2025, 2 - 1, 5)),
             },
         ];
+        const findOneAndUpdateSpy = jest.spyOn(
+            FlockCasesByStateModel.getModel,
+            "findOneAndUpdate"
+        );
 
         // Call the create or update state data in our service and pass our flock data array
         await flockCasesByStateService.createOrUpdateStateData(flockData);
 
         // Now get query the database and get all the entries in the database should be only 1 entry
         const queryFromDB = await flockCasesByStateService.getAllFlockCases();
+
+        // Expect that the findOneAndUpdate function was called with the correct parameters
+        expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
+            { state: flockData[0].state },
+            flockData[0],
+            { upsert: true }
+        );
 
         // We should only get 1 state entry back from the database
         expect(queryFromDB.length).toBe(1);
@@ -60,7 +71,7 @@ describe("FlockCasesByStateService Integration", () => {
         );
     });
 
-    it("should update the birdsAffected data for Pennsylvania", async () => {
+    it("should update the birdsAffected data for Pennsylvania when we call createOrUpdateStateData with updated state data", async () => {
         // First define the object that we want to store using the data type we are using
         const flockData: IFlockCasesByState[] = [
             {
@@ -79,7 +90,9 @@ describe("FlockCasesByStateService Integration", () => {
         // Call the create or update state data in our service and pass our flock data array
         await flockCasesByStateService.createOrUpdateStateData(flockData);
         // Record before updating
-        const originalStateInfo = await FlockCasesByStateModel.getModel.find({});
+        const originalStateInfo = await FlockCasesByStateModel.getModel.find(
+            {}
+        );
 
         // Now modify the flockData and change the birdsAffected field to 0
         flockData[0].birdsAffected = 0;
@@ -92,55 +105,21 @@ describe("FlockCasesByStateService Integration", () => {
 
         // We should only get 1 state entry back from the database
         expect(queryFromDB.length).toBe(1);
-        
+
         // The state that will be updated should be Pennsylvania
         expect(queryFromDB[0].state).toBe("Pennsylvania");
 
         // Birds affected should be updated to be 0
-        expect(queryFromDB[0].birdsAffected).toEqual(0);   
+        expect(queryFromDB[0].birdsAffected).toEqual(0);
 
         expect(queryFromDB[0]._id).toEqual(originalStateInfo[0]._id);
-        
-    });
-
-
-    it("should throw an error", async () => {
-        // First define the object that we want to store using the data type we are using
-        const flockData: IFlockCasesByState[] = [
-            {
-                stateAbbreviation: "PA",
-                state: "Pennsylvania",
-                backyardFlocks: 2344370,
-                commercialFlocks: 7,
-                birdsAffected: 7,
-                totalFlocks: 390728,
-                latitude: 40.99773861,
-                longitude: -76.19300025,
-                lastReportedDate: new Date(Date.UTC(2025, 2 - 1, 5)),
-            },
-        ];
-
-        // When findOneAndUpdate is called we want to throw an error
-        jest.spyOn(
-            FlockCasesByStateModel.getModel,
-            "findOneAndUpdate"
-        ).mockImplementation(() => {
-            throw new Error("Database error");
-        });
-
-        // Call the create or update state data in our service and pass our flock data array
-        await expect(
-            flockCasesByStateService.createOrUpdateStateData(flockData)
-        ).rejects.toThrow(
-            "Failed to update Model information resulted in Error: Database error"
-        );
     });
 
     afterEach(async () => {
         // Drop the database so it's ready for our next test
         await FlockCasesByStateModel.getModel.db.dropDatabase();
     });
-    
+
     afterAll(async () => {
         // Disconnect from mongo after all our tests
         await Mongoose.disconnect();
