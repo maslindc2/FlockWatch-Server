@@ -20,13 +20,13 @@ describe("LastReportDateService Integration", () => {
     }, 10000);
 
     beforeEach(() => {
+        jest.resetModules();
         lastReportDateService = new LastReportDateService();
     });
 
     it("should initialize the database with a new data entry", async () => {
         const expectedModelObj = {
             lastScrapedDate: expect.any(Date),
-            updateFrequency: expect.any(Number),
             authID: expect.any(String),
         };
 
@@ -35,7 +35,6 @@ describe("LastReportDateService Integration", () => {
             await lastReportDateService.initializeLastReportDate();
 
         // Now our state data from our DB should equal our flockData that we made earlier
-        //expect(stripProxiedObject(record)).toBe(ILastReportDate);
         expect(createdRecord).toMatchObject(expectedModelObj);
     });
 

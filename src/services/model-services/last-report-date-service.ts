@@ -1,16 +1,17 @@
 import { LastReportDateModel } from "../../models/last-report-date-model";
-import { logger } from "../../utils/winston-logger";
 
 class LastReportDateService {
-    // This will query the last report date model and only return the last scraped date and the update frequency fields
-    public async getLastReportDate() {
+    // This will query the last report date model and only return the last scraped date field
+    public async getLastScrapedDate() {
         return LastReportDateModel.getModel
-            .find({})
+            .findOne({ lastScrapedDate: { $exists: true } })
             .select("-_id -__v -authID");
     }
     // Only get the authID
     public async getAuthID() {
-        return LastReportDateModel.getModel.find({ authID: { $exists: true } });
+        return LastReportDateModel.getModel
+            .findOne({ authID: { $exists: true } })
+            .select("-_id -__v -lastScrapedDate");
     }
     /**
      * On server start this will be executed, if the mongoDB is being created for the first time
@@ -20,8 +21,7 @@ class LastReportDateService {
         const existingRecord = await LastReportDateModel.getModel.findOne();
         if (!existingRecord) {
             const modelObj = {
-                lastScrapedDate: new Date(),
-                updateFrequency: Number(process.env.UPDATE_FREQUENCY),
+                lastScrapedDate: new Date(0),
                 authID: crypto.randomUUID(),
             };
             return await LastReportDateModel.getModel.create(modelObj);
@@ -35,7 +35,6 @@ class LastReportDateService {
         // Model object contains today's timestamp, update frequency, and the newly created authID
         const modelObj = {
             lastScrapedDate: new Date(),
-            updateFrequency: Number(process.env.UPDATE_FREQUENCY),
             authID: crypto.randomUUID(),
         };
         return await LastReportDateModel.getModel.findOneAndUpdate(
