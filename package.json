@@ -1,10 +1,12 @@
 {
     "name": "flockwatch-scraping",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "description": "",
     "main": "index.js",
     "scripts": {
         "test": "jest --coverage",
+        "test:unit": "jest --testPathPattern=tests/unit",
+        "test:integration": "jest --testPathPattern=tests/integration",
         "dev": "nodemon ./src/server.ts",
         "build": "tsc",
         "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\""
@@ -14,7 +16,7 @@
         "url": "git+https://github.com/maslindc2/FlockWatch-Scraping.git"
     },
     "keywords": [],
-    "author": "",
+    "author": "Maslin Farrell",
     "license": "ISC",
     "type": "commonjs",
     "bugs": {
@@ -29,15 +31,20 @@
         "winston": "^3.17.0"
     },
     "devDependencies": {
+        "@eslint/js": "^9.23.0",
+        "@stryker-mutator/jest-runner": "^8.7.1",
         "@types/express": "^5.0.0",
         "@types/jest": "^29.5.14",
         "@types/supertest": "^6.0.2",
+        "eslint": "^9.23.0",
+        "globals": "^16.0.0",
         "jest": "^29.7.0",
         "nodemon": "^3.1.9",
         "prettier": "^3.5.0",
         "supertest": "^7.0.0",
         "ts-jest": "^29.2.5",
         "ts-node": "^10.9.2",
-        "typescript": "^5.7.3"
+        "typescript": "^5.7.3",
+        "typescript-eslint": "^8.28.0"
     }
 }

@@ -8,7 +8,7 @@ on:
       - main
 
 jobs:
-  test:
+  integration_tests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -31,7 +31,6 @@ jobs:
         run: npm install
 
       - name: Run Jest Tests
-        run: npm test
+        run: npm run test:integration
         env:
           MONGODB_URI: mongodb://${{ secrets.MONGODB_USER }}:${{ secrets.MONGODB_PASSWORD }}@localhost:27017/flock_watch_test?authSource=admin
-

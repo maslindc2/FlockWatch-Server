@@ -1,14 +1,14 @@
 /**
  * This interface is responsible for US Summary Statistics.
- * This will track the number of states affected
- * Total Birds Affected by it
- * Total Flocks Affected by it
- * Total Backyard Flocks Affected by it
- * Total Commercial Flocks Nationwide
+ * CSV to use is "Map Comparisons.csv"
+ * - Sum up the below columns
+ * -- "State Names" creates totalStatesAffected
+ * -- "Birds Affected" creates totalBirdsAffectedNationwide
+ * -- "Total Flocks" creates totalFlocksAffectedNationwide
+ * -- "Backyard Flocks" creates totalBackyardFlocksNationwide
+ * -- "Commercial Flocks" creates totalCommercialFlocksNationwide
  */
-import Mongoose from "mongoose";
-
-interface IUSSummaryStats extends Mongoose.Document {
+interface IUSSummaryStats {
     totalStatesAffected: number; // Number of states with infections
     totalBirdsAffectedNationwide: number; // Total birds affected nationwide
     totalFlocksAffectedNationwide: number; // Total flocks affected nationwide

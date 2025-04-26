@@ -1,11 +1,16 @@
 {
     "exclude": [
-        "./coverage",
         "createDB/",
         "./dist",
         "tests",
         "jest.setup.ts",
-        "jest.config.js"
+        "jest.config.js",
+        "./init-mongo",
+        "eslint.config.mjs",
+        "stryker.config.mjs",
+        "coverage/",
+        "mutation",
+        "jest.stryker.config.js"
     ],
     "ts-node": {
         "transpileOnly": true,
