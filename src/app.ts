@@ -10,7 +10,8 @@ class App {
     private lastReportDateService: LastReportDateService;
 
     constructor(
-        lastReportDateService: LastReportDateService = new LastReportDateService()
+        lastReportDateService: LastReportDateService = new LastReportDateService(),
+        
     ) {
         this.app = express();
         this.lastReportDateService = lastReportDateService;
@@ -34,13 +35,19 @@ class App {
         try {
             await DatabaseService.connect(process.env.MONGODB_URI!);
             await this.lastReportDateService.initializeLastReportDate();
-            //const flockDataSync = new FlockDataSyncService();
-            //await flockDataSync.syncIfOutdated();
-
+            this.syncData();
             logger.info(`FlockWatch Server is ready!`);
         } catch (error) {
             logger.error(`Failed to start FlockWatch Server: ${error}`);
             process.exit(1);
+        }
+    }
+    private async syncData(): Promise<void> {
+        try {
+            const flockDataSync = new FlockDataSyncService();
+            await flockDataSync.syncIfOutdated();
+        } catch (error) {
+            logger.error(error);
         }
     }
 }

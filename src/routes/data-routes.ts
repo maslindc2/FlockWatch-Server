@@ -9,8 +9,8 @@ router.get("/flock-cases", async (req: Request, res: Response) => {
     dataController.getAllFlockCases(req, res);
 });
 
-// Get the last report date
-router.get("/last-report-date", async (req: Request, res: Response) => {
+// Get the last scraped date
+router.get("/last-scraped-date", async (req: Request, res: Response) => {
     dataController.getLastScrapedDate(req, res);
 });
 
