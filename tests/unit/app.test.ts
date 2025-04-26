@@ -17,7 +17,7 @@ describe("App Unit Test", () => {
             .mockImplementation(() => {
                 return Promise.resolve();
             });
-        
+
         // Mock the last report date service function and resolve the promise
         const mockLastReportDateService = {
             initializeLastReportDate: jest
@@ -45,5 +45,4 @@ describe("App Unit Test", () => {
         databaseServiceSpy.mockRestore();
         mockLastReportDateService.initializeLastReportDate.mockClear();
     });
-    
 });

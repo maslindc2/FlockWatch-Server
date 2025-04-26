@@ -1,4 +1,4 @@
-import {App} from "../../../src/app";
+import { App } from "../../../src/app";
 import { FlockCasesByStateService } from "../../../src/services/model-services/flock-cases-by-state-service";
 import { IFlockCasesByState } from "../../../src/interfaces/i-flock-cases-by-state";
 import dotenv from "dotenv";
@@ -16,8 +16,8 @@ dotenv.config();
 
 // We will be testing all the GET routes defined in data-routes.ts
 describe("Routes integration tests", () => {
-    describe("GET root url", () =>{
-        beforeAll(async () =>{
+    describe("GET root url", () => {
+        beforeAll(async () => {
             try {
                 // Connect using the MongoDB URI
                 await Mongoose.connect(process.env.MONGODB_URI!);
@@ -28,13 +28,15 @@ describe("Routes integration tests", () => {
             }
         });
         it("should return root api message, when root url is requested", async () => {
-            const res = await request(new App().app).get("/").expect("Content-Type", /json/).expect(200);
+            const res = await request(new App().app)
+                .get("/")
+                .expect("Content-Type", /json/)
+                .expect(200);
             expect(res.body.message).toEqual("Nothing here but us Chickens");
         });
         afterAll(async () => {
             // Disconnect from mongoose
             await DatabaseService.disconnect();
-            
         });
     });
     describe("GET /data/flock-cases", () => {
@@ -58,12 +60,11 @@ describe("Routes integration tests", () => {
                         lastReportedDate: new Date(Date.UTC(2025, 2 - 1, 5)),
                     },
                 ];
-                
+
                 // Create an instance of our service
                 const flockCasesService = new FlockCasesByStateService();
                 // Store our state data that we defined
                 await flockCasesService.createOrUpdateStateData(flockData);
-
             } catch (error) {
                 console.error("Error connecting to MongoDB:", error);
                 throw new Error("MongoDB connection failed");
@@ -84,13 +85,18 @@ describe("Routes integration tests", () => {
                     totalFlocks: 390728,
                     latitude: 40.99773861,
                     longitude: -76.19300025,
-                    lastReportedDate: "2025-02-05T00:00:00.000Z"
+                    lastReportedDate: "2025-02-05T00:00:00.000Z",
                 },
             ];
             // Make the request using a new instance of app and the route to flock cases it should be of type JSON and have a status of 200
-            const res = await request(new App().app).get("/data/flock-cases").expect("Content-Type", /json/).expect(200);
+            const res = await request(new App().app)
+                .get("/data/flock-cases")
+                .expect("Content-Type", /json/)
+                .expect(200);
             expect(res.body).toEqual(expectedFlockData);
-            expect(loggerSpy).toHaveBeenCalledWith("Received Request at Flock Cases By State: /flock-cases");
+            expect(loggerSpy).toHaveBeenCalledWith(
+                "Received Request at Flock Cases By State: /flock-cases"
+            );
             loggerSpy.mockClear();
         });
         afterAll(async () => {
@@ -105,7 +111,7 @@ describe("Routes integration tests", () => {
             try {
                 // Connect using the MongoDB URI
                 await Mongoose.connect(process.env.MONGODB_URI!);
-                
+
                 console.log("MongoDB connected successfully.");
                 // Define the last report data model that we will be storing to the database
                 const LastReportDateData = {
@@ -114,7 +120,6 @@ describe("Routes integration tests", () => {
                 };
                 // Store the data to our model
                 await LastReportDateModel.getModel.create(LastReportDateData);
-
             } catch (error) {
                 console.error("Error connecting to MongoDB:", error);
                 throw new Error("MongoDB connection failed");
@@ -125,12 +130,17 @@ describe("Routes integration tests", () => {
             const loggerSpy = jest.spyOn(logger, "http");
             // Defining the expected data we should get back, we should only get the last scraped date back as a string
             const expectedLastScrapedDate = {
-                lastScrapedDate: "2025-04-02T12:00:00.000Z"
-            }
+                lastScrapedDate: "2025-04-02T12:00:00.000Z",
+            };
             // Make the request to last-scraped-date
-            const res = await request(new App().app).get("/data/last-scraped-date").expect("Content-Type", /json/).expect(200);
+            const res = await request(new App().app)
+                .get("/data/last-scraped-date")
+                .expect("Content-Type", /json/)
+                .expect(200);
             expect(res.body).toEqual(expectedLastScrapedDate);
-            expect(loggerSpy).toHaveBeenCalledWith("Received Request at Last Report Date /last-scraped-date");
+            expect(loggerSpy).toHaveBeenCalledWith(
+                "Received Request at Last Report Date /last-scraped-date"
+            );
             loggerSpy.mockClear();
         });
         afterAll(async () => {
@@ -146,7 +156,7 @@ describe("Routes integration tests", () => {
             try {
                 // Connect using the MongoDB URI
                 await Mongoose.connect(process.env.MONGODB_URI!);
-                
+
                 console.log("MongoDB connected successfully.");
                 // Define the us summary model that we will be storing to the database
                 usSummaryData = {
@@ -157,7 +167,9 @@ describe("Routes integration tests", () => {
                     totalStatesAffected: 51,
                 };
                 const usSummaryService = new USSummaryService();
-                await usSummaryService.createOrUpdateUSummaryStats(usSummaryData);
+                await usSummaryService.createOrUpdateUSummaryStats(
+                    usSummaryData
+                );
             } catch (error) {
                 console.error("Error connecting to MongoDB:", error);
                 throw new Error("MongoDB connection failed");
@@ -166,13 +178,18 @@ describe("Routes integration tests", () => {
         it("should return the last scraped date when a GET request is made to /data/us-summary", async () => {
             // Create a spy for our logger as we are expected to receive http logging information
             const loggerSpy = jest.spyOn(logger, "http");
-            
+
             // Make the request to us-summary
-            const res = await request(new App().app).get("/data/us-summary").expect("Content-Type", /json/).expect(200);
+            const res = await request(new App().app)
+                .get("/data/us-summary")
+                .expect("Content-Type", /json/)
+                .expect(200);
             // Expect to get the same us summary data back
             expect(res.body).toEqual([usSummaryData]);
             // Expect our logger to log our http request
-            expect(loggerSpy).toHaveBeenCalledWith("Received Request at US Summary /us-summary");
+            expect(loggerSpy).toHaveBeenCalledWith(
+                "Received Request at US Summary /us-summary"
+            );
             loggerSpy.mockClear();
         });
         afterAll(async () => {

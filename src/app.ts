@@ -10,8 +10,7 @@ class App {
     private lastReportDateService: LastReportDateService;
 
     constructor(
-        lastReportDateService: LastReportDateService = new LastReportDateService(),
-        
+        lastReportDateService: LastReportDateService = new LastReportDateService()
     ) {
         this.app = express();
         this.lastReportDateService = lastReportDateService;
