@@ -7,10 +7,16 @@ import { USSummaryService } from "./model-services/us-summary-service";
 import { RequestDataService } from "./request-data-service";
 
 class FlockDataSyncService {
+    // Stores our Last Report Date Service instance
     private lastReportDateService: LastReportDateService;
+    
+    // Create our last report date service
     constructor() {
         this.lastReportDateService = new LastReportDateService();
     }
+
+    // Sync if we are out of date, we will check the last scraped date and see if we are out of date or not
+    // If we are we will request new data and process it accordingly, if not just log that we are up to date (only visible on log level silly)
     public async syncIfOutdated(): Promise<void> {
         const lastReportDateQuery =
             await this.lastReportDateService.getLastScrapedDate();
@@ -27,13 +33,14 @@ class FlockDataSyncService {
         }
     }
 
+    // Compare the last report date to our current time if it's a difference of 24 hours then update
     private isOutdated(lastDate: string): boolean {
         const now = new Date();
         const last = new Date(lastDate);
         const diffInMs = now.getTime() - last.getTime();
         return diffInMs >= 24 * 60 * 60 * 1000; // 24 hours
     }
-
+    // Request new data from Flock Watch Server
     private async requestData() {
         // Create our scraper data service and last report date service to get our authID
         const scraperDataService = new RequestDataService();

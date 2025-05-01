@@ -9,8 +9,8 @@ class FlockCasesByStateService {
     }
 
     /**
-     * Creates or updates the current state data in MongoDB
-     * @param flockData This is the array of states, each index is an object containing all the fields in IFlockCasesByState
+     * Creates or updates the current US State's data in MongoDB
+     * @param flockData This is the array of states, each index is an object containing all the fields in IFlockCasesByState, check this interface for more information
      */
     public async createOrUpdateStateData(flockData: IFlockCasesByState[]) {
         try {
