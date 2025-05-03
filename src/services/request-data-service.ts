@@ -62,7 +62,6 @@ class RequestDataService {
                     "Authorization": `Bearer ${authID}`
                 },
             });
-            console.log(res)
             // If it fails then log the error which will be picked up by our transport and return null
             if (!res.ok) {
                 logger.error(
