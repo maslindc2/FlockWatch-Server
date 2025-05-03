@@ -1,6 +1,5 @@
 import { LastReportDateService } from "../../../src/services/model-services/last-report-date-service";
 import { LastReportDateModel } from "../../../src/models/last-report-date-model";
-import { Query } from "mongoose";
 
 describe("LastReportDateService Unit Tests", () => {
     let lastReportDateService: LastReportDateService;

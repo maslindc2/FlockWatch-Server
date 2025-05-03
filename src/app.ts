@@ -29,9 +29,15 @@ class App {
         // Accepting json
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: false }));
+        // Setting CORS policies for the server
+        this.app.use((req, res, next) => {
+            res.header("Access-Control-Allow-Origin", "*");
+            next();
+        });
+
         // Setting /data routes for requesting flock data
         this.app.use("/data", dataRoutes);
-        // Set the root url to be the default message
+        // Set the root url to return the default message
         this.app.use(
             "/",
             (req: Request, res: Response, next: NextFunction): void => {
