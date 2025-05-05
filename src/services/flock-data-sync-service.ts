@@ -9,7 +9,7 @@ import { RequestDataService } from "./request-data-service";
 class FlockDataSyncService {
     // Stores our Last Report Date Service instance
     private lastReportDateService: LastReportDateService;
-    
+
     // Create our last report date service
     constructor() {
         this.lastReportDateService = new LastReportDateService();
@@ -61,17 +61,18 @@ class FlockDataSyncService {
             // Create an instance of our us summary stats service
             const usSummaryStats = new USSummaryService();
 
-            
             // Create or update the state data in the database
             await flockCasesByStateService.createOrUpdateStateData(
                 data?.flockCasesByState
             );
-            
+
             // Create or update the USSummaryStats using the data we got back from the scraping service
             await usSummaryStats.createOrUpdateUSummaryStats(
                 data?.usSummaryStats
             );
-            logger.info("Finished updating database, now serving the latest data!");
+            logger.info(
+                "Finished updating database, now serving the latest data!"
+            );
         }
         // If we have finished or failed to get new data, generate a new Auth ID
         await this.lastReportDateService.createOrUpdateLastReportDate();

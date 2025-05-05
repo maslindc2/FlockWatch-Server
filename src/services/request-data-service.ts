@@ -50,8 +50,7 @@ class RequestDataService {
         const fwScrapingURL =
             process.env.SCRAPING_SERVICE_URL ||
             "http://localhost:8080/scraper/process-data";
-        
-        
+
         // Try and request data from the scraping service
         try {
             // Make the POST request using the fetch function to our Flock Watch Scraping
@@ -59,7 +58,7 @@ class RequestDataService {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${authID}`
+                    Authorization: `Bearer ${authID}`,
                 },
             });
             // If it fails then log the error which will be picked up by our transport and return null
