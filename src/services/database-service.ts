@@ -1,9 +1,11 @@
 import mongoose from "mongoose";
 import { logger } from "../utils/winston-logger";
-/**
- * Responsible for connecting us to our MongoDb
- */
+
 class DatabaseService {
+    /**
+     * This function is used for connecting to our MongoDB server
+     * @param dbConnectionString we use the connection string that we got from server.ts
+     */
     public static async connect(dbConnectionString: string): Promise<void> {
         try {
             await mongoose.connect(dbConnectionString);
@@ -13,6 +15,9 @@ class DatabaseService {
             throw new Error("MongoDB connection failed.");
         }
     }
+    /**
+     * This function is primarily used for integration testing, while it does exist here, we have no intentions on using it normally
+     */
     public static async disconnect(): Promise<void> {
         try {
             await mongoose.disconnect();
