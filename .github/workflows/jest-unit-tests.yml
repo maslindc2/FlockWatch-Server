@@ -9,10 +9,6 @@ on:
 
 jobs:
   unit_tests:
-    permissions:
-      contents: read
-      pull-requests: read
-      checks: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
