@@ -93,7 +93,7 @@ describe("Routes integration tests", () => {
                 .get("/data/flock-cases")
                 .expect("Content-Type", /json/)
                 .expect(200);
-            expect(res.body).toEqual(expectedFlockData);
+            expect(res.body).toEqual({data: expectedFlockData});
             expect(loggerSpy).toHaveBeenCalledWith(
                 "Received Request at Flock Cases By State: /flock-cases"
             );
@@ -137,7 +137,7 @@ describe("Routes integration tests", () => {
                 .get("/data/last-scraped-date")
                 .expect("Content-Type", /json/)
                 .expect(200);
-            expect(res.body).toEqual(expectedLastScrapedDate);
+            expect(res.body).toEqual({data: expectedLastScrapedDate});
             expect(loggerSpy).toHaveBeenCalledWith(
                 "Received Request at Last Report Date /last-scraped-date"
             );
@@ -185,7 +185,7 @@ describe("Routes integration tests", () => {
                 .expect("Content-Type", /json/)
                 .expect(200);
             // Expect to get the same us summary data back
-            expect(res.body).toEqual([usSummaryData]);
+            expect(res.body).toEqual({data: usSummaryData});
             // Expect our logger to log our http request
             expect(loggerSpy).toHaveBeenCalledWith(
                 "Received Request at US Summary /us-summary"

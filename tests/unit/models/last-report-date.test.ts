@@ -1,4 +1,9 @@
 import { LastReportDateModel } from "../../../src/models/last-report-date-model";
+
+function getFieldType(field: any): any {
+    return typeof field === "function" ? field : field.type;
+}
+
 describe("LastReportDateModel", () => {
     it("should have the correct collection name when we define a LastReportDateModel", () => {
         const collectionName = LastReportDateModel.getModel.collection.name;
@@ -15,7 +20,10 @@ describe("LastReportDateModel", () => {
     });
     it("should have the correct datatypes for each field when we define a LastReportDateModel", () => {
         const schemaFields = LastReportDateModel.getModel.schema.obj;
-        expect(schemaFields.lastScrapedDate).toBe(Date);
-        expect(schemaFields.authID).toBe(String);
+        expect(getFieldType(schemaFields.lastScrapedDate)).toBe(Date);
+        expect(getFieldType(schemaFields.authID)).toBe(String);
+        
+        expect((schemaFields.lastScrapedDate as any).index).toBe(true);
+        expect((schemaFields.authID as any).index).toBe(true);
     });
 });

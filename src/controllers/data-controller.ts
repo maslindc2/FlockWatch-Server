@@ -9,7 +9,7 @@ class DataController {
     private flockCasesByStateService: FlockCasesByStateService;
     private lastReportDateService: LastReportDateService;
     private usSummaryService: USSummaryService;
-
+    
     // Create the service instances that Data Controller will use
     constructor() {
         this.flockCasesByStateService = new FlockCasesByStateService();
@@ -23,9 +23,9 @@ class DataController {
      */
     public async getAllFlockCases(req: Request, res: Response) {
         try {
-            const data = await this.flockCasesByStateService.getAllFlockCases();
+            const allFlockCases = await this.flockCasesByStateService.getAllFlockCases();
             logger.http(`Received Request at Flock Cases By State: ${req.url}`);
-            res.json(data);
+            res.json({data: allFlockCases});
         } catch (error) {
             logger.error("Error fetching Flock Cases By State date:", error);
             res.status(500).json({ error: "Failed to fetch last report date" });
@@ -38,9 +38,9 @@ class DataController {
      */
     public async getUSSummary(req: Request, res: Response) {
         try {
-            const data = await this.usSummaryService.getUSSummary();
+            const usSummary = await this.usSummaryService.getUSSummary();
             logger.http(`Received Request at US Summary ${req.url}`);
-            res.json(data);
+            res.json({data: usSummary});
         } catch (error) {
             logger.error(`Error fetching US Summary: ${error}`);
             res.status(500).json({ error: "Failed to US Summary!" });
@@ -53,9 +53,9 @@ class DataController {
      */
     public async getLastScrapedDate(req: Request, res: Response) {
         try {
-            const data = await this.lastReportDateService.getLastScrapedDate();
+            const lastScrapedDate = await this.lastReportDateService.getLastScrapedDate();
             logger.http(`Received Request at Last Report Date ${req.url}`);
-            res.json(data);
+            res.json({data: lastScrapedDate});
         } catch (error) {
             logger.error(`Error fetching Last Report Date: ${error}`);
             res.status(500).json({

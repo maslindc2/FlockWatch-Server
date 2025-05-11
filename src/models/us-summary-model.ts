@@ -13,11 +13,11 @@ import { IUSSummaryStatsDocument } from "../interfaces/models/i-us-summary-stats
 class USSummaryModel {
     private static schema = new Mongoose.Schema<IUSSummaryStatsDocument>(
         {
-            totalStatesAffected: Number,
-            totalBirdsAffectedNationwide: Number,
-            totalFlocksAffectedNationwide: Number,
-            totalBackyardFlocksNationwide: Number,
-            totalCommercialFlocksNationwide: Number,
+            totalStatesAffected: { type: Number, index: true },
+            totalBirdsAffectedNationwide: { type: Number },
+            totalFlocksAffectedNationwide: { type: Number },
+            totalBackyardFlocksNationwide: { type: Number },
+            totalCommercialFlocksNationwide: { type: Number },
         },
         { collection: "us-summary" }
     );

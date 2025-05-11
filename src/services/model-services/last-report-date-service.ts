@@ -5,13 +5,13 @@ class LastReportDateService {
     public async getLastScrapedDate() {
         return LastReportDateModel.getModel
             .findOne({ lastScrapedDate: { $exists: true } })
-            .select("-_id -__v -authID");
+            .select("-_id -__v -authID").lean();
     }
     // Only get the authID and hide the id, version, and last scraped date field
     public async getAuthID() {
         return LastReportDateModel.getModel
             .findOne({ authID: { $exists: true } })
-            .select("-_id -__v -lastScrapedDate");
+            .select("-_id -__v -lastScrapedDate").lean();
     }
     /**
      * On server start this will be executed, if mongoDB is being created for the first time
