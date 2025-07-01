@@ -5,7 +5,7 @@ import { logger } from "../../utils/winston-logger";
 class FlockCasesByStateService {
     // Returns all flock cases from our model
     public async getAllFlockCases() {
-        return FlockCasesByStateModel.getModel.find({}).select("-_id -__v");
+        return await FlockCasesByStateModel.getModel.find({}).select("-_id -__v");
     }
 
     /**

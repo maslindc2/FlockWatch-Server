@@ -7,8 +7,9 @@
         "test": "jest --coverage",
         "test:unit": "jest --testPathPattern=tests/unit",
         "test:integration": "jest --testPathPattern=tests/integration",
-        "dev": "nodemon ./src/server.ts",
+        "nodemon": "nodemon ./src/server.ts",
         "build": "tsc",
+        "dev": "npm run build && node ./dist/server.js",
         "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\""
     },
     "repository": {

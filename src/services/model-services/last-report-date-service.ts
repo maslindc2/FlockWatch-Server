@@ -1,4 +1,6 @@
+import { model } from "mongoose";
 import { LastReportDateModel } from "../../models/last-report-date-model";
+import { logger } from "../../utils/winston-logger";
 
 class LastReportDateService {
     // This will query the last report date model and only return the last scraped date field
@@ -19,7 +21,8 @@ class LastReportDateService {
      */
     public async initializeLastReportDate() {
         // Check for an existing last report date model
-        const existingRecord = await LastReportDateModel.getModel.findOne();
+        const existingRecord = await LastReportDateModel.getModel.findOne().lean();
+        
         // If none exists
         if (!existingRecord) {
             // Create one and set the date to Unix epoch which is January 1, 1970
@@ -29,26 +32,36 @@ class LastReportDateService {
                 authID: crypto.randomUUID(),
             };
             // Create and return the document we created
-            return await LastReportDateModel.getModel.create(modelObj);
-        } else {
-            // Return the existing record
-            return existingRecord;
+            return (await LastReportDateModel.getModel.create(modelObj)).toObject();
         }
+        return existingRecord;
     }
 
     // Create or update the last report date document
-    public async createOrUpdateLastReportDate() {
+    public async updateLastReportDate(isSuccessfulUpdate: Boolean) {
         // Model object contains today's timestamp, and the newly created authID
-        const modelObj = {
-            lastScrapedDate: new Date(),
-            authID: crypto.randomUUID(),
-        };
-        // Upsert or update the last report date entry
-        return await LastReportDateModel.getModel.findOneAndUpdate(
-            {},
-            modelObj,
-            { upsert: true }
-        );
+        let modelObj;
+        if(isSuccessfulUpdate){
+            modelObj = {
+                lastScrapedDate: new Date(),
+                authID: crypto.randomUUID(),
+            };    
+        }else{
+            modelObj = {
+                authID: crypto.randomUUID(),
+            };
+        }
+        try {
+            // Update the last report date entry
+            await LastReportDateModel.getModel.updateOne(
+                {},
+                modelObj,
+            );    
+        } catch (error) {
+            logger.error(`Failed to update the last report date model! Received isSuccessfulUpdate bool value of ${isSuccessfulUpdate} resulted in: ${error}`);
+            throw new Error("Failed to update the last report date model!");
+        }
+        
     }
 }
 export { LastReportDateService };

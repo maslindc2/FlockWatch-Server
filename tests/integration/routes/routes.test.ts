@@ -6,11 +6,11 @@ import * as Mongoose from "mongoose";
 import request from "supertest";
 import { FlockCasesByStateModel } from "../../../src/models/flock-cases-by-state-model";
 import { logger } from "../../../src/utils/winston-logger";
-import { LastReportDateModel } from "../../../src/models/last-report-date-model";
 import { IUSSummaryStats } from "../../../src/interfaces/i-us-summary-stats";
 import { USSummaryService } from "../../../src/services/model-services/us-summary-service";
 import { DatabaseService } from "../../../src/services/database-service";
 import { USSummaryModel } from "../../../src/models/us-summary-model";
+import { LastReportDateService } from "../../../src/services/model-services/last-report-date-service";
 
 dotenv.config();
 
@@ -93,7 +93,7 @@ describe("Routes integration tests", () => {
                 .get("/data/flock-cases")
                 .expect("Content-Type", /json/)
                 .expect(200);
-            expect(res.body).toEqual({data: expectedFlockData});
+            expect(res.body.data).toEqual(expectedFlockData);
             expect(loggerSpy).toHaveBeenCalledWith(
                 "Received Request at Flock Cases By State: /flock-cases"
             );
@@ -106,50 +106,7 @@ describe("Routes integration tests", () => {
             await Mongoose.disconnect();
         });
     });
-    describe("GET /data/last-scraped-date", () => {
-        beforeAll(async () => {
-            try {
-                // Connect using the MongoDB URI
-                await Mongoose.connect(process.env.MONGODB_URI!);
-
-                console.log("MongoDB connected successfully.");
-                // Define the last report data model that we will be storing to the database
-                const LastReportDateData = {
-                    lastScrapedDate: new Date("2025-04-02T12:00:00Z"),
-                    authID: "mocked-uuid-for-testing-1234",
-                };
-                // Store the data to our model
-                await LastReportDateModel.getModel.create(LastReportDateData);
-            } catch (error) {
-                console.error("Error connecting to MongoDB:", error);
-                throw new Error("MongoDB connection failed");
-            }
-        });
-        it("should return the last scraped date when a GET request is made to /data/last-scraped-date", async () => {
-            // Create a spy for our logger as we are expected to receive http logging information
-            const loggerSpy = jest.spyOn(logger, "http");
-            // Defining the expected data we should get back, we should only get the last scraped date back as a string
-            const expectedLastScrapedDate = {
-                lastScrapedDate: "2025-04-02T12:00:00.000Z",
-            };
-            // Make the request to last-scraped-date
-            const res = await request(new App().app)
-                .get("/data/last-scraped-date")
-                .expect("Content-Type", /json/)
-                .expect(200);
-            expect(res.body).toEqual({data: expectedLastScrapedDate});
-            expect(loggerSpy).toHaveBeenCalledWith(
-                "Received Request at Last Report Date /last-scraped-date"
-            );
-            loggerSpy.mockClear();
-        });
-        afterAll(async () => {
-            // Drop the database we made for last report date so we can start new for the next test
-            await LastReportDateModel.getModel.db.dropDatabase();
-            // Disconnect from mongoose
-            await Mongoose.disconnect();
-        });
-    });
+    
     describe("GET /data/us-summary", () => {
         let usSummaryData: IUSSummaryStats;
         beforeAll(async () => {
@@ -166,10 +123,12 @@ describe("Routes integration tests", () => {
                     totalFlocksAffectedNationwide: 1604,
                     totalStatesAffected: 51,
                 };
+                // Store the fake data to the DB
                 const usSummaryService = new USSummaryService();
                 await usSummaryService.createOrUpdateUSummaryStats(
                     usSummaryData
                 );
+                
             } catch (error) {
                 console.error("Error connecting to MongoDB:", error);
                 throw new Error("MongoDB connection failed");
@@ -184,8 +143,9 @@ describe("Routes integration tests", () => {
                 .get("/data/us-summary")
                 .expect("Content-Type", /json/)
                 .expect(200);
+
             // Expect to get the same us summary data back
-            expect(res.body).toEqual({data: usSummaryData});
+            expect(res.body.data).toEqual(usSummaryData);
             // Expect our logger to log our http request
             expect(loggerSpy).toHaveBeenCalledWith(
                 "Received Request at US Summary /us-summary"
