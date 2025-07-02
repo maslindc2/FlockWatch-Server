@@ -24,13 +24,30 @@ class DataController {
     public async getAllFlockCases(req: Request, res: Response) {
         try {
             const allFlockCases = await this.flockCasesByStateService.getAllFlockCases();
-            logger.http(`Received Request at Flock Cases By State: ${req.url}`);
+            logger.http(`Received Request at Get All Flock Cases By State: ${req.url}`);
             res.json({data: allFlockCases});
         } catch (error) {
             logger.error("Error fetching Flock Cases By State date:", error);
             res.status(500).json({ error: "Failed to fetch last report date" });
         }
     }
+    /**
+     * Get a singular state's flock cases, uses the stateAbbreviation to find the matching document
+     * @param req Clients request that we received with the State Abbreviation
+     * @param res Response that we will use to send the requested state's document retrieved from MongoDB
+     */
+    public async getStateFlockCase(req: Request, res: Response) {
+        const requestedState = req.params.stateAbbreviation;
+        try {
+            const stateFlockCases = await this.flockCasesByStateService.getStateFlockCase(requestedState);
+            logger.http(`Received Request at Get a State's Flock Case: ${req.url}`);
+            res.json({data: stateFlockCases});
+        } catch (error) {
+            logger.error(`Error fetching State's flock data. Requested state: ${requestedState} resulted in error:`, error);
+            res.status(500).json({error: `"Failed to fetch requested state ${requestedState}"`});
+        }
+    }
+
     /**
      * Get the US Summary statistics which contains: totalStatesAffected, totalBirdsAffectedNationwide, totalFlocksAffectedNationwide, totalBackyardFlocksNationwide, totalCommercialFlocksNationwide
      * @param req Clients request that we received

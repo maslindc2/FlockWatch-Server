@@ -8,7 +8,7 @@ import { IFlockCasesByStateDocument } from "../interfaces/models/i-flock-cases-b
 class FlockCasesByStateModel {
     private static schema = new Mongoose.Schema<IFlockCasesByStateDocument>(
         {
-            stateAbbreviation: String,
+            stateAbbreviation: {type: String, index: true},
             state: String,
             backyardFlocks: Number,
             commercialFlocks: Number,

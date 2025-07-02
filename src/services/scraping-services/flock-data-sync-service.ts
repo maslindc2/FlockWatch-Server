@@ -69,7 +69,7 @@ class FlockDataSyncService {
             await flockCasesByStateService.createOrUpdateStateData(
                 data?.flockCasesByState
             ).then(() => {
-
+                logger.info("Finished updating state data in the database!")
             }).catch(() => {
                 isSuccessfulUpdate = false;
             });
@@ -79,7 +79,7 @@ class FlockDataSyncService {
                 data?.usSummaryStats
             ).then(() => {
                 logger.info(
-                    "Finished updating database, now serving the latest data!"
+                    "Finished updating US Summary Stats!"
                 );
             }).catch(() => {
                 isSuccessfulUpdate = false;
