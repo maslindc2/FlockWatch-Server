@@ -95,7 +95,7 @@ describe("Routes integration tests", () => {
                 .expect(200);
             expect(res.body.data).toEqual(expectedFlockData);
             expect(loggerSpy).toHaveBeenCalledWith(
-                "Received Request at Flock Cases By State: /flock-cases"
+                "Received Request at Get All Flock Cases By State: /flock-cases"
             );
             loggerSpy.mockClear();
         });
