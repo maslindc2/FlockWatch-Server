@@ -64,29 +64,33 @@ class FlockDataSyncService {
             const flockCasesByStateService = new FlockCasesByStateService();
             // Create an instance of our us summary stats service
             const usSummaryStats = new USSummaryService();
-            
+
             // Create or update the state data in the database
-            await flockCasesByStateService.createOrUpdateStateData(
-                data?.flockCasesByState
-            ).then(() => {
-                logger.info("Finished updating state data in the database!")
-            }).catch(() => {
-                isSuccessfulUpdate = false;
-            });
-            
+            await flockCasesByStateService
+                .createOrUpdateStateData(data?.flockCasesByState)
+                .then(() => {
+                    logger.info(
+                        "Finished updating state data in the database!"
+                    );
+                })
+                .catch(() => {
+                    isSuccessfulUpdate = false;
+                });
+
             // Create or update the USSummaryStats using the data we got back from the scraping service
-            await usSummaryStats.createOrUpdateUSummaryStats(
-                data?.usSummaryStats
-            ).then(() => {
-                logger.info(
-                    "Finished updating US Summary Stats!"
-                );
-            }).catch(() => {
-                isSuccessfulUpdate = false;
-            });  
+            await usSummaryStats
+                .createOrUpdateUSummaryStats(data?.usSummaryStats)
+                .then(() => {
+                    logger.info("Finished updating US Summary Stats!");
+                })
+                .catch(() => {
+                    isSuccessfulUpdate = false;
+                });
         }
         // If we have finished or failed to get new data, generate a new Auth ID
-        await this.lastReportDateService.updateLastReportDate(isSuccessfulUpdate);
+        await this.lastReportDateService.updateLastReportDate(
+            isSuccessfulUpdate
+        );
     }
 }
 export { FlockDataSyncService };

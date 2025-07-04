@@ -23,7 +23,10 @@ describe("FlockCasesByStateModel", () => {
     });
     it("should have the correct datatypes for each field", () => {
         const schemaFields = FlockCasesByStateModel.getModel.schema.obj;
-        expect(schemaFields.stateAbbreviation).toStrictEqual({"index" : true, "type": String});
+        expect(schemaFields.stateAbbreviation).toStrictEqual({
+            index: true,
+            type: String,
+        });
         expect(schemaFields.state).toBe(String);
         expect(schemaFields.backyardFlocks).toBe(Number);
         expect(schemaFields.commercialFlocks).toBe(Number);

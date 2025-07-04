@@ -9,7 +9,7 @@ class DataController {
     private flockCasesByStateService: FlockCasesByStateService;
     private lastReportDateService: LastReportDateService;
     private usSummaryService: USSummaryService;
-    
+
     // Create the service instances that Data Controller will use
     constructor() {
         this.flockCasesByStateService = new FlockCasesByStateService();
@@ -23,9 +23,12 @@ class DataController {
      */
     public async getAllFlockCases(req: Request, res: Response) {
         try {
-            const allFlockCases = await this.flockCasesByStateService.getAllFlockCases();
-            logger.http(`Received Request at Get All Flock Cases By State: ${req.url}`);
-            res.json({data: allFlockCases});
+            const allFlockCases =
+                await this.flockCasesByStateService.getAllFlockCases();
+            logger.http(
+                `Received Request at Get All Flock Cases By State: ${req.url}`
+            );
+            res.json({ data: allFlockCases });
         } catch (error) {
             logger.error("Error fetching Flock Cases By State date:", error);
             res.status(500).json({ error: "Failed to fetch last report date" });
@@ -39,12 +42,22 @@ class DataController {
     public async getStateFlockCase(req: Request, res: Response) {
         const requestedState = req.params.stateAbbreviation;
         try {
-            const stateFlockCases = await this.flockCasesByStateService.getStateFlockCase(requestedState);
-            logger.http(`Received Request at Get a State's Flock Case: ${req.url}`);
-            res.json({data: stateFlockCases});
+            const stateFlockCases =
+                await this.flockCasesByStateService.getStateFlockCase(
+                    requestedState
+                );
+            logger.http(
+                `Received Request at Get a State's Flock Case: ${req.url}`
+            );
+            res.json({ data: stateFlockCases });
         } catch (error) {
-            logger.error(`Error fetching State's flock data. Requested state: ${requestedState} resulted in error:`, error);
-            res.status(500).json({error: `"Failed to fetch requested state ${requestedState}"`});
+            logger.error(
+                `Error fetching State's flock data. Requested state: ${requestedState} resulted in error:`,
+                error
+            );
+            res.status(500).json({
+                error: `"Failed to fetch requested state ${requestedState}"`,
+            });
         }
     }
 
@@ -57,7 +70,7 @@ class DataController {
         try {
             const usSummary = await this.usSummaryService.getUSSummary();
             logger.http(`Received Request at US Summary ${req.url}`);
-            res.json({data: usSummary});
+            res.json({ data: usSummary });
         } catch (error) {
             logger.error(`Error fetching US Summary: ${error}`);
             res.status(500).json({ error: "Failed to US Summary!" });
@@ -70,9 +83,10 @@ class DataController {
      */
     public async getLastScrapedDate(req: Request, res: Response) {
         try {
-            const lastScrapedDate = await this.lastReportDateService.getLastScrapedDate();
+            const lastScrapedDate =
+                await this.lastReportDateService.getLastScrapedDate();
             logger.http(`Received Request at Last Report Date ${req.url}`);
-            res.json({data: lastScrapedDate});
+            res.json({ data: lastScrapedDate });
         } catch (error) {
             logger.error(`Error fetching Last Report Date: ${error}`);
             res.status(500).json({

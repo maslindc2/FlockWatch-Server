@@ -9,9 +9,12 @@ router.get("/flock-cases", async (req: Request, res: Response) => {
     dataController.getAllFlockCases(req, res);
 });
 
-router.get("/flock-cases/:stateAbbreviation", async (req: Request, res: Response) => {
-    dataController.getStateFlockCase(req, res);
-});
+router.get(
+    "/flock-cases/:stateAbbreviation",
+    async (req: Request, res: Response) => {
+        dataController.getStateFlockCase(req, res);
+    }
+);
 
 // Get US Summary statistics
 router.get("/us-summary", async (req: Request, res: Response) => {

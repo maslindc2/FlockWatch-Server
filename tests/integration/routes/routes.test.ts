@@ -106,7 +106,7 @@ describe("Routes integration tests", () => {
             await Mongoose.disconnect();
         });
     });
-    
+
     describe("GET /data/us-summary", () => {
         let usSummaryData: IUSSummaryStats;
         beforeAll(async () => {
@@ -128,7 +128,6 @@ describe("Routes integration tests", () => {
                 await usSummaryService.createOrUpdateUSummaryStats(
                     usSummaryData
                 );
-                
             } catch (error) {
                 console.error("Error connecting to MongoDB:", error);
                 throw new Error("MongoDB connection failed");

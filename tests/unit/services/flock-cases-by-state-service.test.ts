@@ -18,8 +18,8 @@ describe("FlockCasesByStateService", () => {
         const findMock = jest.fn().mockReturnValue({ select: selectMock });
 
         const findSpy = jest
-        .spyOn(FlockCasesByStateModel.getModel, "find")
-        .mockImplementation(findMock);
+            .spyOn(FlockCasesByStateModel.getModel, "find")
+            .mockImplementation(findMock);
 
         // Now call the service
         await service.getAllFlockCases();
@@ -38,14 +38,14 @@ describe("FlockCasesByStateService", () => {
         const findMock = jest.fn().mockReturnValue({ select: selectMock });
 
         const findSpy = jest
-        .spyOn(FlockCasesByStateModel.getModel, "findOne")
-        .mockImplementation(findMock);
+            .spyOn(FlockCasesByStateModel.getModel, "findOne")
+            .mockImplementation(findMock);
 
         // Now call the service
         await service.getStateFlockCase("WA");
 
         // Assertions
-        expect(findMock).toHaveBeenCalledWith({stateAbbreviation: "WA"});
+        expect(findMock).toHaveBeenCalledWith({ stateAbbreviation: "WA" });
         expect(selectMock).toHaveBeenCalledWith("-_id -__v");
         expect(leanMock).toHaveBeenCalled();
 

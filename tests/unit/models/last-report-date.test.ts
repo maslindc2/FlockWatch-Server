@@ -22,7 +22,7 @@ describe("LastReportDateModel", () => {
         const schemaFields = LastReportDateModel.getModel.schema.obj;
         expect(getFieldType(schemaFields.lastScrapedDate)).toBe(Date);
         expect(getFieldType(schemaFields.authID)).toBe(String);
-        
+
         expect((schemaFields.lastScrapedDate as any).index).toBe(true);
         expect((schemaFields.authID as any).index).toBe(true);
     });

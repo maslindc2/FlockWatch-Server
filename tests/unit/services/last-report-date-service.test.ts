@@ -11,20 +11,20 @@ describe("LastReportDateService Unit Tests", () => {
     it("should call findOne with authID and the property {$exists: true} when getAuthID is called", async () => {
         const leanMock = jest.fn().mockResolvedValue({});
         const selectMock = jest.fn(() => ({ lean: leanMock }));
-        
+
         // Create our spy on the mongoose findOne function
         const findSpy = jest
             .spyOn(LastReportDateModel.getModel, "findOne")
             .mockReturnValue({
                 select: selectMock,
             } as any);
-        
-            // Call get authID function
+
+        // Call get authID function
         await lastReportDateService.getAuthID();
-        
+
         // We should be calling with a filter where authID exists
         expect(findSpy).toHaveBeenCalledWith({ authID: { $exists: true } });
-        
+
         // Expect .lean() to be called
         expect(leanMock).toHaveBeenCalled();
 
@@ -45,13 +45,11 @@ describe("LastReportDateService Unit Tests", () => {
         // Call get authID function
         await lastReportDateService.getAuthID();
         // Expect that select was called while hiding id and version
-        expect(selectMock).toHaveBeenCalledWith(
-            "-_id -__v -lastScrapedDate"
-        );
+        expect(selectMock).toHaveBeenCalledWith("-_id -__v -lastScrapedDate");
 
         // Expect .lean() to be called
         expect(leanMock).toHaveBeenCalled();
-        
+
         // Restore implementation
         findOneMock.mockRestore();
         leanMock.mockRestore();
@@ -67,7 +65,7 @@ describe("LastReportDateService Unit Tests", () => {
             .mockReturnValue({
                 select: selectMock,
             } as any);
-        
+
         // Call get getLastScrapedDate
         await lastReportDateService.getLastScrapedDate();
         // Expect that find was called with the correct property
@@ -84,21 +82,20 @@ describe("LastReportDateService Unit Tests", () => {
     it("should call select while hiding the _id, __v, authID elements when getLastScrapedDate is called", async () => {
         const leanMock = jest.fn().mockResolvedValue({});
         const selectMock = jest.fn(() => ({ lean: leanMock }));
-        
+
         // Create our spy on the mongoose findOne function
         const findOneMock = jest
-        .spyOn(LastReportDateModel.getModel, "findOne")
-        .mockReturnValue({ select: selectMock } as any);
-
+            .spyOn(LastReportDateModel.getModel, "findOne")
+            .mockReturnValue({ select: selectMock } as any);
 
         // Call get getLastScrapedDate function
         await lastReportDateService.getLastScrapedDate();
         // Expect that select was called while hiding id and version
         expect(selectMock).toHaveBeenCalledWith("-_id -__v -authID");
-        
+
         // Expect .lean() to be called
         expect(leanMock).toHaveBeenCalled();
-        
+
         // Restore implementation
         findOneMock.mockRestore();
         leanMock.mockRestore();

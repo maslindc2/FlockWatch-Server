@@ -39,12 +39,11 @@ class App {
 
         // Setting /data routes for requesting flock data
         this.app.use("/data", this.attachMetadata, dataRoutes);
-        
+
         // Set the root url to return the default message
         this.app.get(
             "/",
             (req: Request, res: Response, next: NextFunction): void => {
-                
                 res.json({ message: "Nothing here but us Chickens" });
             }
         );
@@ -52,7 +51,7 @@ class App {
         this.app.use((req: Request, res: Response): void => {
             res.status(404).json({
                 error: "Not Found",
-                message: "The requested endpoint does not exist"
+                message: "The requested endpoint does not exist",
             });
         });
     }
@@ -61,32 +60,38 @@ class App {
         try {
             // Connect to MongoDB
             await DatabaseService.connect(process.env.MONGODB_URI!);
-            
+
             // Initialize the DB which will check if we starting from a fresh DB instance or not
             await this.lastReportDateService.initializeLastReportDate();
 
-            this.metadata = await this.lastReportDateService.getLastScrapedDate();
+            this.metadata =
+                await this.lastReportDateService.getLastScrapedDate();
 
             // Call sync data to check if we are out of date and if so request new data from flock watch scraping
             await this.syncData();
 
             // Update the metadata to the latest scrape date after syncing
-            this.metadata = await this.lastReportDateService.getLastScrapedDate();
+            this.metadata =
+                await this.lastReportDateService.getLastScrapedDate();
 
             // Log that we are ready
             logger.info(`FlockWatch Server is ready!`);
         } catch (error) {
             logger.error(`Failed to start FlockWatch Server: ${error}`);
-            if(process.env.NODE_ENV !== "test"){
+            if (process.env.NODE_ENV !== "test") {
                 process.exit(1);
             }
         }
     }
 
-    private attachMetadata = (req: Request, res: Response, next: NextFunction) => {
+    private attachMetadata = (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
         const originalData = res.json.bind(res);
         res.json = (body) => {
-            if (typeof body === 'object' && body !== null) {
+            if (typeof body === "object" && body !== null) {
                 body.metadata = this.metadata;
             }
             return originalData(body);

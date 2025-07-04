@@ -35,7 +35,8 @@ describe("USSummaryService Integration", () => {
         await usSummaryService.createOrUpdateUSummaryStats(modelObj);
         // We should get the exact same object from our db but as an array
         // Safe to assert non-null here — we just inserted this document
-        const queryFromDB: IUSSummaryStats = (await usSummaryService.getUSSummary())!;
+        const queryFromDB: IUSSummaryStats =
+            (await usSummaryService.getUSSummary())!;
         // Now our state data from our DB should equal our flockData that we made earlier
         expect(queryFromDB).toMatchObject(modelObj);
     });

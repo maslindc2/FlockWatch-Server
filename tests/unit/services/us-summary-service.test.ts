@@ -17,27 +17,29 @@ describe("USSummaryService Unit Tests", () => {
         const findSpy = jest
             .spyOn(USSummaryModel.getModel, "findOne")
             .mockReturnValue({
-                select: selectMock
+                select: selectMock,
             } as any);
-        
+
         await usSummaryService.getUSSummary();
 
         // Find should be called with {} and the select should hide the internal ID and the version tag
-        expect(findSpy).toHaveBeenCalledWith({ totalStatesAffected: { $exists: true } });
+        expect(findSpy).toHaveBeenCalledWith({
+            totalStatesAffected: { $exists: true },
+        });
         expect(selectMock).toHaveBeenCalledWith("-_id -__v");
-        
+
         findSpy.mockRestore();
         selectMock.mockRestore();
     });
 
     it("should return expected mock data when getUSSummary is called", async () => {
         // Create fake state information
-        const fakeData:IUSSummaryStats = {
+        const fakeData: IUSSummaryStats = {
             totalBackyardFlocksNationwide: 897,
             totalBirdsAffectedNationwide: 168256658,
             totalCommercialFlocksNationwide: 779,
             totalFlocksAffectedNationwide: 1676,
-            totalStatesAffected: 51
+            totalStatesAffected: 51,
         };
 
         // When we call find return the mocked data

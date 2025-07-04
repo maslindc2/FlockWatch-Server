@@ -48,7 +48,7 @@ describe("LastReportDateService Integration", () => {
         // Should get back the exact same record from our database since its been initialized already
         const existingRecord =
             await lastReportDateService.initializeLastReportDate();
-        
+
         // Since we use Mongoose we need to strip the proxied object portion from our result
         // This is done by Stringify and then parsing.
         const stripProxiedObject = (obj: ILastReportDate) =>
@@ -65,20 +65,24 @@ describe("LastReportDateService Integration", () => {
     it("should update the existing record creating a new authID and updating last scraped date when we successfully get new data", async () => {
         // Initialize the database with our first call
         await lastReportDateService.initializeLastReportDate();
-        
-        const initialLastScrapedDateObject = await lastReportDateService.getLastScrapedDate();
+
+        const initialLastScrapedDateObject =
+            await lastReportDateService.getLastScrapedDate();
         const initialUpdatedAuthID = await lastReportDateService.getAuthID();
 
         // Call updateLastReportDate with a value of true which should change both the lastReportDate field and the authID
         await lastReportDateService.updateLastReportDate(true);
 
-        const lastScrapedDateObject = await lastReportDateService.getLastScrapedDate();
+        const lastScrapedDateObject =
+            await lastReportDateService.getLastScrapedDate();
         const updatedAuthID = await lastReportDateService.getAuthID();
 
-        expect(initialLastScrapedDateObject!.lastScrapedDate).not.toEqual(lastScrapedDateObject!.lastScrapedDate);
+        expect(initialLastScrapedDateObject!.lastScrapedDate).not.toEqual(
+            lastScrapedDateObject!.lastScrapedDate
+        );
         expect(initialUpdatedAuthID!.authID).not.toEqual(updatedAuthID);
     });
-    
+
     it("should update the existing record creating a new authID and updating last scraped date when we successfully get new data", async () => {
         // Initialize the database with our first call
         const initialRecord =
@@ -87,10 +91,13 @@ describe("LastReportDateService Integration", () => {
         // Call updateLastReportDate with a value of false which should ONLY change the authID and NOT the last report date
         await lastReportDateService.updateLastReportDate(false);
 
-        const lastScrapedDateObject = await lastReportDateService.getLastScrapedDate();
+        const lastScrapedDateObject =
+            await lastReportDateService.getLastScrapedDate();
         const updatedAuthID = await lastReportDateService.getAuthID();
-        
-        expect(initialRecord.lastScrapedDate).toEqual(lastScrapedDateObject?.lastScrapedDate);
+
+        expect(initialRecord.lastScrapedDate).toEqual(
+            lastScrapedDateObject?.lastScrapedDate
+        );
         expect(initialRecord.authID).not.toEqual(updatedAuthID);
     });
 

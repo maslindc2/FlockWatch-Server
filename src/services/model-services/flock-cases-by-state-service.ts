@@ -8,7 +8,10 @@ class FlockCasesByStateService {
      * @returns All the flock cases for the United States from MongoDB
      */
     public async getAllFlockCases() {
-        return await FlockCasesByStateModel.getModel.find({}).select("-_id -__v").lean();
+        return await FlockCasesByStateModel.getModel
+            .find({})
+            .select("-_id -__v")
+            .lean();
     }
 
     /**
@@ -17,7 +20,10 @@ class FlockCasesByStateService {
      * @returns The requested State's data
      */
     public async getStateFlockCase(requestedState: String) {
-        return await FlockCasesByStateModel.getModel.findOne({stateAbbreviation: requestedState}).select("-_id -__v").lean();
+        return await FlockCasesByStateModel.getModel
+            .findOne({ stateAbbreviation: requestedState })
+            .select("-_id -__v")
+            .lean();
     }
 
     /**
