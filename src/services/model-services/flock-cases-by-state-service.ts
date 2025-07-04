@@ -3,9 +3,27 @@ import { FlockCasesByStateModel } from "../../models/flock-cases-by-state-model"
 import { logger } from "../../utils/winston-logger";
 
 class FlockCasesByStateService {
-    // Returns all flock cases from our model
+    /**
+     * Uses Find to retrieve all the flock cases from MongoDB
+     * @returns All the flock cases for the United States from MongoDB
+     */
     public async getAllFlockCases() {
-        return FlockCasesByStateModel.getModel.find({}).select("-_id -__v");
+        return await FlockCasesByStateModel.getModel
+            .find({})
+            .select("-_id -__v")
+            .lean();
+    }
+
+    /**
+     * Uses findOne to retrieve a specific State's flock cases from MongoDB
+     * @param requestedState Uses the State's Abbreviation to request a specific State's data (i.e. "WA")
+     * @returns The requested State's data
+     */
+    public async getStateFlockCase(requestedState: String) {
+        return await FlockCasesByStateModel.getModel
+            .findOne({ stateAbbreviation: requestedState })
+            .select("-_id -__v")
+            .lean();
     }
 
     /**

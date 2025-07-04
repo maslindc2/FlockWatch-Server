@@ -1,5 +1,6 @@
 import { USSummaryService } from "../../../src/services/model-services/us-summary-service";
 import { USSummaryModel } from "../../../src/models/us-summary-model";
+import { IUSSummaryStats } from "../../../src/interfaces/i-us-summary-stats";
 
 describe("USSummaryService Unit Tests", () => {
     let usSummaryService: USSummaryService;
@@ -8,43 +9,41 @@ describe("USSummaryService Unit Tests", () => {
         usSummaryService = new USSummaryService();
     });
 
-    it("should call find and select hiding the id and version when getUSSummary is called", async () => {
+    it("should call findOne and select hiding the id and version when getUSSummary is called", async () => {
+        // Create a mock on the select function to see if it has been called with the correct parameters.
+        const selectMock = jest.fn().mockResolvedValue({});
+
         // Use a spy to see what parameters find was called on the USSummaryModel
         const findSpy = jest
-            .spyOn(USSummaryModel.getModel, "find")
+            .spyOn(USSummaryModel.getModel, "findOne")
             .mockReturnValue({
-                select: jest.fn().mockResolvedValue([]),
+                select: selectMock,
             } as any);
 
         await usSummaryService.getUSSummary();
 
         // Find should be called with {} and the select should hide the internal ID and the version tag
-        expect(findSpy).toHaveBeenCalledWith({});
-        expect(findSpy.mock.results[0].value.select).toHaveBeenCalledWith(
-            "-_id -__v"
-        );
+        expect(findSpy).toHaveBeenCalledWith({
+            totalStatesAffected: { $exists: true },
+        });
+        expect(selectMock).toHaveBeenCalledWith("-_id -__v");
 
         findSpy.mockRestore();
+        selectMock.mockRestore();
     });
 
     it("should return expected mock data when getUSSummary is called", async () => {
         // Create fake state information
-        const fakeData = [
-            {
-                stateAbbreviation: "PA",
-                state: "Pennsylvania",
-                backyardFlocks: 6,
-                commercialFlocks: 2344370,
-                birdsAffected: 7,
-                totalFlocks: 7,
-                latitude: 40.99773861,
-                longitude: -76.19300025,
-                lastReportedDate: new Date(Date.UTC(2025, 2 - 1, 5)),
-            },
-        ];
+        const fakeData: IUSSummaryStats = {
+            totalBackyardFlocksNationwide: 897,
+            totalBirdsAffectedNationwide: 168256658,
+            totalCommercialFlocksNationwide: 779,
+            totalFlocksAffectedNationwide: 1676,
+            totalStatesAffected: 51,
+        };
 
         // When we call find return the mocked data
-        jest.spyOn(USSummaryModel.getModel, "find").mockReturnValue({
+        jest.spyOn(USSummaryModel.getModel, "findOne").mockReturnValue({
             select: jest.fn().mockResolvedValue(fakeData),
         } as any);
 

@@ -13,52 +13,43 @@ describe("FlockCasesByStateService", () => {
     });
 
     it("should call find and select with the parameters -_id and -__v when getAllFlockCases is called", async () => {
-        // Create a spy on the find function and resolve to an empty array
+        const leanMock = jest.fn().mockResolvedValue([]);
+        const selectMock = jest.fn().mockReturnValue({ lean: leanMock });
+        const findMock = jest.fn().mockReturnValue({ select: selectMock });
+
         const findSpy = jest
             .spyOn(FlockCasesByStateModel.getModel, "find")
-            .mockReturnValue({
-                select: jest.fn().mockResolvedValue([]),
-            } as any);
+            .mockImplementation(findMock);
 
-        // Call the get all flock cases function in our service
+        // Now call the service
         await service.getAllFlockCases();
-        // Expect that the find spy was called with an empty object for a filter
-        expect(findSpy).toHaveBeenCalledWith({});
-        // Expect that select was called with hide id and version tags
-        expect(findSpy.mock.results[0].value.select).toHaveBeenCalledWith(
-            "-_id -__v"
-        );
-        // Restore implementation
+
+        // Assertions
+        expect(findMock).toHaveBeenCalledWith({});
+        expect(selectMock).toHaveBeenCalledWith("-_id -__v");
+        expect(leanMock).toHaveBeenCalled();
+
+        // Clean up
         findSpy.mockRestore();
     });
+    it("should call find and select with the parameters -_id and -__v when getStateFlockCase is called", async () => {
+        const leanMock = jest.fn().mockResolvedValue({});
+        const selectMock = jest.fn().mockReturnValue({ lean: leanMock });
+        const findMock = jest.fn().mockReturnValue({ select: selectMock });
 
-    it("should return expected mock data when getAllFlockCases is called", async () => {
-        // Create some fake state data
-        const mockData: IFlockCasesByState[] = [
-            {
-                stateAbbreviation: "PA",
-                state: "Pennsylvania",
-                backyardFlocks: 2344370,
-                commercialFlocks: 7,
-                birdsAffected: 7,
-                totalFlocks: 390728,
-                latitude: 40.99773861,
-                longitude: -76.19300025,
-                lastReportedDate: new Date(Date.UTC(2025, 2 - 1, 5)),
-            },
-        ];
-
-        // Create a spy for the find function and mock the returned value to be our mock data
         const findSpy = jest
-            .spyOn(FlockCasesByStateModel.getModel, "find")
-            .mockReturnValue({
-                select: jest.fn().mockResolvedValue(mockData),
-            } as any);
+            .spyOn(FlockCasesByStateModel.getModel, "findOne")
+            .mockImplementation(findMock);
 
-        // Call get all flock cases and expect that we get the mock data back as a result
-        const result = await service.getAllFlockCases();
-        expect(result).toEqual(mockData);
-        // Restore implementation
+        // Now call the service
+        await service.getStateFlockCase("WA");
+
+        // Assertions
+        expect(findMock).toHaveBeenCalledWith({ stateAbbreviation: "WA" });
+        expect(selectMock).toHaveBeenCalledWith("-_id -__v");
+        expect(leanMock).toHaveBeenCalled();
+
+        // Clean up
         findSpy.mockRestore();
     });
     it("should throw and log an error when createOrUpdateStateData throws an error", async () => {

@@ -1,7 +1,7 @@
-import { logger } from "../utils/winston-logger";
-import { IFlockCasesByState } from "../interfaces/i-flock-cases-by-state";
-import { IUSSummaryStats } from "../interfaces/i-us-summary-stats";
-import { ILatestFlockData } from "../interfaces/i-latest-flock-data";
+import { logger } from "../../utils/winston-logger";
+import { IFlockCasesByState } from "../../interfaces/i-flock-cases-by-state";
+import { IUSSummaryStats } from "../../interfaces/i-us-summary-stats";
+import { ILatestFlockData } from "../../interfaces/i-latest-flock-data";
 
 class RequestDataService {
     /**
