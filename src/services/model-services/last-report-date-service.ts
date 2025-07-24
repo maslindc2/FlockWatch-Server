@@ -1,4 +1,3 @@
-import { model } from "mongoose";
 import { LastReportDateModel } from "../../models/last-report-date-model";
 import { logger } from "../../utils/winston-logger";
 
