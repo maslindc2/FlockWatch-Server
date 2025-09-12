@@ -1,21 +1,64 @@
-import { IUSSummaryStats } from "../../interfaces/i-us-summary-stats";
+import { IAllTimeTotals, IPeriodSummary, IUSSummaryStats } from "../../interfaces/i-us-summary-stats";
 import { USSummaryModel } from "../../models/us-summary-model";
+import { logger } from "../../utils/winston-logger";
 
 class USSummaryService {
-    // Gets the US Summary stats which contains: totalStatesAffected, totalBirdsAffectedNationwide, totalFlocksAffectedNationwide, totalBackyardFlocksNationwide, totalCommercialFlocksNationwide
-    // Hides the id and version fields
+    /**
+     * Gets the complete US Summary (all-time totals + rolling periods).
+     * Hides the Mongo id and version fields.
+     */
     public async getUSSummary() {
         return USSummaryModel.getModel
-            .findOne({ totalStatesAffected: { $exists: true } })
-            .select("-_id -__v");
+            .findOne({ key: "us-summary" })
+            .select("-_id -__v")
+            .lean<IUSSummaryStats>();
     }
-    // Used to update or create the US Summary Stats, used when we receive data from the scrapers
-    public async createOrUpdateUSummaryStats(usSummaryStats: IUSSummaryStats) {
-        return await USSummaryModel.getModel.findOneAndUpdate(
-            {},
-            usSummaryStats,
-            { upsert: true }
-        );
+
+    public async getFormattedUSSummary() {
+        const summary: any = await USSummaryModel.getModel
+            .findOne({ key: "us-summary" })
+            .select("-_id -__v")
+            .lean<IUSSummaryStats>();
+
+        if (!summary) return null;
+        return {
+            allTimeTotals: summary.allTimeTotals,
+            periodSummaries: USSummaryModel.formatPeriods(summary.periodSummaries)
+        };
+    }
+
+    /**
+     * Updates or inserts the all-time totals.
+     */
+    public async updateAllTimeTotals(allTimeTotals: IAllTimeTotals) {
+        return USSummaryModel.updateAllTimeTotals(allTimeTotals);
+    }
+
+    /**
+     * Updates or inserts a rolling period summary.
+     */
+    public async upsertPeriodSummary(period: IPeriodSummary) {
+        return USSummaryModel.upsertPeriodAtomic(period);
+    }
+
+    /**
+     * A helper to bulk-update both all-time totals and periods in one call.
+     * Useful for when your scraper finishes a full run.
+     */
+    public async upsertUSSummary(usSummaryStats: IUSSummaryStats) {
+        const { allTimeTotals, periodSummaries } = usSummaryStats;
+
+        // Update all-time
+        await this.updateAllTimeTotals(allTimeTotals);
+
+        // Update each period
+        for (const period of periodSummaries) {
+            await this.upsertPeriodSummary(period);
+        }
+
+        // Return the unified doc for convenience
+        return this.getUSSummary();
     }
 }
+
 export { USSummaryService };

@@ -68,7 +68,12 @@ class DataController {
      */
     public async getUSSummary(req: Request, res: Response) {
         try {
-            const usSummary = await this.usSummaryService.getUSSummary();
+            const usSummary = await this.usSummaryService.getFormattedUSSummary();
+            
+            if (!usSummary) {
+                return res.status(404).json({ message: "No US summary found" });
+            }
+            
             logger.http(`Received Request at US Summary ${req.url}`);
             res.json({ data: usSummary });
         } catch (error) {

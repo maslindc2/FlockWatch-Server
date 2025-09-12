@@ -10,7 +10,6 @@ import { IUSSummaryStats } from "../../../src/interfaces/i-us-summary-stats";
 import { USSummaryService } from "../../../src/services/model-services/us-summary-service";
 import { DatabaseService } from "../../../src/services/database-service";
 import { USSummaryModel } from "../../../src/models/us-summary-model";
-import { LastReportDateService } from "../../../src/services/model-services/last-report-date-service";
 
 dotenv.config();
 
@@ -109,53 +108,88 @@ describe("Routes integration tests", () => {
 
     describe("GET /data/us-summary", () => {
         let usSummaryData: IUSSummaryStats;
-        beforeAll(async () => {
-            try {
-                // Connect using the MongoDB URI
-                await Mongoose.connect(process.env.MONGODB_URI!);
+        let usSummaryService: USSummaryService;
 
-                console.log("MongoDB connected successfully.");
-                // Define the us summary model that we will be storing to the database
-                usSummaryData = {
-                    totalBackyardFlocksNationwide: 841,
-                    totalBirdsAffectedNationwide: 166156928,
-                    totalCommercialFlocksNationwide: 763,
-                    totalFlocksAffectedNationwide: 1604,
+        beforeAll(async () => {
+            await Mongoose.connect(process.env.MONGODB_URI!);
+            usSummaryService = new USSummaryService();
+
+            // Define the us summary model in the new schema
+            usSummaryData = {
+                key: "us-summary",
+                allTimeTotals: {
+                    totalBackyardFlocksAffected: 841,
+                    totalBirdsAffected: 166156928,
+                    totalCommercialFlocksAffected: 763,
+                    totalFlocksAffected: 1604,
                     totalStatesAffected: 51,
-                };
-                // Store the fake data to the DB
-                const usSummaryService = new USSummaryService();
-                await usSummaryService.createOrUpdateUSummaryStats(
-                    usSummaryData
-                );
-            } catch (error) {
-                console.error("Error connecting to MongoDB:", error);
-                throw new Error("MongoDB connection failed");
-            }
+                },
+                periodSummaries: [
+                    {
+                        periodName: "last7Days",
+                        totalBackyardFlocksAffected: 10,
+                        totalBirdsAffected: 50000,
+                        totalCommercialFlocksAffected: 25,
+                        totalFlocksAffected: 35,
+                    },
+                    {
+                        periodName: "last30Days",
+                        totalBackyardFlocksAffected: 50,
+                        totalBirdsAffected: 1000000,
+                        totalCommercialFlocksAffected: 75,
+                        totalFlocksAffected: 125,
+                    },
+                ],
+            };
+
+            // Store the data using the new upsert method
+            await usSummaryService.upsertUSSummary(usSummaryData);
         });
-        it("should return the last scraped date when a GET request is made to /data/us-summary", async () => {
-            // Create a spy for our logger as we are expected to receive http logging information
+
+        it("should return all-time totals and period summaries correctly", async () => {
             const loggerSpy = jest.spyOn(logger, "http");
 
-            // Make the request to us-summary
             const res = await request(new App().app)
                 .get("/data/us-summary")
                 .expect("Content-Type", /json/)
                 .expect(200);
 
-            // Expect to get the same us summary data back
-            expect(res.body.data).toEqual(usSummaryData);
-            // Expect our logger to log our http request
+            const expectedObject = {
+                allTimeTotals: {
+                    totalStatesAffected: 51,
+                    totalBirdsAffected: 166156928,
+                    totalFlocksAffected: 1604,
+                    totalBackyardFlocksAffected: 841,
+                    totalCommercialFlocksAffected: 763
+                },
+                periodSummaries: {
+                    last7Days: {
+                        totalBirdsAffected: 50000,
+                        totalFlocksAffected: 35,
+                        totalBackyardFlocksAffected: 10,
+                        totalCommercialFlocksAffected: 25
+                    },
+                    last30Days: {
+                        totalBirdsAffected: 1000000,
+                        totalFlocksAffected: 125,
+                        totalBackyardFlocksAffected: 50,
+                        totalCommercialFlocksAffected: 75
+                    }
+                }
+            }
+            // Expect the response to match the new nested schema
+            expect(res.body.data).toMatchObject(expectedObject);
+
             expect(loggerSpy).toHaveBeenCalledWith(
                 "Received Request at US Summary /us-summary"
             );
             loggerSpy.mockClear();
         });
+
         afterAll(async () => {
-            // Drop the database we made for us summary data so we can start new for the next test
             await USSummaryModel.getModel.db.dropDatabase();
-            // Disconnect from mongoose
             await Mongoose.disconnect();
         });
     });
+
 });

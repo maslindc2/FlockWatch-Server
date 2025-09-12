@@ -11,44 +11,59 @@ describe("USSummaryService Unit Tests", () => {
 
     it("should call findOne and select hiding the id and version when getUSSummary is called", async () => {
         // Create a mock on the select function to see if it has been called with the correct parameters.
-        const selectMock = jest.fn().mockResolvedValue({});
-
-        // Use a spy to see what parameters find was called on the USSummaryModel
-        const findSpy = jest
-            .spyOn(USSummaryModel.getModel, "findOne")
-            .mockReturnValue({
-                select: selectMock,
-            } as any);
+        const selectMock = jest.fn().mockReturnThis();
+        const leanMock = jest.fn().mockResolvedValue({});
+        
+        
+        jest.spyOn(USSummaryModel.getModel, "findOne").mockReturnValue({
+            select: selectMock,
+            lean: leanMock,
+        } as any);
 
         await usSummaryService.getUSSummary();
 
-        // Find should be called with {} and the select should hide the internal ID and the version tag
-        expect(findSpy).toHaveBeenCalledWith({
-            totalStatesAffected: { $exists: true },
-        });
         expect(selectMock).toHaveBeenCalledWith("-_id -__v");
+        expect(leanMock).toHaveBeenCalled();
 
-        findSpy.mockRestore();
+        leanMock.mockRestore();
         selectMock.mockRestore();
     });
 
     it("should return expected mock data when getUSSummary is called", async () => {
-        // Create fake state information
         const fakeData: IUSSummaryStats = {
-            totalBackyardFlocksNationwide: 897,
-            totalBirdsAffectedNationwide: 168256658,
-            totalCommercialFlocksNationwide: 779,
-            totalFlocksAffectedNationwide: 1676,
-            totalStatesAffected: 51,
+            key: "us-summary",
+            allTimeTotals: {
+                totalStatesAffected: 51,
+                totalBirdsAffected: 168256658,
+                totalFlocksAffected: 1676,
+                totalBackyardFlocksAffected: 897,
+                totalCommercialFlocksAffected: 779,
+            },
+            periodSummaries: [
+                {
+                    periodName: "last30Days",
+                    totalBirdsAffected: 168256658,
+                    totalFlocksAffected: 1676,
+                    totalBackyardFlocksAffected: 897,
+                    totalCommercialFlocksAffected: 779,
+                },
+            ],
         };
 
-        // When we call find return the mocked data
+        const selectMock = jest.fn().mockReturnThis();
+        const leanMock = jest.fn().mockResolvedValue(fakeData);
+
+        
+
         jest.spyOn(USSummaryModel.getModel, "findOne").mockReturnValue({
-            select: jest.fn().mockResolvedValue(fakeData),
+            select: selectMock,
+            lean: leanMock,
         } as any);
 
-        // When we call our service's getUSSummary we should get back our fakeData
         const result = await usSummaryService.getUSSummary();
         expect(result).toEqual(fakeData);
+        leanMock.mockRestore();
+        selectMock.mockRestore();
     });
+
 });

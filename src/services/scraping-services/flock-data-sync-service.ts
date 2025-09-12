@@ -79,7 +79,7 @@ class FlockDataSyncService {
 
             // Create or update the USSummaryStats using the data we got back from the scraping service
             await usSummaryStats
-                .createOrUpdateUSummaryStats(data?.usSummaryStats)
+                .upsertUSSummary(data?.usSummaryStats)
                 .then(() => {
                     logger.info("Finished updating US Summary Stats!");
                 })

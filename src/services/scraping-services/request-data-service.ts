@@ -1,6 +1,6 @@
 import { logger } from "../../utils/winston-logger";
 import { IFlockCasesByState } from "../../interfaces/i-flock-cases-by-state";
-import { IUSSummaryStats } from "../../interfaces/i-us-summary-stats";
+import { IAllTimeTotals, IPeriodSummary, IUSSummaryStats } from "../../interfaces/i-us-summary-stats";
 import { ILatestFlockData } from "../../interfaces/i-latest-flock-data";
 
 class RequestDataService {
@@ -10,32 +10,37 @@ class RequestDataService {
      * @returns JS Object containing the US Summary Stats of type IUSSummaryStats
      */
     private createUSSummaryData(
-        jsonFromScraper: IFlockCasesByState[]
+        jsonFromScraper: IFlockCasesByState[],
+        periodSummaries: IPeriodSummary[]
     ): IUSSummaryStats {
-        const usSummaryStats = {
+        const allTimeTotals: IAllTimeTotals = {
             totalStatesAffected: 0,
-            totalBirdsAffectedNationwide: 0,
-            totalFlocksAffectedNationwide: 0,
-            totalBackyardFlocksNationwide: 0,
-            totalCommercialFlocksNationwide: 0,
+            totalBirdsAffected: 0,
+            totalFlocksAffected: 0,
+            totalBackyardFlocksAffected: 0,
+            totalCommercialFlocksAffected: 0,
         };
 
         // For each state object populate the usSummaryStats by iterating through each states individual data
         jsonFromScraper.forEach((stateObj) => {
             // Since Scraper only sends data for states that have outbreaks...
             // we can safely increment the totalStatesAffected by 1 for each state object
-            usSummaryStats.totalStatesAffected += 1;
-            usSummaryStats.totalBirdsAffectedNationwide +=
+            allTimeTotals.totalStatesAffected += 1;
+            allTimeTotals.totalBirdsAffected +=
                 stateObj.birdsAffected;
-            usSummaryStats.totalFlocksAffectedNationwide +=
+            allTimeTotals.totalFlocksAffected +=
                 stateObj.totalFlocks;
-            usSummaryStats.totalBackyardFlocksNationwide +=
+            allTimeTotals.totalBackyardFlocksAffected +=
                 stateObj.backyardFlocks;
-            usSummaryStats.totalCommercialFlocksNationwide +=
+            allTimeTotals.totalCommercialFlocksAffected +=
                 stateObj.commercialFlocks;
         });
 
-        return usSummaryStats;
+        return {
+            key: "us-summary",
+            allTimeTotals,
+            periodSummaries
+        };
     }
 
     /**
@@ -100,8 +105,20 @@ class RequestDataService {
         if (!jsonFromScraper) {
             throw new Error("Failed to receive data from scraping service!");
         }
+        
+        // TODO: Convert to a scraper response!!!!
+        const tempPeriodSummaries = [
+            {
+                periodName: "last30Days", 
+                totalBackyardFlocksAffected: 25,
+                totalBirdsAffected: 250000,
+                totalCommercialFlocksAffected: 20,
+                totalFlocksAffected: 45,
+            },
+        ]
+
         // Create the US Summary Data from the array of state data that we received earlier
-        const usSummaryStats = this.createUSSummaryData(jsonFromScraper);
+        const usSummaryStats = this.createUSSummaryData(jsonFromScraper, tempPeriodSummaries);
         // Assemble it as a JS object
         const latestFlockData: ILatestFlockData = {
             usSummaryStats: usSummaryStats,

@@ -3,50 +3,122 @@ import { IUSSummaryStats } from "../../../src/interfaces/i-us-summary-stats";
 import { USSummaryModel } from "../../../src/models/us-summary-model";
 import * as Mongoose from "mongoose";
 import dotenv from "dotenv";
+
 dotenv.config();
 
 describe("USSummaryService Integration", () => {
     let usSummaryService: USSummaryService;
+
     beforeAll(async () => {
-        try {
-            await Mongoose.connect(process.env.MONGODB_URI!);
-            console.log("MongoDB connected successfully.");
-        } catch (error) {
-            console.error("Error connecting to MongoDB:", error);
-            throw new Error("MongoDB connection failed");
-        }
+        await Mongoose.connect(process.env.MONGODB_URI!);
     }, 10000);
 
     beforeEach(() => {
-        jest.resetModules();
         usSummaryService = new USSummaryService();
     });
 
-    it("should create store us summary stats", async () => {
-        // Create a summary stat object
+    it("should insert and retrieve a full US summary correctly", async () => {
         const modelObj: IUSSummaryStats = {
-            totalBackyardFlocksNationwide: 841,
-            totalBirdsAffectedNationwide: 166156928,
-            totalCommercialFlocksNationwide: 763,
-            totalFlocksAffectedNationwide: 1604,
-            totalStatesAffected: 51,
+            key: "us-summary",
+            allTimeTotals: {
+                totalBackyardFlocksAffected: 841,
+                totalBirdsAffected: 166156928,
+                totalCommercialFlocksAffected: 763,
+                totalFlocksAffected: 1604,
+                totalStatesAffected: 51,
+            },
+            periodSummaries: [
+                {
+                    periodName: "last7Days",
+                    totalBackyardFlocksAffected: 10,
+                    totalBirdsAffected: 50000,
+                    totalCommercialFlocksAffected: 25,
+                    totalFlocksAffected: 35,
+                },
+                {
+                    periodName: "last30Days",
+                    totalBackyardFlocksAffected: 50,
+                    totalBirdsAffected: 1000000,
+                    totalCommercialFlocksAffected: 75,
+                    totalFlocksAffected: 125,
+                },
+            ],
         };
-        // Create the summary stats using the object we just made
-        await usSummaryService.createOrUpdateUSummaryStats(modelObj);
-        // We should get the exact same object from our db but as an array
-        // Safe to assert non-null here — we just inserted this document
-        const queryFromDB: IUSSummaryStats =
-            (await usSummaryService.getUSSummary())!;
-        // Now our state data from our DB should equal our flockData that we made earlier
+
+        // Use the new bulk upsert method
+        await usSummaryService.upsertUSSummary(modelObj);
+
+        const queryFromDB = await usSummaryService.getUSSummary();
+
         expect(queryFromDB).toMatchObject(modelObj);
     });
+    
+    it("should update existing period summaries instead of duplicating them", async () => {
+        const initialData: IUSSummaryStats = {
+            key: "us-summary",
+            allTimeTotals: {
+                totalBackyardFlocksAffected: 500,
+                totalBirdsAffected: 1000000,
+                totalCommercialFlocksAffected: 400,
+                totalFlocksAffected: 900,
+                totalStatesAffected: 50,
+            },
+            periodSummaries: [
+                {
+                    periodName: "last30Days",
+                    totalBackyardFlocksAffected: 20,
+                    totalBirdsAffected: 200000,
+                    totalCommercialFlocksAffected: 15,
+                    totalFlocksAffected: 35,
+                },
+            ],
+        };
+
+        // First upsert inserts the data
+        await usSummaryService.upsertUSSummary(initialData);
+
+        // Second upsert updates the same period with new metrics
+        const updatedData: IUSSummaryStats = {
+            key: "us-summary",
+            allTimeTotals: {
+                totalBackyardFlocksAffected: 550, // updated all-time totals
+                totalBirdsAffected: 1200000,
+                totalCommercialFlocksAffected: 450,
+                totalFlocksAffected: 1000,
+                totalStatesAffected: 51,
+            },
+            periodSummaries: [
+                {
+                    periodName: "last30Days", // same period, should update
+                    totalBackyardFlocksAffected: 25,
+                    totalBirdsAffected: 250000,
+                    totalCommercialFlocksAffected: 20,
+                    totalFlocksAffected: 45,
+                },
+            ],
+        };
+
+        await usSummaryService.upsertUSSummary(updatedData);
+
+        const queryFromDB = await usSummaryService.getUSSummary();
+
+        // Check that all-time totals were updated
+        expect(queryFromDB!.allTimeTotals).toMatchObject(updatedData.allTimeTotals);
+
+        // Check that period summary was updated, not duplicated
+        expect(queryFromDB!.periodSummaries).toHaveLength(1);
+        expect(queryFromDB!.periodSummaries[0]).toMatchObject(
+            updatedData.periodSummaries[0]
+        );
+    });
+
 
     afterEach(async () => {
-        // Drop the database so it's ready for our next test
-        await USSummaryModel.getModel.db.dropDatabase();
+        // Clear only the collection to keep things isolated
+        await USSummaryModel.getModel.deleteMany({});
     });
+
     afterAll(async () => {
-        // Disconnect from mongo after all our tests
         await Mongoose.disconnect();
     });
 });
