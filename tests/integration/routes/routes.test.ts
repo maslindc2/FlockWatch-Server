@@ -106,6 +106,81 @@ describe("Routes integration tests", () => {
         });
     });
 
+    describe("GET /data/flock-cases/:stateAbbreviation", () => {
+        // Before we test the state abbreviation route we need to connect and load the test information
+        beforeAll(async () => {
+            try {
+                // Connect using the MongoDB URI
+                await Mongoose.connect(process.env.MONGODB_URI!);
+                console.log("MongoDB connected successfully.");
+                // Define the state data that we will be storing to the database of the expected type
+                const flockData: IFlockCasesByState[] = [
+                    {
+                        stateAbbreviation: "WA",
+                        state: "Washington",
+                        backyardFlocks: 52,
+                        commercialFlocks: 3,
+                        birdsAffected: 2167079,
+                        totalFlocks: 55,
+                        latitude: 47.556837171,
+                        longitude: -122.16233971,
+                        lastReportedDate: new Date(Date.UTC(2025, 2 - 1, 5)),
+                    },
+                    {
+                        stateAbbreviation: "PA",
+                        state: "Pennsylvania",
+                        backyardFlocks: 2344370,
+                        commercialFlocks: 7,
+                        birdsAffected: 7,
+                        totalFlocks: 390728,
+                        latitude: 40.99773861,
+                        longitude: -76.19300025,
+                        lastReportedDate: new Date(Date.UTC(2025, 2 - 1, 5)),
+                    },
+                ];
+
+                // Create an instance of our service
+                const flockCasesService = new FlockCasesByStateService();
+                // Store our state data that we defined
+                await flockCasesService.createOrUpdateStateData(flockData);
+            } catch (error) {
+                console.error("Error connecting to MongoDB:", error);
+                throw new Error("MongoDB connection failed");
+            }
+        });
+        
+        it("should return the flock cases for Washington State when a get request has been made to /flock-cases/WA", async () => {
+            // Create a spy for our logger as we are expected to receive http logging information
+            const loggerSpy = jest.spyOn(logger, "http");
+            // Define the object we should get as a response.  Remember this route only returns an object not an array
+            const expectedFlockData = {
+                stateAbbreviation: "WA",
+                state: "Washington",
+                backyardFlocks: 52,
+                commercialFlocks: 3,
+                birdsAffected: 2167079,
+                totalFlocks: 55,
+                latitude: 47.556837171,
+                longitude: -122.16233971,
+                lastReportedDate: "2025-02-05T00:00:00.000Z",
+            };
+            // Make the request using a new instance of app and the route to flock cases it should be of type JSON and have a status of 200
+            const res = await request(new App().app)
+                .get("/data/flock-cases/WA")
+                .expect("Content-Type", /json/)
+                .expect(200);
+            expect(res.body.data).toEqual(expectedFlockData);
+            expect(loggerSpy).toHaveBeenCalledWith(
+                "Received Request at Get a State's Flock Case: /flock-cases/WA"
+            );
+            loggerSpy.mockClear();
+        })
+        afterAll(async () => {
+            await FlockCasesByStateModel.getModel.db.dropDatabase();
+            await Mongoose.disconnect();
+        })
+    })
+
     describe("GET /data/us-summary", () => {
         let usSummaryData: IUSSummaryStats;
         let usSummaryService: USSummaryService;
@@ -191,5 +266,7 @@ describe("Routes integration tests", () => {
             await Mongoose.disconnect();
         });
     });
+
+    
 
 });
