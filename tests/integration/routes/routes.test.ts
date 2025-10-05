@@ -148,7 +148,7 @@ describe("Routes integration tests", () => {
                 throw new Error("MongoDB connection failed");
             }
         });
-        
+
         it("should return the flock cases for Washington State when a get request has been made to /flock-cases/WA", async () => {
             // Create a spy for our logger as we are expected to receive http logging information
             const loggerSpy = jest.spyOn(logger, "http");
@@ -174,12 +174,12 @@ describe("Routes integration tests", () => {
                 "Received Request at Get a State's Flock Case: /flock-cases/WA"
             );
             loggerSpy.mockClear();
-        })
+        });
         afterAll(async () => {
             await FlockCasesByStateModel.getModel.db.dropDatabase();
             await Mongoose.disconnect();
-        })
-    })
+        });
+    });
 
     describe("GET /data/us-summary", () => {
         let usSummaryData: IUSSummaryStats;
@@ -235,23 +235,23 @@ describe("Routes integration tests", () => {
                     totalBirdsAffected: 166156928,
                     totalFlocksAffected: 1604,
                     totalBackyardFlocksAffected: 841,
-                    totalCommercialFlocksAffected: 763
+                    totalCommercialFlocksAffected: 763,
                 },
                 periodSummaries: {
                     last7Days: {
                         totalBirdsAffected: 50000,
                         totalFlocksAffected: 35,
                         totalBackyardFlocksAffected: 10,
-                        totalCommercialFlocksAffected: 25
+                        totalCommercialFlocksAffected: 25,
                     },
                     last30Days: {
                         totalBirdsAffected: 1000000,
                         totalFlocksAffected: 125,
                         totalBackyardFlocksAffected: 50,
-                        totalCommercialFlocksAffected: 75
-                    }
-                }
-            }
+                        totalCommercialFlocksAffected: 75,
+                    },
+                },
+            };
             // Expect the response to match the new nested schema
             expect(res.body.data).toMatchObject(expectedObject);
 
@@ -266,7 +266,4 @@ describe("Routes integration tests", () => {
             await Mongoose.disconnect();
         });
     });
-
-    
-
 });

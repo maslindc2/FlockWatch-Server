@@ -1,11 +1,15 @@
 import { logger } from "../../utils/winston-logger";
 import { IFlockCasesByState } from "../../interfaces/i-flock-cases-by-state";
-import { IAllTimeTotals, IPeriodSummary, IUSSummaryStats } from "../../interfaces/i-us-summary-stats";
+import {
+    IAllTimeTotals,
+    IPeriodSummary,
+    IUSSummaryStats,
+} from "../../interfaces/i-us-summary-stats";
 import { ILatestFlockData } from "../../interfaces/i-latest-flock-data";
 
 interface IScraperData {
-    flockCasesByState: IFlockCasesByState[]
-    periodSummaries: IPeriodSummary[]
+    flockCasesByState: IFlockCasesByState[];
+    periodSummaries: IPeriodSummary[];
 }
 
 class RequestDataService {
@@ -31,10 +35,8 @@ class RequestDataService {
             // Since Scraper only sends data for states that have outbreaks...
             // we can safely increment the totalStatesAffected by 1 for each state object
             allTimeTotals.totalStatesAffected += 1;
-            allTimeTotals.totalBirdsAffected +=
-                stateObj.birdsAffected;
-            allTimeTotals.totalFlocksAffected +=
-                stateObj.totalFlocks;
+            allTimeTotals.totalBirdsAffected += stateObj.birdsAffected;
+            allTimeTotals.totalFlocksAffected += stateObj.totalFlocks;
             allTimeTotals.totalBackyardFlocksAffected +=
                 stateObj.backyardFlocks;
             allTimeTotals.totalCommercialFlocksAffected +=
@@ -44,7 +46,7 @@ class RequestDataService {
         return {
             key: "us-summary",
             allTimeTotals,
-            periodSummaries
+            periodSummaries,
         };
     }
 
@@ -111,13 +113,18 @@ class RequestDataService {
             throw new Error("Failed to receive data from scraping service!");
         }
 
-        const flockCasesByState:IFlockCasesByState[] = jsonFromScraper.flockCasesByState;
+        const flockCasesByState: IFlockCasesByState[] =
+            jsonFromScraper.flockCasesByState;
 
-        const periodSummaries:IPeriodSummary[] = jsonFromScraper.periodSummaries;
+        const periodSummaries: IPeriodSummary[] =
+            jsonFromScraper.periodSummaries;
 
         // Create the US Summary Data from the array of state data that we received earlier
-        const usSummaryStats:IUSSummaryStats = this.createUSSummaryData(flockCasesByState, periodSummaries);
-        
+        const usSummaryStats: IUSSummaryStats = this.createUSSummaryData(
+            flockCasesByState,
+            periodSummaries
+        );
+
         // Assemble it as a JS object
         const latestFlockData: ILatestFlockData = {
             usSummaryStats: usSummaryStats,

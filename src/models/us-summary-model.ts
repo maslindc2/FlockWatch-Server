@@ -1,6 +1,10 @@
 import * as Mongoose from "mongoose";
 import { RollingPeriods, RollingPeriodName } from "../config/rollingPeriods";
-import { IAllTimeTotals, IPeriodSummary, IUSSummaryStats } from "../interfaces/i-us-summary-stats";
+import {
+    IAllTimeTotals,
+    IPeriodSummary,
+    IUSSummaryStats,
+} from "../interfaces/i-us-summary-stats";
 
 /**
  * USSummary Model this model contains the highlight information about the current status of Avian Flu
@@ -12,7 +16,6 @@ import { IAllTimeTotals, IPeriodSummary, IUSSummaryStats } from "../interfaces/i
  * - totalCommercialFlocksNationwide created by summing the Commercial Flocks column
  */
 class USSummaryModel {
-    
     private static periodSummarySchema = new Mongoose.Schema<IPeriodSummary>(
         {
             periodName: { type: String, required: true },
@@ -21,7 +24,7 @@ class USSummaryModel {
             totalBackyardFlocksAffected: { type: Number, required: true },
             totalCommercialFlocksAffected: { type: Number, required: true },
         },
-        {_id: false}
+        { _id: false }
     );
 
     private static allTimeTotalsSchema = new Mongoose.Schema<IAllTimeTotals>(
@@ -32,16 +35,21 @@ class USSummaryModel {
             totalBackyardFlocksAffected: { type: Number, required: true },
             totalCommercialFlocksAffected: { type: Number, required: true },
         },
-        {_id: false}
+        { _id: false }
     );
 
     private static schema = new Mongoose.Schema<IUSSummaryStats>(
         {
-            key: {type: String, required: true, unique: true, default: "us-summary"},
+            key: {
+                type: String,
+                required: true,
+                unique: true,
+                default: "us-summary",
+            },
             allTimeTotals: { type: this.allTimeTotalsSchema, required: true },
-            periodSummaries: {type: [this.periodSummarySchema], default: []},
+            periodSummaries: { type: [this.periodSummarySchema], default: [] },
         },
-        {collection: "us-summary"}
+        { collection: "us-summary" }
     );
 
     public static getModel = Mongoose.model<IUSSummaryStats>(
@@ -49,12 +57,17 @@ class USSummaryModel {
         this.schema
     );
 
-    public static formatPeriods(periodArray: IPeriodSummary[]): Record<string, Omit<IPeriodSummary, "periodName">> {
-        return periodArray.reduce((acc, period) => {
-            const { periodName, ...metrics } = period;
-            acc[periodName] = metrics;
-            return acc;
-        }, {} as Record<string, Omit<IPeriodSummary, "periodName">>);
+    public static formatPeriods(
+        periodArray: IPeriodSummary[]
+    ): Record<string, Omit<IPeriodSummary, "periodName">> {
+        return periodArray.reduce(
+            (acc, period) => {
+                const { periodName, ...metrics } = period;
+                acc[periodName] = metrics;
+                return acc;
+            },
+            {} as Record<string, Omit<IPeriodSummary, "periodName">>
+        );
     }
 
     public static async updateAllTimeTotals(allTimeTotals: IAllTimeTotals) {
@@ -70,23 +83,27 @@ class USSummaryModel {
             throw new Error(`Invalid periodName: ${period.periodName}`);
         }
 
-        return this.getModel.findOneAndUpdate(
-            { key: "us-summary", "periodSummaries.periodName": period.periodName },
-            { $set: { "periodSummaries.$": period } }, // update existing period
-            { upsert: false, new: true }
-        ).then(async (doc) => {
-            // If no existing period found, push it
-            if (!doc) {
-                return this.getModel.findOneAndUpdate(
-                    { key: "us-summary" },
-                    { $push: { periodSummaries: period } },
-                    { upsert: true, new: true }
-                );
-            }
-            return doc;
-        });
+        return this.getModel
+            .findOneAndUpdate(
+                {
+                    key: "us-summary",
+                    "periodSummaries.periodName": period.periodName,
+                },
+                { $set: { "periodSummaries.$": period } }, // update existing period
+                { upsert: false, new: true }
+            )
+            .then(async (doc) => {
+                // If no existing period found, push it
+                if (!doc) {
+                    return this.getModel.findOneAndUpdate(
+                        { key: "us-summary" },
+                        { $push: { periodSummaries: period } },
+                        { upsert: true, new: true }
+                    );
+                }
+                return doc;
+            });
     }
-
 }
 
 export { USSummaryModel };

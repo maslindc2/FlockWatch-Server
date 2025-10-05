@@ -1,4 +1,8 @@
-import { IAllTimeTotals, IPeriodSummary, IUSSummaryStats } from "../../interfaces/i-us-summary-stats";
+import {
+    IAllTimeTotals,
+    IPeriodSummary,
+    IUSSummaryStats,
+} from "../../interfaces/i-us-summary-stats";
 import { USSummaryModel } from "../../models/us-summary-model";
 import { logger } from "../../utils/winston-logger";
 
@@ -23,7 +27,9 @@ class USSummaryService {
         if (!summary) return null;
         return {
             allTimeTotals: summary.allTimeTotals,
-            periodSummaries: USSummaryModel.formatPeriods(summary.periodSummaries)
+            periodSummaries: USSummaryModel.formatPeriods(
+                summary.periodSummaries
+            ),
         };
     }
 

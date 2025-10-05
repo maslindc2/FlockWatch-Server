@@ -52,7 +52,7 @@ describe("USSummaryService Integration", () => {
 
         expect(queryFromDB).toMatchObject(modelObj);
     });
-    
+
     it("should update existing period summaries instead of duplicating them", async () => {
         const initialData: IUSSummaryStats = {
             key: "us-summary",
@@ -103,7 +103,9 @@ describe("USSummaryService Integration", () => {
         const queryFromDB = await usSummaryService.getUSSummary();
 
         // Check that all-time totals were updated
-        expect(queryFromDB!.allTimeTotals).toMatchObject(updatedData.allTimeTotals);
+        expect(queryFromDB!.allTimeTotals).toMatchObject(
+            updatedData.allTimeTotals
+        );
 
         // Check that period summary was updated, not duplicated
         expect(queryFromDB!.periodSummaries).toHaveLength(1);
@@ -111,7 +113,6 @@ describe("USSummaryService Integration", () => {
             updatedData.periodSummaries[0]
         );
     });
-
 
     afterEach(async () => {
         // Clear only the collection to keep things isolated

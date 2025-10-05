@@ -1,7 +1,7 @@
 /**
  * This interface is responsible for US Summary Statistics.
  * CSV to use is "Map Comparisons.csv", "Affected Totals.csv", "Confirmed Flocks Total.csv"
- * 
+ *
  * - Sum up the below columns to create the AllTimeTotals
  * -- "State Names" creates totalStatesAffected
  * -- "Birds Affected" creates totalBirdsAffectedNationwide
@@ -18,7 +18,7 @@ interface IAllTimeTotals {
 }
 
 interface IPeriodSummary {
-    periodName: string,
+    periodName: string;
     totalBirdsAffected: number; // Total birds affected for that period
     totalFlocksAffected: number; // Total flocks affected for that period
     totalBackyardFlocksAffected: number; // Backyard flocks affected for that period
@@ -26,7 +26,7 @@ interface IPeriodSummary {
 }
 
 interface IUSSummaryStats {
-    key: string,
+    key: string;
     allTimeTotals: IAllTimeTotals;
     periodSummaries: IPeriodSummary[];
 }

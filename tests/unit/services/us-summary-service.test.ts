@@ -13,8 +13,7 @@ describe("USSummaryService Unit Tests", () => {
         // Create a mock on the select function to see if it has been called with the correct parameters.
         const selectMock = jest.fn().mockReturnThis();
         const leanMock = jest.fn().mockResolvedValue({});
-        
-        
+
         jest.spyOn(USSummaryModel.getModel, "findOne").mockReturnValue({
             select: selectMock,
             lean: leanMock,
@@ -53,8 +52,6 @@ describe("USSummaryService Unit Tests", () => {
         const selectMock = jest.fn().mockReturnThis();
         const leanMock = jest.fn().mockResolvedValue(fakeData);
 
-        
-
         jest.spyOn(USSummaryModel.getModel, "findOne").mockReturnValue({
             select: selectMock,
             lean: leanMock,
@@ -65,5 +62,4 @@ describe("USSummaryService Unit Tests", () => {
         leanMock.mockRestore();
         selectMock.mockRestore();
     });
-
 });
