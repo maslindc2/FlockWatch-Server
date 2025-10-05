@@ -3,6 +3,11 @@ import { IFlockCasesByState } from "../../interfaces/i-flock-cases-by-state";
 import { IAllTimeTotals, IPeriodSummary, IUSSummaryStats } from "../../interfaces/i-us-summary-stats";
 import { ILatestFlockData } from "../../interfaces/i-latest-flock-data";
 
+interface IScraperData {
+    flockCasesByState: IFlockCasesByState[]
+    periodSummaries: IPeriodSummary[]
+}
+
 class RequestDataService {
     /**
      * Assemble the US Summary Stats by summing the total birds affected, flocks affected, backyard flocks, and commercial flocks
@@ -50,7 +55,7 @@ class RequestDataService {
      */
     private async requestDataFromScrapingService(
         authID: string
-    ): Promise<IFlockCasesByState[] | null> {
+    ): Promise<IScraperData | null> {
         // Define the URL that we will use from our ENV variable or the default localhost url
         const fwScrapingURL =
             process.env.SCRAPING_SERVICE_URL ||
@@ -76,7 +81,7 @@ class RequestDataService {
             // Parse to JSON and store it to a JS variable
             const jsonResponse = await res.json();
             // If it's not an array or if the response is of length 0 report the error
-            if (!Array.isArray(jsonResponse) || jsonResponse.length === 0) {
+            if (jsonResponse.length === 0) {
                 logger.error(
                     `Received empty or invalid JSON Array from Scraping Service`
                 );
@@ -98,31 +103,25 @@ class RequestDataService {
         authID: string
     ): Promise<ILatestFlockData | null> {
         // Request the data from the above function using the authID and store it as an array
-        const jsonFromScraper: IFlockCasesByState[] | null =
+        const jsonFromScraper: IScraperData | null =
             await this.requestDataFromScrapingService(authID);
 
         // If we didn't get any data log the error
         if (!jsonFromScraper) {
             throw new Error("Failed to receive data from scraping service!");
         }
-        
-        // TODO: Convert to a scraper response!!!!
-        const tempPeriodSummaries = [
-            {
-                periodName: "last30Days", 
-                totalBackyardFlocksAffected: 25,
-                totalBirdsAffected: 250000,
-                totalCommercialFlocksAffected: 20,
-                totalFlocksAffected: 45,
-            },
-        ]
+
+        const flockCasesByState:IFlockCasesByState[] = jsonFromScraper.flockCasesByState;
+
+        const periodSummaries:IPeriodSummary[] = jsonFromScraper.periodSummaries;
 
         // Create the US Summary Data from the array of state data that we received earlier
-        const usSummaryStats = this.createUSSummaryData(jsonFromScraper, tempPeriodSummaries);
+        const usSummaryStats:IUSSummaryStats = this.createUSSummaryData(flockCasesByState, periodSummaries);
+        
         // Assemble it as a JS object
         const latestFlockData: ILatestFlockData = {
             usSummaryStats: usSummaryStats,
-            flockCasesByState: jsonFromScraper,
+            flockCasesByState: flockCasesByState,
         };
         // Return the flock data
         return latestFlockData;
