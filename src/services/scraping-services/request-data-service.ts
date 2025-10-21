@@ -1,7 +1,16 @@
 import { logger } from "../../utils/winston-logger";
 import { IFlockCasesByState } from "../../interfaces/i-flock-cases-by-state";
-import { IUSSummaryStats } from "../../interfaces/i-us-summary-stats";
+import {
+    IAllTimeTotals,
+    IPeriodSummary,
+    IUSSummaryStats,
+} from "../../interfaces/i-us-summary-stats";
 import { ILatestFlockData } from "../../interfaces/i-latest-flock-data";
+
+interface IScraperData {
+    flockCasesByState: IFlockCasesByState[];
+    periodSummaries: IPeriodSummary[];
+}
 
 class RequestDataService {
     /**
@@ -10,32 +19,35 @@ class RequestDataService {
      * @returns JS Object containing the US Summary Stats of type IUSSummaryStats
      */
     private createUSSummaryData(
-        jsonFromScraper: IFlockCasesByState[]
+        jsonFromScraper: IFlockCasesByState[],
+        periodSummaries: IPeriodSummary[]
     ): IUSSummaryStats {
-        const usSummaryStats = {
+        const allTimeTotals: IAllTimeTotals = {
             totalStatesAffected: 0,
-            totalBirdsAffectedNationwide: 0,
-            totalFlocksAffectedNationwide: 0,
-            totalBackyardFlocksNationwide: 0,
-            totalCommercialFlocksNationwide: 0,
+            totalBirdsAffected: 0,
+            totalFlocksAffected: 0,
+            totalBackyardFlocksAffected: 0,
+            totalCommercialFlocksAffected: 0,
         };
 
         // For each state object populate the usSummaryStats by iterating through each states individual data
         jsonFromScraper.forEach((stateObj) => {
             // Since Scraper only sends data for states that have outbreaks...
             // we can safely increment the totalStatesAffected by 1 for each state object
-            usSummaryStats.totalStatesAffected += 1;
-            usSummaryStats.totalBirdsAffectedNationwide +=
-                stateObj.birdsAffected;
-            usSummaryStats.totalFlocksAffectedNationwide +=
-                stateObj.totalFlocks;
-            usSummaryStats.totalBackyardFlocksNationwide +=
+            allTimeTotals.totalStatesAffected += 1;
+            allTimeTotals.totalBirdsAffected += stateObj.birdsAffected;
+            allTimeTotals.totalFlocksAffected += stateObj.totalFlocks;
+            allTimeTotals.totalBackyardFlocksAffected +=
                 stateObj.backyardFlocks;
-            usSummaryStats.totalCommercialFlocksNationwide +=
+            allTimeTotals.totalCommercialFlocksAffected +=
                 stateObj.commercialFlocks;
         });
 
-        return usSummaryStats;
+        return {
+            key: "us-summary",
+            allTimeTotals,
+            periodSummaries,
+        };
     }
 
     /**
@@ -45,7 +57,7 @@ class RequestDataService {
      */
     private async requestDataFromScrapingService(
         authID: string
-    ): Promise<IFlockCasesByState[] | null> {
+    ): Promise<IScraperData | null> {
         // Define the URL that we will use from our ENV variable or the default localhost url
         const fwScrapingURL =
             process.env.SCRAPING_SERVICE_URL ||
@@ -71,7 +83,7 @@ class RequestDataService {
             // Parse to JSON and store it to a JS variable
             const jsonResponse = await res.json();
             // If it's not an array or if the response is of length 0 report the error
-            if (!Array.isArray(jsonResponse) || jsonResponse.length === 0) {
+            if (jsonResponse.length === 0) {
                 logger.error(
                     `Received empty or invalid JSON Array from Scraping Service`
                 );
@@ -93,19 +105,30 @@ class RequestDataService {
         authID: string
     ): Promise<ILatestFlockData | null> {
         // Request the data from the above function using the authID and store it as an array
-        const jsonFromScraper: IFlockCasesByState[] | null =
+        const jsonFromScraper: IScraperData | null =
             await this.requestDataFromScrapingService(authID);
 
         // If we didn't get any data log the error
         if (!jsonFromScraper) {
             throw new Error("Failed to receive data from scraping service!");
         }
+
+        const flockCasesByState: IFlockCasesByState[] =
+            jsonFromScraper.flockCasesByState;
+
+        const periodSummaries: IPeriodSummary[] =
+            jsonFromScraper.periodSummaries;
+
         // Create the US Summary Data from the array of state data that we received earlier
-        const usSummaryStats = this.createUSSummaryData(jsonFromScraper);
+        const usSummaryStats: IUSSummaryStats = this.createUSSummaryData(
+            flockCasesByState,
+            periodSummaries
+        );
+
         // Assemble it as a JS object
         const latestFlockData: ILatestFlockData = {
             usSummaryStats: usSummaryStats,
-            flockCasesByState: jsonFromScraper,
+            flockCasesByState: flockCasesByState,
         };
         // Return the flock data
         return latestFlockData;
