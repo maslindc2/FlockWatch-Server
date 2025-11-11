@@ -1,5 +1,6 @@
-import { LastReportDateModel } from "../../models/last-report-date-model";
+import pool from "../database-service";
 import { logger } from "../../utils/winston-logger";
+
 
 class LastReportDateService {
     // This will query the last report date model and only return the last scraped date field

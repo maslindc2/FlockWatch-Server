@@ -18,10 +18,8 @@ class App {
      * @param lastReportDateService used for dependency injection when integration testing the app service
      */
     constructor(
-        lastReportDateService: LastReportDateService = new LastReportDateService()
     ) {
         this.app = express();
-        this.lastReportDateService = lastReportDateService;
         this.middleware();
         this.serverStart();
     }

@@ -3,8 +3,8 @@ import {
     IPeriodSummary,
     IUSSummaryStats,
 } from "../../interfaces/i-us-summary-stats";
-import { USSummaryModel } from "../../models/us-summary-model";
 import { logger } from "../../utils/winston-logger";
+import pool from "../database-service";
 
 class USSummaryService {
     /**
