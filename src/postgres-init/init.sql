@@ -21,12 +21,12 @@ CREATE TABLE IF NOT EXISTS us_summary_period_summaries (
     total_birds_affected INTEGER NOT NULL,
     total_flocks_affected INTEGER NOT NULL,
     total_backyard_flocks_affected INTEGER NOT NULL,
-    total_commercial_flocks_affected INTEGER NOT NULl,
+    total_commercial_flocks_affected INTEGER NOT NULL,
     us_summary_key TEXT NOT NULL DEFAULT 'us-summary',
-    CONSTRAINT fk_us_summary
-        FOREIGN KEY (us_summary_key)
+    CONSTRAINT fk_us_summary FOREIGN KEY (us_summary_key)
         REFERENCES us_summary(key)
-        ON DELETE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT unique_period_per_summary UNIQUE (period_name, us_summary_key)
 );
 
 CREATE TABLE IF NOT EXISTS us_summary_all_time_totals (
@@ -37,12 +37,11 @@ CREATE TABLE IF NOT EXISTS us_summary_all_time_totals (
     total_backyard_flocks_affected INTEGER NOT NULL,
     total_commercial_flocks_affected INTEGER NOT NULL,
     us_summary_key TEXT NOT NULL DEFAULT 'us-summary',
-    CONSTRAINT fk_us_summary
-        FOREIGN KEY (us_summary_key)
+    CONSTRAINT fk_us_summary FOREIGN KEY (us_summary_key)
         REFERENCES us_summary(key)
         ON DELETE CASCADE
-    CONSTRAINT unique_period_per_summary UNIQUE (period_name, us_summary_key)
 );
+
 
 CREATE TABLE IF NOT EXISTS last_report_date (
     id SERIAL PRIMARY KEY,

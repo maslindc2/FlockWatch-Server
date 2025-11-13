@@ -1,70 +1,66 @@
 import pool from "../database-service";
 import { logger } from "../../utils/winston-logger";
 
-
 class LastReportDateService {
     // This will query the last report date model and only return the last scraped date field
     public async getLastScrapedDate() {
-        return LastReportDateModel.getModel
-            .findOne({ lastScrapedDate: { $exists: true } })
-            .select("-_id -__v -authID")
-            .lean();
+        const result = await pool.query(
+            `SELECT last_scraped_date
+            FROM last_report_date
+            `
+        );
+        return result.rows[0];
     }
     // Only get the authID and hide the id, version, and last scraped date field
     public async getAuthID() {
-        return LastReportDateModel.getModel
-            .findOne({ authID: { $exists: true } })
-            .select("-_id -__v -lastScrapedDate")
-            .lean();
+        const result = await pool.query(
+            `SELECT auth_id
+            FROM last_report_date`
+        );
+        return result.rows[0];
     }
     /**
      * On server start this will be executed, if mongoDB is being created for the first time
      * this will create an entry with the date last scraped, scrape frequency, and auth id.
      */
     public async initializeLastReportDate() {
-        // Check for an existing last report date model
-        const existingRecord = await LastReportDateModel.getModel
-            .findOne()
-            .lean();
+        const auth_id = crypto.randomUUID();
+        const last_scraped_date = new Date(0);
 
-        // If none exists
-        if (!existingRecord) {
-            // Create one and set the date to Unix epoch which is January 1, 1970
-            // with a random UUID for the auth id
-            const modelObj = {
-                lastScrapedDate: new Date(0),
-                authID: crypto.randomUUID(),
-            };
-            // Create and return the document we created
-            return (
-                await LastReportDateModel.getModel.create(modelObj)
-            ).toObject();
-        }
-        return existingRecord;
+        await pool.query(
+            `INSERT INTO last_report_date(last_scraped_date, auth_id) 
+            VALUES ($1, $2)`,
+            [last_scraped_date, auth_id]
+        );
     }
 
-    // Create or update the last report date document
-    public async updateLastReportDate(isSuccessfulUpdate: Boolean) {
-        // Model object contains today's timestamp, and the newly created authID
-        let modelObj;
-        if (isSuccessfulUpdate) {
-            modelObj = {
-                lastScrapedDate: new Date(),
-                authID: crypto.randomUUID(),
-            };
-        } else {
-            modelObj = {
-                authID: crypto.randomUUID(),
-            };
-        }
+    /**
+     * Update the last report date table
+     * @param isSuccessfulUpdate If this is true we update our auth key and last report date, if not just update the auth key
+     */
+    public async updateLastReportDate(isSuccessfulUpdate: boolean) {
+        const authId = crypto.randomUUID();
+        const lastScrapedDate = isSuccessfulUpdate ? new Date() : null;
+
         try {
-            // Update the last report date entry
-            await LastReportDateModel.getModel.updateOne({}, modelObj);
+            await pool.query(
+                `INSERT INTO last_report_date (auth_id, last_scraped_date)
+                VALUES ($1, $2)
+                ON CONFLICT (auth_id) DO UPDATE SET
+                last_scraped_date = EXCLUDED.last_scraped_date`,
+                [authId, lastScrapedDate]
+            );
+
+            logger.info(
+                `Last report date ${
+                    isSuccessfulUpdate ? "updated" : "recorded"
+                } successfully (auth_id=${authId})`
+            );
         } catch (error) {
             logger.error(
-                `Failed to update the last report date model! Received isSuccessfulUpdate bool value of ${isSuccessfulUpdate} resulted in: ${error}`
+                `Failed to update last report date (isSuccessfulUpdate=${isSuccessfulUpdate}): ${error}`
             );
-            throw new Error("Failed to update the last report date model!");
+            throw new Error("Failed to update the last report date record");
         }
     }
 }

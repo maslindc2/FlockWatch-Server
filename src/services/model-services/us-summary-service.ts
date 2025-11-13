@@ -1,70 +1,149 @@
+import pool from "../database-service";
+import { logger } from "../../utils/winston-logger";
 import {
     IAllTimeTotals,
     IPeriodSummary,
     IUSSummaryStats,
 } from "../../interfaces/i-us-summary-stats";
-import { logger } from "../../utils/winston-logger";
-import pool from "../database-service";
 
-class USSummaryService {
+export class USSummaryService {
+
     /**
-     * Gets the complete US Summary (all-time totals + rolling periods).
-     * Hides the Mongo id and version fields.
+     * Retrieves the full US summary, including all-time totals and rolling periods.
      */
-    public async getUSSummary() {
-        return USSummaryModel.getModel
-            .findOne({ key: "us-summary" })
-            .select("-_id -__v")
-            .lean<IUSSummaryStats>();
-    }
+    public async getUSSummary(): Promise<IUSSummaryStats | null> {
+        const allTimeRes = await pool.query(
+            `SELECT total_states_affected, total_birds_affected, total_flocks_affected,
+              total_backyard_flocks_affected, total_commercial_flocks_affected
+       FROM us_summary_all_time_totals
+       WHERE us_summary_key = 'us-summary'
+       LIMIT 1`
+        );
 
-    public async getFormattedUSSummary() {
-        const summary: any = await USSummaryModel.getModel
-            .findOne({ key: "us-summary" })
-            .select("-_id -__v")
-            .lean<IUSSummaryStats>();
+        const periodsRes = await pool.query(
+            `SELECT period_name, total_birds_affected, total_flocks_affected,
+              total_backyard_flocks_affected, total_commercial_flocks_affected
+       FROM us_summary_period_summaries
+       WHERE us_summary_key = 'us-summary'`
+        );
 
-        if (!summary) return null;
+        if (allTimeRes.rowCount === 0 && periodsRes.rowCount === 0) return null;
+
         return {
-            allTimeTotals: summary.allTimeTotals,
-            periodSummaries: USSummaryModel.formatPeriods(
-                summary.periodSummaries
-            ),
+            key: "us-summary",
+            allTimeTotals: allTimeRes.rows[0],
+            periodSummaries: periodsRes.rows,
         };
     }
 
     /**
-     * Updates or inserts the all-time totals.
+     * Formats the US summary into a keyed object (like your old Mongo formatter).
+     */
+    public async getFormattedUSSummary() {
+        const summary = await this.getUSSummary();
+        if (!summary) return null;
+
+        const formattedPeriods = summary.periodSummaries.reduce(
+            (acc, p) => {
+                const { periodName, ...metrics } = p;
+                acc[periodName] = metrics;
+                return acc;
+            },
+            {} as Record<string, Omit<IPeriodSummary, "periodName">>
+        );
+
+        return {
+            allTimeTotals: summary.allTimeTotals,
+            periodSummaries: formattedPeriods,
+        };
+    }
+
+    /**
+     * Upserts the all-time totals.
      */
     public async updateAllTimeTotals(allTimeTotals: IAllTimeTotals) {
-        return USSummaryModel.updateAllTimeTotals(allTimeTotals);
+        const {
+            totalStatesAffected,
+            totalBirdsAffected,
+            totalFlocksAffected,
+            totalBackyardFlocksAffected,
+            totalCommercialFlocksAffected,
+        } = allTimeTotals;
+
+        await pool.query(
+            `INSERT INTO us_summary_all_time_totals (
+          total_states_affected, total_birds_affected, total_flocks_affected,
+          total_backyard_flocks_affected, total_commercial_flocks_affected, us_summary_key
+       ) VALUES ($1, $2, $3, $4, $5, 'us-summary')
+       ON CONFLICT (us_summary_key) DO UPDATE SET
+          total_states_affected = EXCLUDED.total_states_affected,
+          total_birds_affected = EXCLUDED.total_birds_affected,
+          total_flocks_affected = EXCLUDED.total_flocks_affected,
+          total_backyard_flocks_affected = EXCLUDED.total_backyard_flocks_affected,
+          total_commercial_flocks_affected = EXCLUDED.total_commercial_flocks_affected`,
+            [
+                totalStatesAffected,
+                totalBirdsAffected,
+                totalFlocksAffected,
+                totalBackyardFlocksAffected,
+                totalCommercialFlocksAffected,
+            ]
+        );
     }
 
     /**
-     * Updates or inserts a rolling period summary.
+     * Upserts a single rolling period summary.
      */
     public async upsertPeriodSummary(period: IPeriodSummary) {
-        return USSummaryModel.upsertPeriodAtomic(period);
+        const {
+            periodName,
+            totalBirdsAffected,
+            totalFlocksAffected,
+            totalBackyardFlocksAffected,
+            totalCommercialFlocksAffected,
+        } = period;
+
+        await pool.query(
+            `INSERT INTO us_summary_period_summaries (
+          period_name, total_birds_affected, total_flocks_affected,
+          total_backyard_flocks_affected, total_commercial_flocks_affected, us_summary_key
+       ) VALUES ($1, $2, $3, $4, $5, 'us-summary')
+       ON CONFLICT (period_name, us_summary_key) DO UPDATE SET
+          total_birds_affected = EXCLUDED.total_birds_affected,
+          total_flocks_affected = EXCLUDED.total_flocks_affected,
+          total_backyard_flocks_affected = EXCLUDED.total_backyard_flocks_affected,
+          total_commercial_flocks_affected = EXCLUDED.total_commercial_flocks_affected`,
+            [
+                periodName,
+                totalBirdsAffected,
+                totalFlocksAffected,
+                totalBackyardFlocksAffected,
+                totalCommercialFlocksAffected,
+            ]
+        );
     }
 
     /**
-     * A helper to bulk-update both all-time totals and periods in one call.
-     * Useful for when your scraper finishes a full run.
+     * Bulk-upserts both all-time totals and period summaries.
      */
     public async upsertUSSummary(usSummaryStats: IUSSummaryStats) {
         const { allTimeTotals, periodSummaries } = usSummaryStats;
 
-        // Update all-time
-        await this.updateAllTimeTotals(allTimeTotals);
+        try {
+            await pool.query("BEGIN");
 
-        // Update each period
-        for (const period of periodSummaries) {
-            await this.upsertPeriodSummary(period);
+            await this.updateAllTimeTotals(allTimeTotals);
+
+            for (const period of periodSummaries) {
+                await this.upsertPeriodSummary(period);
+            }
+
+            await pool.query("COMMIT");
+            return this.getUSSummary();
+        } catch (error) {
+            await pool.query("ROLLBACK");
+            logger.error("Failed to upsert US summary:", error);
+            throw new Error("Failed to upsert US summary");
         }
-
-        // Return the unified doc for convenience
-        return this.getUSSummary();
     }
 }
-
-export { USSummaryService };

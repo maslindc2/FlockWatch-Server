@@ -38,14 +38,17 @@ class FlockCasesByStateService {
      * @param flockData This is the array of states, each index is an object containing all the fields in IFlockCasesByState, check this interface for more information
      */
     public async createOrUpdateStateData(flockData: IFlockCasesByState[]) {
-        try {            
+        try {
             const query = `
                 INSERT INTO flock_cases_by_state (
                     state, state_abbreviation, backyard_flocks, commercial_flocks, 
                     birds_affected, total_flocks, latitude, longitude, last_report_date
-                ) VALUES ${flockData.map((_, i) => 
-                    `($${i * 9 + 1}, $${i * 9 + 2}, $${i * 9 + 3}, $${i * 9 + 4}, $${i * 9 + 5}, $${i * 9 + 6}, $${i * 9 + 7}, $${i * 9 + 8}, $${i * 9 + 9})`
-                ).join(", ")}
+                ) VALUES ${flockData
+                    .map(
+                        (_, i) =>
+                            `($${i * 9 + 1}, $${i * 9 + 2}, $${i * 9 + 3}, $${i * 9 + 4}, $${i * 9 + 5}, $${i * 9 + 6}, $${i * 9 + 7}, $${i * 9 + 8}, $${i * 9 + 9})`
+                    )
+                    .join(", ")}
                 ON CONFLICT (state_abbreviation) DO UPDATE SET
                     state = EXCLUDED.state,
                     state_abbreviation = EXCLUDED.state_abbreviation,
@@ -57,8 +60,8 @@ class FlockCasesByStateService {
                     longitude = EXCLUDED.longitude;
                     last_report_date = EXCLUDED.last_report_date;
                 `;
-                const flattened = flockData.flat();
-                await pool.query(query, flattened);
+            const flattened = flockData.flat();
+            await pool.query(query, flattened);
         } catch (error) {
             logger.error(
                 `Failed to update data for Flock Cases By State: ${error}`

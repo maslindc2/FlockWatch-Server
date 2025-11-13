@@ -1,9 +1,10 @@
 import express, { Application, Request, Response, NextFunction } from "express";
 import dataRoutes from "./routes/data-routes";
-import { DatabaseService } from "./services/database-service";
 import { LastReportDateService } from "./services/model-services/last-report-date-service";
 import { logger } from "./utils/winston-logger";
 import { FlockDataSyncService } from "./services/scraping-services/flock-data-sync-service";
+import { readFileSync } from 'fs';
+import pool from "./services/database-service";
 
 class App {
     // Stores the express app instance
@@ -17,11 +18,12 @@ class App {
      * Setting up the App instance
      * @param lastReportDateService used for dependency injection when integration testing the app service
      */
-    constructor(
+    constructor(lastReportDateService = new LastReportDateService()
     ) {
         this.app = express();
         this.middleware();
         this.serverStart();
+        this.lastReportDateService = lastReportDateService;
     }
 
     // Define the middleware that we will be using
@@ -57,7 +59,9 @@ class App {
     private async serverStart(): Promise<void> {
         try {
             // Connect to MongoDB
-            await DatabaseService.connect(process.env.MONGODB_URI!);
+            //await DatabaseService.connect(process.env.MONGODB_URI!);
+            const sql = readFileSync('src/postgres-init/init.sql', 'utf-8');
+            await pool.query(sql);
 
             // Initialize the DB which will check if we starting from a fresh DB instance or not
             await this.lastReportDateService.initializeLastReportDate();

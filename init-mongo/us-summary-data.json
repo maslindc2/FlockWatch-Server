@@ -1,9 +1,22 @@
-[
-    {
-        "totalBackyardFlocksNationwide": 841,
-        "totalBirdsAffectedNationwide": 166156928,
-        "totalCommercialFlocksNationwide": 763,
-        "totalFlocksAffectedNationwide": 1604,
-        "totalStatesAffected": 51
+{
+    "data": {
+        "allTimeTotals": {
+            "totalStatesAffected": 51,
+            "totalBirdsAffected": 181750149,
+            "totalFlocksAffected": 1777,
+            "totalBackyardFlocksAffected": 949,
+            "totalCommercialFlocksAffected": 828
+        },
+        "periodSummaries": {
+            "last30Days": {
+                "totalBirdsAffected": 6340000,
+                "totalFlocksAffected": 49,
+                "totalBackyardFlocksAffected": 20,
+                "totalCommercialFlocksAffected": 29
+            }
+        }
+    },
+    "metadata": {
+        "lastScrapedDate": "2025-10-20T23:32:50.348Z"
     }
-]
+}
