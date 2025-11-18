@@ -61,6 +61,7 @@ class App {
             // Connect to MongoDB
             //await DatabaseService.connect(process.env.MONGODB_URI!);
             const sql = readFileSync('src/postgres-init/init.sql', 'utf-8');
+            await pool.query(`SET search_path TO public`);
             await pool.query(sql);
 
             // Initialize the DB which will check if we starting from a fresh DB instance or not

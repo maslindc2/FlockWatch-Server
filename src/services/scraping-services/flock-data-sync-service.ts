@@ -21,7 +21,7 @@ class FlockDataSyncService {
         const lastReportDateQuery =
             await this.lastReportDateService.getLastScrapedDate();
         const lastScrapedDate =
-            lastReportDateQuery?.lastScrapedDate as unknown as string;
+            lastReportDateQuery?.last_scraped_date as unknown as string;
 
         if (!lastScrapedDate || this.isOutdated(lastScrapedDate)) {
             logger.info(
@@ -34,9 +34,9 @@ class FlockDataSyncService {
     }
 
     // Compare the last report date to our current time if it's a difference of 24 hours then update
-    private isOutdated(lastDate: string): boolean {
+    private isOutdated(lastScrapedDate: string): boolean {
         const now = new Date();
-        const last = new Date(lastDate);
+        const last = new Date(lastScrapedDate);
         const diffInMs = now.getTime() - last.getTime();
         return diffInMs >= 24 * 60 * 60 * 1000; // 24 hours
     }
@@ -51,7 +51,7 @@ class FlockDataSyncService {
         const modelInfo = await this.lastReportDateService.getAuthID();
         // Fetch the latest avian influenza state data
         const data = await scraperDataService.fetchLatestFlockData(
-            modelInfo?.authID!
+            modelInfo?.auth_id!
         );
 
         // If the data was null throw an error
@@ -64,10 +64,10 @@ class FlockDataSyncService {
             const flockCasesByStateService = new FlockCasesByStateService();
             // Create an instance of our us summary stats service
             const usSummaryStats = new USSummaryService();
-
+            
             // Create or update the state data in the database
             await flockCasesByStateService
-                .createOrUpdateStateData(data?.flockCasesByState)
+                .createOrUpdateStateData(data?.flock_cases_by_state)
                 .then(() => {
                     logger.info(
                         "Finished updating state data in the database!"
@@ -79,7 +79,7 @@ class FlockDataSyncService {
 
             // Create or update the USSummaryStats using the data we got back from the scraping service
             await usSummaryStats
-                .upsertUSSummary(data?.usSummaryStats)
+                .upsertUSSummary(data?.us_summary_stats)
                 .then(() => {
                     logger.info("Finished updating US Summary Stats!");
                 })

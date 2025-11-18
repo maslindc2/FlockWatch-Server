@@ -10,25 +10,25 @@
  * -- "Commercial Flocks" creates totalCommercialFlocksNationwide
  */
 interface IAllTimeTotals {
-    totalStatesAffected: number; // Number of states with infections
-    totalBirdsAffected: number; // Total birds affected
-    totalFlocksAffected: number; // Total flocks affected
-    totalBackyardFlocksAffected: number; // Backyard flocks affected
-    totalCommercialFlocksAffected: number; // Commercial flocks affected
+    total_states_affected: number; // Number of states with infections
+    total_birds_affected: number; // Total birds affected
+    total_flocks_affected: number; // Total flocks affected
+    total_backyard_flocks_affected: number; // Backyard flocks affected
+    total_commercial_flocks_affected: number; // Commercial flocks affected
 }
 
 interface IPeriodSummary {
-    periodName: string;
-    totalBirdsAffected: number; // Total birds affected for that period
-    totalFlocksAffected: number; // Total flocks affected for that period
-    totalBackyardFlocksAffected: number; // Backyard flocks affected for that period
-    totalCommercialFlocksAffected: number; // Commercial flocks affected for that period
+    period_name: string;
+    total_birds_affected: number; // Total birds affected for that period
+    total_flocks_affected: number; // Total flocks affected for that period
+    total_backyard_flocks_affected: number; // Backyard flocks affected for that period
+    total_commercial_flocks_affected: number; // Commercial flocks affected for that period
 }
 
 interface IUSSummaryStats {
     key: string;
-    allTimeTotals: IAllTimeTotals;
-    periodSummaries: IPeriodSummary[];
+    all_time_totals: IAllTimeTotals;
+    period_summaries: IPeriodSummary[];
 }
 
 export { IAllTimeTotals, IPeriodSummary, IUSSummaryStats };

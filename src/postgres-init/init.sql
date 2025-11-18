@@ -1,7 +1,8 @@
+
 CREATE TABLE IF NOT EXISTS flock_cases_by_state (
     id SERIAL PRIMARY KEY,
     state TEXT NOT NULL,
-    state_abbreviation TEXT NOT NULL,
+    state_abbreviation TEXT NOT NULL UNIQUE,
     backyard_flocks INTEGER NOT NULL,
     commercial_flocks INTEGER NOT NULL,
     birds_affected INTEGER NOT NULL,
@@ -45,7 +46,7 @@ CREATE TABLE IF NOT EXISTS us_summary_all_time_totals (
 
 CREATE TABLE IF NOT EXISTS last_report_date (
     id SERIAL PRIMARY KEY,
-    last_scraped_date DATE NOT NULL,
+    last_scraped_date DATE NOT NULL UNIQUE,
     auth_id TEXT NOT NULL
 );
 

@@ -3,7 +3,7 @@
  */
 import Mongoose, { Date } from "mongoose";
 interface ILastReportDate extends Mongoose.Document {
-    lastScrapedDate: Date; // Stores the last date this was updated
-    authID: string;
+    last_scraped_date: Date; // Stores the last date this was updated
+    auth_id: string;
 }
 export { ILastReportDate };

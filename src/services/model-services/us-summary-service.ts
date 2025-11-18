@@ -15,24 +15,24 @@ export class USSummaryService {
         const allTimeRes = await pool.query(
             `SELECT total_states_affected, total_birds_affected, total_flocks_affected,
               total_backyard_flocks_affected, total_commercial_flocks_affected
-       FROM us_summary_all_time_totals
-       WHERE us_summary_key = 'us-summary'
-       LIMIT 1`
+            FROM us_summary_all_time_totals
+            WHERE us_summary_key = 'us-summary'
+            LIMIT 1`
         );
 
         const periodsRes = await pool.query(
             `SELECT period_name, total_birds_affected, total_flocks_affected,
               total_backyard_flocks_affected, total_commercial_flocks_affected
-       FROM us_summary_period_summaries
-       WHERE us_summary_key = 'us-summary'`
+            FROM us_summary_period_summaries
+            WHERE us_summary_key = 'us-summary'`
         );
 
         if (allTimeRes.rowCount === 0 && periodsRes.rowCount === 0) return null;
 
         return {
             key: "us-summary",
-            allTimeTotals: allTimeRes.rows[0],
-            periodSummaries: periodsRes.rows,
+            all_time_totals: allTimeRes.rows[0],
+            period_summaries: periodsRes.rows,
         };
     }
 
@@ -43,18 +43,18 @@ export class USSummaryService {
         const summary = await this.getUSSummary();
         if (!summary) return null;
 
-        const formattedPeriods = summary.periodSummaries.reduce(
+        const formattedPeriods = summary.period_summaries.reduce(
             (acc, p) => {
-                const { periodName, ...metrics } = p;
-                acc[periodName] = metrics;
+                const { period_name, ...metrics } = p;
+                acc[period_name] = metrics;
                 return acc;
             },
-            {} as Record<string, Omit<IPeriodSummary, "periodName">>
+            {} as Record<string, Omit<IPeriodSummary, "period_name">>
         );
 
         return {
-            allTimeTotals: summary.allTimeTotals,
-            periodSummaries: formattedPeriods,
+            all_time_totals: summary.all_time_totals,
+            period_summaries: formattedPeriods,
         };
     }
 
@@ -63,11 +63,11 @@ export class USSummaryService {
      */
     public async updateAllTimeTotals(allTimeTotals: IAllTimeTotals) {
         const {
-            totalStatesAffected,
-            totalBirdsAffected,
-            totalFlocksAffected,
-            totalBackyardFlocksAffected,
-            totalCommercialFlocksAffected,
+            total_states_affected,
+            total_birds_affected,
+            total_flocks_affected,
+            total_backyard_flocks_affected,
+            total_commercial_flocks_affected,
         } = allTimeTotals;
 
         await pool.query(
@@ -82,11 +82,11 @@ export class USSummaryService {
           total_backyard_flocks_affected = EXCLUDED.total_backyard_flocks_affected,
           total_commercial_flocks_affected = EXCLUDED.total_commercial_flocks_affected`,
             [
-                totalStatesAffected,
-                totalBirdsAffected,
-                totalFlocksAffected,
-                totalBackyardFlocksAffected,
-                totalCommercialFlocksAffected,
+                total_states_affected,
+                total_birds_affected,
+                total_flocks_affected,
+                total_backyard_flocks_affected,
+                total_commercial_flocks_affected,
             ]
         );
     }
@@ -96,11 +96,11 @@ export class USSummaryService {
      */
     public async upsertPeriodSummary(period: IPeriodSummary) {
         const {
-            periodName,
-            totalBirdsAffected,
-            totalFlocksAffected,
-            totalBackyardFlocksAffected,
-            totalCommercialFlocksAffected,
+            period_name,
+            total_birds_affected,
+            total_flocks_affected,
+            total_backyard_flocks_affected,
+            total_commercial_flocks_affected,
         } = period;
 
         await pool.query(
@@ -114,11 +114,11 @@ export class USSummaryService {
           total_backyard_flocks_affected = EXCLUDED.total_backyard_flocks_affected,
           total_commercial_flocks_affected = EXCLUDED.total_commercial_flocks_affected`,
             [
-                periodName,
-                totalBirdsAffected,
-                totalFlocksAffected,
-                totalBackyardFlocksAffected,
-                totalCommercialFlocksAffected,
+                period_name,
+                total_birds_affected,
+                total_flocks_affected,
+                total_backyard_flocks_affected,
+                total_commercial_flocks_affected,
             ]
         );
     }
@@ -127,14 +127,14 @@ export class USSummaryService {
      * Bulk-upserts both all-time totals and period summaries.
      */
     public async upsertUSSummary(usSummaryStats: IUSSummaryStats) {
-        const { allTimeTotals, periodSummaries } = usSummaryStats;
+        const { all_time_totals, period_summaries } = usSummaryStats;
 
         try {
             await pool.query("BEGIN");
 
-            await this.updateAllTimeTotals(allTimeTotals);
+            await this.updateAllTimeTotals(all_time_totals);
 
-            for (const period of periodSummaries) {
+            for (const period of period_summaries) {
                 await this.upsertPeriodSummary(period);
             }
 
