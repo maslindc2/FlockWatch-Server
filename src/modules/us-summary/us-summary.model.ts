@@ -1,5 +1,5 @@
 import * as Mongoose from "mongoose";
-import { RollingPeriods, RollingPeriodName } from "../../config/rollingPeriods";
+import { RollingPeriods, RollingPeriodName } from "../../config/rolling-periods";
 import {
     AllTimeTotals,
     PeriodSummary,
