@@ -1,4 +1,4 @@
-import { LastReportDateModel } from "../../../src/models/last-report-date-model";
+import { LastReportDateModel } from "../../../src/modules/last-report-date/last-report-date.model";
 
 function getFieldType(field: any): any {
     return typeof field === "function" ? field : field.type;
@@ -15,15 +15,15 @@ describe("LastReportDateModel", () => {
     });
     it("should have the correct fields when we define a LastReportDateModel", () => {
         const schemaFields = LastReportDateModel.getModel.schema.obj;
-        expect(schemaFields).toHaveProperty("lastScrapedDate");
-        expect(schemaFields).toHaveProperty("authID");
+        expect(schemaFields).toHaveProperty("last_scraped_date");
+        expect(schemaFields).toHaveProperty("auth_id");
     });
     it("should have the correct datatypes for each field when we define a LastReportDateModel", () => {
         const schemaFields = LastReportDateModel.getModel.schema.obj;
-        expect(getFieldType(schemaFields.lastScrapedDate)).toBe(Date);
-        expect(getFieldType(schemaFields.authID)).toBe(String);
+        expect(getFieldType(schemaFields.last_scraped_date)).toBe(Date);
+        expect(getFieldType(schemaFields.auth_id)).toBe(String);
 
-        expect((schemaFields.lastScrapedDate as any).index).toBe(true);
-        expect((schemaFields.authID as any).index).toBe(true);
+        expect((schemaFields.last_scraped_date as any).index).toBe(true);
+        expect((schemaFields.auth_id as any).index).toBe(true);
     });
 });

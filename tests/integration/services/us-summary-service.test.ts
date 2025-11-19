@@ -1,9 +1,8 @@
-import { USSummaryService } from "../../../src/services/model-services/us-summary-service";
-import { IUSSummaryStats } from "../../../src/interfaces/i-us-summary-stats";
-import { USSummaryModel } from "../../../src/models/us-summary-model";
 import * as Mongoose from "mongoose";
 import dotenv from "dotenv";
-
+import { USSummaryService } from "../../../src/modules/us-summary/us-summary.service";
+import { USSummaryModel } from "../../../src/modules/us-summary/us-summary.model";
+import { USSummaryStats } from "../../../src/modules/us-summary/us-summary-stats.interface";
 dotenv.config();
 
 describe("USSummaryService Integration", () => {
@@ -18,29 +17,29 @@ describe("USSummaryService Integration", () => {
     });
 
     it("should insert and retrieve a full US summary correctly", async () => {
-        const modelObj: IUSSummaryStats = {
+        const modelObj: USSummaryStats = {
             key: "us-summary",
-            allTimeTotals: {
-                totalBackyardFlocksAffected: 841,
-                totalBirdsAffected: 166156928,
-                totalCommercialFlocksAffected: 763,
-                totalFlocksAffected: 1604,
-                totalStatesAffected: 51,
+            all_time_totals: {
+                total_backyard_flocks_affected: 841,
+                total_birds_affected: 166156928,
+                total_commercial_flocks_affected: 763,
+                total_flocks_affected: 1604,
+                total_states_affected: 51,
             },
-            periodSummaries: [
+            period_summaries: [
                 {
-                    periodName: "last7Days",
-                    totalBackyardFlocksAffected: 10,
-                    totalBirdsAffected: 50000,
-                    totalCommercialFlocksAffected: 25,
-                    totalFlocksAffected: 35,
+                    period_name: "last_7_days",
+                    total_backyard_flocks_affected: 10,
+                    total_birds_affected: 50000,
+                    total_commercial_flocks_affected: 25,
+                    total_flocks_affected: 35,
                 },
                 {
-                    periodName: "last30Days",
-                    totalBackyardFlocksAffected: 50,
-                    totalBirdsAffected: 1000000,
-                    totalCommercialFlocksAffected: 75,
-                    totalFlocksAffected: 125,
+                    period_name: "last_30_days",
+                    total_backyard_flocks_affected: 50,
+                    total_birds_affected: 1000000,
+                    total_commercial_flocks_affected: 75,
+                    total_flocks_affected: 125,
                 },
             ],
         };
@@ -54,22 +53,22 @@ describe("USSummaryService Integration", () => {
     });
 
     it("should update existing period summaries instead of duplicating them", async () => {
-        const initialData: IUSSummaryStats = {
+        const initialData: USSummaryStats = {
             key: "us-summary",
-            allTimeTotals: {
-                totalBackyardFlocksAffected: 500,
-                totalBirdsAffected: 1000000,
-                totalCommercialFlocksAffected: 400,
-                totalFlocksAffected: 900,
-                totalStatesAffected: 50,
+            all_time_totals: {
+                total_backyard_flocks_affected: 500,
+                total_birds_affected: 1000000,
+                total_commercial_flocks_affected: 400,
+                total_flocks_affected: 900,
+                total_states_affected: 50,
             },
-            periodSummaries: [
+            period_summaries: [
                 {
-                    periodName: "last30Days",
-                    totalBackyardFlocksAffected: 20,
-                    totalBirdsAffected: 200000,
-                    totalCommercialFlocksAffected: 15,
-                    totalFlocksAffected: 35,
+                    period_name: "last_30_days",
+                    total_backyard_flocks_affected: 20,
+                    total_birds_affected: 200000,
+                    total_commercial_flocks_affected: 15,
+                    total_flocks_affected: 35,
                 },
             ],
         };
@@ -78,22 +77,22 @@ describe("USSummaryService Integration", () => {
         await usSummaryService.upsertUSSummary(initialData);
 
         // Second upsert updates the same period with new metrics
-        const updatedData: IUSSummaryStats = {
+        const updatedData: USSummaryStats = {
             key: "us-summary",
-            allTimeTotals: {
-                totalBackyardFlocksAffected: 550, // updated all-time totals
-                totalBirdsAffected: 1200000,
-                totalCommercialFlocksAffected: 450,
-                totalFlocksAffected: 1000,
-                totalStatesAffected: 51,
+            all_time_totals: {
+                total_backyard_flocks_affected: 550, // updated all-time totals
+                total_birds_affected: 1200000,
+                total_commercial_flocks_affected: 450,
+                total_flocks_affected: 1000,
+                total_states_affected: 51,
             },
-            periodSummaries: [
+            period_summaries: [
                 {
-                    periodName: "last30Days", // same period, should update
-                    totalBackyardFlocksAffected: 25,
-                    totalBirdsAffected: 250000,
-                    totalCommercialFlocksAffected: 20,
-                    totalFlocksAffected: 45,
+                    period_name: "last_30_days", // same period, should update
+                    total_backyard_flocks_affected: 25,
+                    total_birds_affected: 250000,
+                    total_commercial_flocks_affected: 20,
+                    total_flocks_affected: 45,
                 },
             ],
         };
@@ -103,14 +102,14 @@ describe("USSummaryService Integration", () => {
         const queryFromDB = await usSummaryService.getUSSummary();
 
         // Check that all-time totals were updated
-        expect(queryFromDB!.allTimeTotals).toMatchObject(
-            updatedData.allTimeTotals
+        expect(queryFromDB!.all_time_totals).toMatchObject(
+            updatedData.all_time_totals
         );
 
         // Check that period summary was updated, not duplicated
-        expect(queryFromDB!.periodSummaries).toHaveLength(1);
-        expect(queryFromDB!.periodSummaries[0]).toMatchObject(
-            updatedData.periodSummaries[0]
+        expect(queryFromDB!.period_summaries).toHaveLength(1);
+        expect(queryFromDB!.period_summaries[0]).toMatchObject(
+            updatedData.period_summaries[0]
         );
     });
 

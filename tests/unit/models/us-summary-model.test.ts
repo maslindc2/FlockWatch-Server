@@ -1,5 +1,4 @@
-import { IUSSummaryStats } from "../../../src/interfaces/i-us-summary-stats";
-import { USSummaryModel } from "../../../src/models/us-summary-model";
+import { USSummaryModel } from "../../../src/modules/us-summary/us-summary.model";
 
 function getFieldType(field: any): any {
     return typeof field === "function" ? field : field.type;
@@ -17,40 +16,40 @@ describe("USSummaryModel", () => {
     it("should have the correct top-level fields", () => {
         const schemaFields = USSummaryModel.getModel.schema.obj;
         expect(schemaFields).toHaveProperty("key");
-        expect(schemaFields).toHaveProperty("allTimeTotals");
-        expect(schemaFields).toHaveProperty("periodSummaries");
+        expect(schemaFields).toHaveProperty("all_time_totals");
+        expect(schemaFields).toHaveProperty("period_summaries");
     });
     it("should have the correct fields inside allTimeTotals", () => {
         const allTimeTotalsFields = (USSummaryModel as any).allTimeTotalsSchema
             .obj;
 
-        expect(allTimeTotalsFields).toHaveProperty("totalStatesAffected");
-        expect(allTimeTotalsFields).toHaveProperty("totalBirdsAffected");
-        expect(allTimeTotalsFields).toHaveProperty("totalFlocksAffected");
+        expect(allTimeTotalsFields).toHaveProperty("total_states_affected");
+        expect(allTimeTotalsFields).toHaveProperty("total_birds_affected");
+        expect(allTimeTotalsFields).toHaveProperty("total_flocks_affected");
         expect(allTimeTotalsFields).toHaveProperty(
-            "totalBackyardFlocksAffected"
+            "total_backyard_flocks_affected"
         );
         expect(allTimeTotalsFields).toHaveProperty(
-            "totalCommercialFlocksAffected"
+            "total_commercial_flocks_affected"
         );
 
-        expect(getFieldType(allTimeTotalsFields.totalStatesAffected)).toBe(
+        expect(getFieldType(allTimeTotalsFields.total_states_affected)).toBe(
             Number
         );
-        expect(getFieldType(allTimeTotalsFields.totalBirdsAffected)).toBe(
+        expect(getFieldType(allTimeTotalsFields.total_birds_affected)).toBe(
             Number
         );
-        expect(getFieldType(allTimeTotalsFields.totalFlocksAffected)).toBe(
+        expect(getFieldType(allTimeTotalsFields.total_flocks_affected)).toBe(
             Number
         );
         expect(
-            getFieldType(allTimeTotalsFields.totalBackyardFlocksAffected)
+            getFieldType(allTimeTotalsFields.total_backyard_flocks_affected)
         ).toBe(Number);
         expect(
-            getFieldType(allTimeTotalsFields.totalCommercialFlocksAffected)
+            getFieldType(allTimeTotalsFields.total_commercial_flocks_affected)
         ).toBe(Number);
 
-        expect((allTimeTotalsFields.totalStatesAffected as any).index).toBe(
+        expect((allTimeTotalsFields.total_states_affected as any).index).toBe(
             true
         );
     });
@@ -58,28 +57,28 @@ describe("USSummaryModel", () => {
         const periodSummaryFields = (USSummaryModel as any).periodSummarySchema
             .obj;
 
-        expect(periodSummaryFields).toHaveProperty("periodName");
-        expect(periodSummaryFields).toHaveProperty("totalBirdsAffected");
-        expect(periodSummaryFields).toHaveProperty("totalFlocksAffected");
+        expect(periodSummaryFields).toHaveProperty("period_name");
+        expect(periodSummaryFields).toHaveProperty("total_birds_affected");
+        expect(periodSummaryFields).toHaveProperty("total_flocks_affected");
         expect(periodSummaryFields).toHaveProperty(
-            "totalBackyardFlocksAffected"
+            "total_backyard_flocks_affected"
         );
         expect(periodSummaryFields).toHaveProperty(
-            "totalCommercialFlocksAffected"
+            "total_commercial_flocks_affected"
         );
 
-        expect(getFieldType(periodSummaryFields.periodName)).toBe(String);
-        expect(getFieldType(periodSummaryFields.totalBirdsAffected)).toBe(
+        expect(getFieldType(periodSummaryFields.period_name)).toBe(String);
+        expect(getFieldType(periodSummaryFields.total_birds_affected)).toBe(
             Number
         );
-        expect(getFieldType(periodSummaryFields.totalFlocksAffected)).toBe(
+        expect(getFieldType(periodSummaryFields.total_flocks_affected)).toBe(
             Number
         );
         expect(
-            getFieldType(periodSummaryFields.totalBackyardFlocksAffected)
+            getFieldType(periodSummaryFields.total_backyard_flocks_affected)
         ).toBe(Number);
         expect(
-            getFieldType(periodSummaryFields.totalCommercialFlocksAffected)
+            getFieldType(periodSummaryFields.total_commercial_flocks_affected)
         ).toBe(Number);
     });
 });

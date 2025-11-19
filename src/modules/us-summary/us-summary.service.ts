@@ -25,7 +25,7 @@ class USSummaryService {
 
         if (!summary) return null;
         return {
-            all_time_totals: summary.allTimeTotals,
+            all_time_totals: summary.all_time_totals,
             period_summaries: USSummaryModel.formatPeriods(
                 summary.period_summaries
             ),

@@ -1,5 +1,5 @@
-import { LastReportDateService } from "../../../src/services/model-services/last-report-date-service";
-import { LastReportDateModel } from "../../../src/models/last-report-date-model";
+import { LastReportDateService } from "../../../src/modules/last-report-date/last-report-date.service";
+import { LastReportDateModel } from "../../../src/modules/last-report-date/last-report-date.model";
 
 describe("LastReportDateService Unit Tests", () => {
     let lastReportDateService: LastReportDateService;
@@ -23,7 +23,7 @@ describe("LastReportDateService Unit Tests", () => {
         await lastReportDateService.getAuthID();
 
         // We should be calling with a filter where authID exists
-        expect(findSpy).toHaveBeenCalledWith({ authID: { $exists: true } });
+        expect(findSpy).toHaveBeenCalledWith({ auth_id: { $exists: true } });
 
         // Expect .lean() to be called
         expect(leanMock).toHaveBeenCalled();
@@ -45,7 +45,7 @@ describe("LastReportDateService Unit Tests", () => {
         // Call get authID function
         await lastReportDateService.getAuthID();
         // Expect that select was called while hiding id and version
-        expect(selectMock).toHaveBeenCalledWith("-_id -__v -lastScrapedDate");
+        expect(selectMock).toHaveBeenCalledWith("-_id -__v -last_scraped_date");
 
         // Expect .lean() to be called
         expect(leanMock).toHaveBeenCalled();
@@ -70,7 +70,7 @@ describe("LastReportDateService Unit Tests", () => {
         await lastReportDateService.getLastScrapedDate();
         // Expect that find was called with the correct property
         expect(findOneMock).toHaveBeenCalledWith({
-            lastScrapedDate: { $exists: true },
+            last_scraped_date: { $exists: true },
         });
         // Expect .lean() to be called
         expect(leanMock).toHaveBeenCalled();
@@ -91,7 +91,7 @@ describe("LastReportDateService Unit Tests", () => {
         // Call get getLastScrapedDate function
         await lastReportDateService.getLastScrapedDate();
         // Expect that select was called while hiding id and version
-        expect(selectMock).toHaveBeenCalledWith("-_id -__v -authID");
+        expect(selectMock).toHaveBeenCalledWith("-_id -__v -auth_id");
 
         // Expect .lean() to be called
         expect(leanMock).toHaveBeenCalled();

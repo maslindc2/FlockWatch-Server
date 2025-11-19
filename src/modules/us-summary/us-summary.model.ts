@@ -70,10 +70,10 @@ class USSummaryModel {
         );
     }
 
-    public static async updateAllTimeTotals(allTimeTotals: AllTimeTotals) {
+    public static async updateAllTimeTotals(all_time_totals: AllTimeTotals) {
         return this.getModel.findOneAndUpdate(
             { key: "us-summary" },
-            { $set: { allTimeTotals } },
+            { $set: { all_time_totals } },
             { upsert: true, new: true }
         );
     }
