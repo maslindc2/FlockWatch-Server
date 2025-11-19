@@ -1,8 +1,8 @@
 export const RollingPeriods = [
-    "last7Days",
-    "last30Days",
-    "last90Days",
-    "yearToDate",
+    "last_7_days",
+    "last_30_days",
+    "last_90_days",
+    "year_to_date",
 ] as const;
 
 export type RollingPeriodName = (typeof RollingPeriods)[number];

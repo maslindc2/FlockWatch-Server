@@ -1,8 +1,8 @@
-import { FlockCasesByStateService } from "../services/model-services/flock-cases-by-state-service";
-import { LastReportDateService } from "../services/model-services/last-report-date-service";
-import { USSummaryService } from "../services/model-services/us-summary-service";
+import { USSummaryService } from "../modules/us-summary/us-summary.service";
 import { logger } from "../utils/winston-logger";
 import { Request, Response } from "express";
+import { FlockCasesByStateService } from "../modules/flock-cases-by-state/flock-cases-by-state.service";
+import { LastReportDateService } from "../modules/last-report-date/last-report-date.service";
 
 class DataController {
     // Define the service instances that the data controller will use

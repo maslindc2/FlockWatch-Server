@@ -1,9 +1,9 @@
 import express, { Application, Request, Response, NextFunction } from "express";
-import dataRoutes from "./routes/data-routes";
-import { DatabaseService } from "./services/database-service";
-import { LastReportDateService } from "./services/model-services/last-report-date-service";
+import serverRoutes from "./routes/server.routes";
+import { DatabaseService } from "./services/database.service";
 import { logger } from "./utils/winston-logger";
-import { FlockDataSyncService } from "./services/scraping-services/flock-data-sync-service";
+import { FlockDataSyncService } from "./modules/scraping/flock-data-sync.service";
+import { LastReportDateService } from "./modules/last-report-date/last-report-date.service";
 
 class App {
     // Stores the express app instance
@@ -38,7 +38,7 @@ class App {
         });
 
         // Setting /data routes for requesting flock data
-        this.app.use("/data", this.attachMetadata, dataRoutes);
+        this.app.use("/data", this.attachMetadata, serverRoutes);
 
         // Set the root url to return the default message
         this.app.get(

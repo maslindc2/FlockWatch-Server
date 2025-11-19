@@ -1,5 +1,5 @@
-import { IFlockCasesByState } from "../../interfaces/i-flock-cases-by-state";
-import { FlockCasesByStateModel } from "../../models/flock-cases-by-state-model";
+import { FlockCasesByState } from "./flock-cases-by-state.interface";
+import { FlockCasesByStateModel } from "./flock-cases-by-state.model";
 import { logger } from "../../utils/winston-logger";
 
 class FlockCasesByStateService {
@@ -21,7 +21,7 @@ class FlockCasesByStateService {
      */
     public async getStateFlockCase(requestedState: String) {
         return await FlockCasesByStateModel.getModel
-            .findOne({ stateAbbreviation: requestedState })
+            .findOne({ state_abbreviation: requestedState })
             .select("-_id -__v")
             .lean();
     }
@@ -30,7 +30,7 @@ class FlockCasesByStateService {
      * Creates or updates the current US State's data in MongoDB
      * @param flockData This is the array of states, each index is an object containing all the fields in IFlockCasesByState, check this interface for more information
      */
-    public async createOrUpdateStateData(flockData: IFlockCasesByState[]) {
+    public async createOrUpdateStateData(flockData: FlockCasesByState[]) {
         try {
             for (const currState in flockData) {
                 await FlockCasesByStateModel.getModel.findOneAndUpdate(
