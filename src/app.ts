@@ -4,6 +4,8 @@ import { DatabaseService } from "./services/database.service";
 import { logger } from "./utils/winston-logger";
 import { FlockDataSyncService } from "./modules/scraping/flock-data-sync.service";
 import { LastReportDateService } from "./modules/last-report-date/last-report-date.service";
+import cors from "cors";
+
 
 class App {
     // Stores the express app instance
@@ -31,11 +33,42 @@ class App {
         // Accepting json
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: false }));
-        // Setting CORS policies for the server
-        this.app.use((req, res, next) => {
-            res.header("Access-Control-Allow-Origin", "*");
-            next();
-        });
+        // Set CORS policies depending on what ENV mode we are in
+        if (process.env.NODE_ENV === "development") {
+            // Alert that we are in development mode for the CORS policies
+            logger.info("Currently in development mode, CORS allows all origins!");
+            this.app.use(
+                cors({
+                    origin: "*",
+                    methods: ["GET"],
+                    allowedHeaders: ["Content-Type"],
+                })
+            );
+        }else{
+            // Use the production CORS rules
+            this.app.use(
+                "/data",
+                cors({
+                    origin: (origin, callback) => {
+                        // Allow requests that don't have an origin
+                        if (!origin) {
+                            callback(null, true);
+                            return;
+                        }
+                        //Allowed origins array which houses each domain
+                        const allowedOrigins = [process.env.FRONTEND_DOMAIN];
+                        if (allowedOrigins.includes(origin)) {
+                            callback(null, true);
+                            return;
+                        }
+                        callback(new Error("Not allowed by CORS"));
+                    },
+                    // Only allow GET methods
+                    methods: ["GET"],
+                    allowedHeaders: ["Content-Type"],
+                })
+            );
+        }
 
         // Setting /data routes for requesting flock data
         this.app.use("/data", this.attachMetadata, serverRoutes);
