@@ -58,7 +58,6 @@ class USSummaryService {
 
         // Update each period
         for (const period of period_summaries) {
-            
             await this.upsertPeriodSummary(period);
         }
 

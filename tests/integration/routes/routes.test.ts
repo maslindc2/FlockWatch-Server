@@ -56,7 +56,9 @@ describe("Routes integration tests", () => {
                         total_flocks: 390728,
                         latitude: 40.99773861,
                         longitude: -76.19300025,
-                        last_reported_detection: new Date(Date.UTC(2025, 2 - 1, 5)),
+                        last_reported_detection: new Date(
+                            Date.UTC(2025, 2 - 1, 5)
+                        ),
                     },
                 ];
 
@@ -124,7 +126,9 @@ describe("Routes integration tests", () => {
                         total_flocks: 55,
                         latitude: 47.556837171,
                         longitude: -122.16233971,
-                        last_reported_detection: new Date(Date.UTC(2025, 2 - 1, 5)),
+                        last_reported_detection: new Date(
+                            Date.UTC(2025, 2 - 1, 5)
+                        ),
                     },
                     {
                         state_abbreviation: "PA",
@@ -135,7 +139,9 @@ describe("Routes integration tests", () => {
                         total_flocks: 390728,
                         latitude: 40.99773861,
                         longitude: -76.19300025,
-                        last_reported_detection: new Date(Date.UTC(2025, 2 - 1, 5)),
+                        last_reported_detection: new Date(
+                            Date.UTC(2025, 2 - 1, 5)
+                        ),
                     },
                 ];
 
@@ -252,7 +258,7 @@ describe("Routes integration tests", () => {
                     },
                 },
             };
-            
+
             // Expect the response to match the new nested schema
             expect(res.body.data).toMatchObject(expectedObject);
 

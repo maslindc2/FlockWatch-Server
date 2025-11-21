@@ -6,7 +6,6 @@ import { FlockDataSyncService } from "./modules/scraping/flock-data-sync.service
 import { LastReportDateService } from "./modules/last-report-date/last-report-date.service";
 import cors from "cors";
 
-
 class App {
     // Stores the express app instance
     public app: Application;
@@ -36,7 +35,9 @@ class App {
         // Set CORS policies depending on what ENV mode we are in
         if (process.env.NODE_ENV === "development") {
             // Alert that we are in development mode for the CORS policies
-            logger.info("Currently in development mode, CORS allows all origins!");
+            logger.info(
+                "Currently in development mode, CORS allows all origins!"
+            );
             this.app.use(
                 cors({
                     origin: "*",
@@ -44,7 +45,7 @@ class App {
                     allowedHeaders: ["Content-Type"],
                 })
             );
-        }else{
+        } else {
             // Use the production CORS rules
             this.app.use(
                 "/data",

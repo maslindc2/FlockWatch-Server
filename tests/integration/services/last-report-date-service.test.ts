@@ -4,7 +4,6 @@ import { LastReportDateModel } from "../../../src/modules/last-report-date/last-
 import * as Mongoose from "mongoose";
 import dotenv from "dotenv";
 
-
 dotenv.config();
 
 describe("LastReportDateService Integration", () => {

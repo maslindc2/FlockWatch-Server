@@ -1,5 +1,8 @@
 import * as Mongoose from "mongoose";
-import { RollingPeriods, RollingPeriodName } from "../../config/rolling-periods";
+import {
+    RollingPeriods,
+    RollingPeriodName,
+} from "../../config/rolling-periods";
 import {
     AllTimeTotals,
     PeriodSummary,
@@ -82,7 +85,7 @@ class USSummaryModel {
         if (!RollingPeriods.includes(period.period_name as RollingPeriodName)) {
             throw new Error(`Invalid period_name: ${period.period_name}`);
         }
-        
+
         return this.getModel
             .findOneAndUpdate(
                 {

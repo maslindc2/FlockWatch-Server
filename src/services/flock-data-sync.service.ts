@@ -4,7 +4,6 @@ import { USSummaryService } from "../modules/us-summary/us-summary.service";
 import { RequestDataService } from "../modules/scraping/request-data.service";
 import { LastReportDateService } from "../modules/last-report-date/last-report-date.service";
 
-
 class FlockDataSyncService {
     // Stores our Last Report Date Service instance
     private lastReportDateService: LastReportDateService;
@@ -48,7 +47,7 @@ class FlockDataSyncService {
 
         // Get the authID from our model
         const modelInfo = await this.lastReportDateService.getAuthID();
-        
+
         // Fetch the latest avian influenza state data
         const data = await scraperDataService.fetchLatestFlockData(
             modelInfo?.auth_id!
