@@ -1,8 +1,8 @@
-import { FlockCasesByStateService } from "../../../src/services/model-services/flock-cases-by-state-service";
-import { IFlockCasesByState } from "../../../src/interfaces/i-flock-cases-by-state";
+import { FlockCasesByState } from "../../../src/modules/flock-cases-by-state/flock-cases-by-state.interface";
 import * as Mongoose from "mongoose";
-import { FlockCasesByStateModel } from "../../../src/models/flock-cases-by-state-model";
 import dotenv from "dotenv";
+import { FlockCasesByStateService } from "../../../src/modules/flock-cases-by-state/flock-cases-by-state.service";
+import { FlockCasesByStateModel } from "../../../src/modules/flock-cases-by-state/flock-cases-by-state.model";
 
 dotenv.config();
 
@@ -26,17 +26,17 @@ describe("FlockCasesByStateService Integration", () => {
 
     it("should create a state data entry when createOrUpdateStateData is called with an array containing state data", async () => {
         // First define the object that we want to store using the data type we are using
-        const flockData: IFlockCasesByState[] = [
+        const flockData: FlockCasesByState[] = [
             {
-                stateAbbreviation: "PA",
+                state_abbreviation: "PA",
                 state: "Pennsylvania",
-                backyardFlocks: 2344370,
-                commercialFlocks: 7,
-                birdsAffected: 7,
-                totalFlocks: 390728,
+                backyard_flocks: 2344370,
+                commercial_flocks: 7,
+                birds_affected: 7,
+                total_flocks: 390728,
                 latitude: 40.99773861,
                 longitude: -76.19300025,
-                lastReportedDate: new Date(Date.UTC(2025, 2 - 1, 5)),
+                last_reported_detection: new Date(Date.UTC(2025, 2 - 1, 5)),
             },
         ];
         const findOneAndUpdateSpy = jest.spyOn(
@@ -62,7 +62,7 @@ describe("FlockCasesByStateService Integration", () => {
 
         // Since we use Mongoose we need to strip the proxied object portion from our result
         // This is done by Stringify and then parsing.
-        const stripProxiedObject = (obj: IFlockCasesByState[]) =>
+        const stripProxiedObject = (obj: FlockCasesByState[]) =>
             JSON.parse(JSON.stringify(obj));
 
         // Now our state data from our DB should equal our flockData that we made earlier
@@ -73,17 +73,17 @@ describe("FlockCasesByStateService Integration", () => {
 
     it("should update the birdsAffected data for Pennsylvania when we call createOrUpdateStateData with updated state data", async () => {
         // First define the object that we want to store using the data type we are using
-        const flockData: IFlockCasesByState[] = [
+        const flockData: FlockCasesByState[] = [
             {
-                stateAbbreviation: "PA",
+                state_abbreviation: "PA",
                 state: "Pennsylvania",
-                backyardFlocks: 2344370,
-                commercialFlocks: 7,
-                birdsAffected: 7,
-                totalFlocks: 390728,
+                backyard_flocks: 2344370,
+                commercial_flocks: 7,
+                birds_affected: 7,
+                total_flocks: 390728,
                 latitude: 40.99773861,
                 longitude: -76.19300025,
-                lastReportedDate: new Date(Date.UTC(2025, 2 - 1, 5)),
+                last_reported_detection: new Date(Date.UTC(2025, 2 - 1, 5)),
             },
         ];
 
@@ -95,7 +95,7 @@ describe("FlockCasesByStateService Integration", () => {
         );
 
         // Now modify the flockData and change the birdsAffected field to 0
-        flockData[0].birdsAffected = 0;
+        flockData[0].birds_affected = 0;
 
         // Call the create or update state data to update Pennsylvania's flock data for birdsAffected to now equal 0
         await flockCasesByStateService.createOrUpdateStateData(flockData);
@@ -110,7 +110,7 @@ describe("FlockCasesByStateService Integration", () => {
         expect(queryFromDB[0].state).toBe("Pennsylvania");
 
         // Birds affected should be updated to be 0
-        expect(queryFromDB[0].birdsAffected).toEqual(0);
+        expect(queryFromDB[0].birds_affected).toEqual(0);
 
         expect(queryFromDB[0]._id).toEqual(originalStateInfo[0]._id);
     });

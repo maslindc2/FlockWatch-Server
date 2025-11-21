@@ -1,8 +1,7 @@
-import { LastReportDateService } from "../../../src/services/model-services/last-report-date-service";
-import { ILastReportDate } from "../../../src/interfaces/models/i-last-report-date";
-import { LastReportDateModel } from "../../../src/models/last-report-date-model";
+import { LastReportDateService } from "../../../src/modules/last-report-date/last-report-date.service";
+import { LastReportDate } from "../../../src/modules/last-report-date/last-report-date.interface";
+import { LastReportDateModel } from "../../../src/modules/last-report-date/last-report-date.model";
 import * as Mongoose from "mongoose";
-
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -26,8 +25,8 @@ describe("LastReportDateService Integration", () => {
 
     it("should initialize the database with a new data entry", async () => {
         const expectedModelObj = {
-            lastScrapedDate: expect.any(Date),
-            authID: expect.any(String),
+            last_scraped_date: expect.any(Date),
+            auth_id: expect.any(String),
         };
 
         // Initialize the database like it would on startup
@@ -51,7 +50,7 @@ describe("LastReportDateService Integration", () => {
 
         // Since we use Mongoose we need to strip the proxied object portion from our result
         // This is done by Stringify and then parsing.
-        const stripProxiedObject = (obj: ILastReportDate) =>
+        const stripProxiedObject = (obj: LastReportDate) =>
             JSON.parse(JSON.stringify(obj));
 
         // findOne should be called twice as we are in fact calling it twice
@@ -77,10 +76,10 @@ describe("LastReportDateService Integration", () => {
             await lastReportDateService.getLastScrapedDate();
         const updatedAuthID = await lastReportDateService.getAuthID();
 
-        expect(initialLastScrapedDateObject!.lastScrapedDate).not.toEqual(
-            lastScrapedDateObject!.lastScrapedDate
+        expect(initialLastScrapedDateObject!.last_scraped_date).not.toEqual(
+            lastScrapedDateObject!.last_scraped_date
         );
-        expect(initialUpdatedAuthID!.authID).not.toEqual(updatedAuthID);
+        expect(initialUpdatedAuthID!.auth_id).not.toEqual(updatedAuthID);
     });
 
     it("should update the existing record creating a new authID and updating last scraped date when we successfully get new data", async () => {
@@ -95,10 +94,10 @@ describe("LastReportDateService Integration", () => {
             await lastReportDateService.getLastScrapedDate();
         const updatedAuthID = await lastReportDateService.getAuthID();
 
-        expect(initialRecord.lastScrapedDate).toEqual(
-            lastScrapedDateObject?.lastScrapedDate
+        expect(initialRecord.last_scraped_date).toEqual(
+            lastScrapedDateObject?.last_scraped_date
         );
-        expect(initialRecord.authID).not.toEqual(updatedAuthID);
+        expect(initialRecord.auth_id).not.toEqual(updatedAuthID);
     });
 
     afterEach(async () => {

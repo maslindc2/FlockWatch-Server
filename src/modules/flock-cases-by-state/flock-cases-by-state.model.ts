@@ -1,27 +1,27 @@
 import * as Mongoose from "mongoose";
-import { IFlockCasesByStateDocument } from "../interfaces/models/i-flock-cases-by-state-document";
+import { FlockCasesByStateDocument } from "./flock-cases-by-state-document.interface";
 
 /**
  * This model stores each individual state's Avian Flu detections.
  * All of this data is found in Map Comparisons.csv file we only skip the State Label and Color columns
  */
 class FlockCasesByStateModel {
-    private static schema = new Mongoose.Schema<IFlockCasesByStateDocument>(
+    private static schema = new Mongoose.Schema<FlockCasesByStateDocument>(
         {
-            stateAbbreviation: { type: String, index: true },
+            state_abbreviation: { type: String, index: true },
             state: String,
-            backyardFlocks: Number,
-            commercialFlocks: Number,
-            birdsAffected: Number,
-            totalFlocks: Number,
+            backyard_flocks: Number,
+            commercial_flocks: Number,
+            birds_affected: Number,
+            total_flocks: Number,
             latitude: Number,
             longitude: Number,
-            lastReportedDate: Date,
+            last_reported_detection: Date,
         },
         { collection: "flock-cases-by-state" }
     );
 
-    public static getModel = Mongoose.model<IFlockCasesByStateDocument>(
+    public static getModel = Mongoose.model<FlockCasesByStateDocument>(
         "flock-cases-by-state",
         FlockCasesByStateModel.schema
     );

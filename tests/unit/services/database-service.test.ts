@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import { DatabaseService } from "../../../src/services/database-service";
+import { DatabaseService } from "../../../src/services/database.service";
 import { logger } from "../../../src/utils/winston-logger";
 import mongoose, { ConnectOptions, Mongoose, MongooseError } from "mongoose";
 

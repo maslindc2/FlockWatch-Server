@@ -1,6 +1,6 @@
-import { USSummaryService } from "../../../src/services/model-services/us-summary-service";
-import { USSummaryModel } from "../../../src/models/us-summary-model";
-import { IUSSummaryStats } from "../../../src/interfaces/i-us-summary-stats";
+import { USSummaryService } from "../../../src/modules/us-summary/us-summary.service";
+import { USSummaryModel } from "../../../src/modules/us-summary/us-summary.model";
+import { USSummaryStats } from "../../../src/modules/us-summary/us-summary-stats.interface";
 
 describe("USSummaryService Unit Tests", () => {
     let usSummaryService: USSummaryService;
@@ -29,22 +29,22 @@ describe("USSummaryService Unit Tests", () => {
     });
 
     it("should return expected mock data when getUSSummary is called", async () => {
-        const fakeData: IUSSummaryStats = {
+        const fakeData: USSummaryStats = {
             key: "us-summary",
-            allTimeTotals: {
-                totalStatesAffected: 51,
-                totalBirdsAffected: 168256658,
-                totalFlocksAffected: 1676,
-                totalBackyardFlocksAffected: 897,
-                totalCommercialFlocksAffected: 779,
+            all_time_totals: {
+                total_states_affected: 51,
+                total_birds_affected: 168256658,
+                total_flocks_affected: 1676,
+                total_backyard_flocks_affected: 897,
+                total_commercial_flocks_affected: 779,
             },
-            periodSummaries: [
+            period_summaries: [
                 {
-                    periodName: "last30Days",
-                    totalBirdsAffected: 168256658,
-                    totalFlocksAffected: 1676,
-                    totalBackyardFlocksAffected: 897,
-                    totalCommercialFlocksAffected: 779,
+                    period_name: "last_30_days",
+                    total_birds_affected: 168256658,
+                    total_flocks_affected: 1676,
+                    total_backyard_flocks_affected: 897,
+                    total_commercial_flocks_affected: 779,
                 },
             ],
         };

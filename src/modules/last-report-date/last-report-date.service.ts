@@ -1,19 +1,19 @@
-import { LastReportDateModel } from "../../models/last-report-date-model";
+import { LastReportDateModel } from "./last-report-date.model";
 import { logger } from "../../utils/winston-logger";
 
 class LastReportDateService {
     // This will query the last report date model and only return the last scraped date field
     public async getLastScrapedDate() {
         return LastReportDateModel.getModel
-            .findOne({ lastScrapedDate: { $exists: true } })
-            .select("-_id -__v -authID")
+            .findOne({ last_scraped_date: { $exists: true } })
+            .select("-_id -__v -auth_id")
             .lean();
     }
     // Only get the authID and hide the id, version, and last scraped date field
     public async getAuthID() {
         return LastReportDateModel.getModel
-            .findOne({ authID: { $exists: true } })
-            .select("-_id -__v -lastScrapedDate")
+            .findOne({ auth_id: { $exists: true } })
+            .select("-_id -__v -last_scraped_date")
             .lean();
     }
     /**
@@ -31,8 +31,8 @@ class LastReportDateService {
             // Create one and set the date to Unix epoch which is January 1, 1970
             // with a random UUID for the auth id
             const modelObj = {
-                lastScrapedDate: new Date(0),
-                authID: crypto.randomUUID(),
+                last_scraped_date: new Date(0),
+                auth_id: crypto.randomUUID(),
             };
             // Create and return the document we created
             return (
@@ -48,12 +48,12 @@ class LastReportDateService {
         let modelObj;
         if (isSuccessfulUpdate) {
             modelObj = {
-                lastScrapedDate: new Date(),
-                authID: crypto.randomUUID(),
+                last_scraped_date: new Date(),
+                auth_id: crypto.randomUUID(),
             };
         } else {
             modelObj = {
-                authID: crypto.randomUUID(),
+                auth_id: crypto.randomUUID(),
             };
         }
         try {

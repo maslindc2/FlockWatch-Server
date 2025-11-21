@@ -1,10 +1,9 @@
 import {
-    IAllTimeTotals,
-    IPeriodSummary,
-    IUSSummaryStats,
-} from "../../interfaces/i-us-summary-stats";
-import { USSummaryModel } from "../../models/us-summary-model";
-import { logger } from "../../utils/winston-logger";
+    AllTimeTotals,
+    PeriodSummary,
+    USSummaryStats,
+} from "./us-summary-stats.interface";
+import { USSummaryModel } from "./us-summary.model";
 
 class USSummaryService {
     /**
@@ -15,20 +14,20 @@ class USSummaryService {
         return USSummaryModel.getModel
             .findOne({ key: "us-summary" })
             .select("-_id -__v")
-            .lean<IUSSummaryStats>();
+            .lean<USSummaryStats>();
     }
 
     public async getFormattedUSSummary() {
         const summary: any = await USSummaryModel.getModel
             .findOne({ key: "us-summary" })
             .select("-_id -__v")
-            .lean<IUSSummaryStats>();
+            .lean<USSummaryStats>();
 
         if (!summary) return null;
         return {
-            allTimeTotals: summary.allTimeTotals,
-            periodSummaries: USSummaryModel.formatPeriods(
-                summary.periodSummaries
+            all_time_totals: summary.all_time_totals,
+            period_summaries: USSummaryModel.formatPeriods(
+                summary.period_summaries
             ),
         };
     }
@@ -36,14 +35,14 @@ class USSummaryService {
     /**
      * Updates or inserts the all-time totals.
      */
-    public async updateAllTimeTotals(allTimeTotals: IAllTimeTotals) {
+    public async updateAllTimeTotals(allTimeTotals: AllTimeTotals) {
         return USSummaryModel.updateAllTimeTotals(allTimeTotals);
     }
 
     /**
      * Updates or inserts a rolling period summary.
      */
-    public async upsertPeriodSummary(period: IPeriodSummary) {
+    public async upsertPeriodSummary(period: PeriodSummary) {
         return USSummaryModel.upsertPeriodAtomic(period);
     }
 
@@ -51,14 +50,14 @@ class USSummaryService {
      * A helper to bulk-update both all-time totals and periods in one call.
      * Useful for when your scraper finishes a full run.
      */
-    public async upsertUSSummary(usSummaryStats: IUSSummaryStats) {
-        const { allTimeTotals, periodSummaries } = usSummaryStats;
+    public async upsertUSSummary(usSummaryStats: USSummaryStats) {
+        const { all_time_totals, period_summaries } = usSummaryStats;
 
         // Update all-time
-        await this.updateAllTimeTotals(allTimeTotals);
+        await this.updateAllTimeTotals(all_time_totals);
 
         // Update each period
-        for (const period of periodSummaries) {
+        for (const period of period_summaries) {
             await this.upsertPeriodSummary(period);
         }
 

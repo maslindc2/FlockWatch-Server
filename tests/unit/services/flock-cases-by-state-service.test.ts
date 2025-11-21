@@ -1,6 +1,6 @@
-import { FlockCasesByStateService } from "../../../src/services/model-services/flock-cases-by-state-service";
-import { FlockCasesByStateModel } from "../../../src/models/flock-cases-by-state-model";
-import { IFlockCasesByState } from "../../../src/interfaces/i-flock-cases-by-state";
+import { FlockCasesByStateService } from "../../../src/modules/flock-cases-by-state/flock-cases-by-state.service";
+import { FlockCasesByStateModel } from "../../../src/modules/flock-cases-by-state/flock-cases-by-state.model";
+import { FlockCasesByState } from "../../../src/modules/flock-cases-by-state/flock-cases-by-state.interface";
 import { logger } from "../../../src/utils/winston-logger";
 
 describe("FlockCasesByStateService", () => {
@@ -45,7 +45,7 @@ describe("FlockCasesByStateService", () => {
         await service.getStateFlockCase("WA");
 
         // Assertions
-        expect(findMock).toHaveBeenCalledWith({ stateAbbreviation: "WA" });
+        expect(findMock).toHaveBeenCalledWith({ state_abbreviation: "WA" });
         expect(selectMock).toHaveBeenCalledWith("-_id -__v");
         expect(leanMock).toHaveBeenCalled();
 
@@ -54,17 +54,17 @@ describe("FlockCasesByStateService", () => {
     });
     it("should throw and log an error when createOrUpdateStateData throws an error", async () => {
         // Create fake data with the expected type
-        const mockData: IFlockCasesByState[] = [
+        const mockData: FlockCasesByState[] = [
             {
-                stateAbbreviation: "PA",
+                state_abbreviation: "PA",
                 state: "Pennsylvania",
-                backyardFlocks: 2344370,
-                commercialFlocks: 7,
-                birdsAffected: 7,
-                totalFlocks: 390728,
+                backyard_flocks: 2344370,
+                commercial_flocks: 7,
+                birds_affected: 7,
+                total_flocks: 390728,
                 latitude: 40.99773861,
                 longitude: -76.19300025,
-                lastReportedDate: new Date(Date.UTC(2025, 2 - 1, 5)),
+                last_reported_detection: new Date(Date.UTC(2025, 2 - 1, 5)),
             },
         ];
 

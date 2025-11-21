@@ -1,15 +1,15 @@
 import { App } from "../../../src/app";
-import { FlockCasesByStateService } from "../../../src/services/model-services/flock-cases-by-state-service";
-import { IFlockCasesByState } from "../../../src/interfaces/i-flock-cases-by-state";
+import { FlockCasesByState } from "../../../src/modules/flock-cases-by-state/flock-cases-by-state.interface";
 import dotenv from "dotenv";
 import * as Mongoose from "mongoose";
 import request from "supertest";
-import { FlockCasesByStateModel } from "../../../src/models/flock-cases-by-state-model";
 import { logger } from "../../../src/utils/winston-logger";
-import { IUSSummaryStats } from "../../../src/interfaces/i-us-summary-stats";
-import { USSummaryService } from "../../../src/services/model-services/us-summary-service";
-import { DatabaseService } from "../../../src/services/database-service";
-import { USSummaryModel } from "../../../src/models/us-summary-model";
+import { USSummaryStats } from "../../../src/modules/us-summary/us-summary-stats.interface";
+import { FlockCasesByStateService } from "../../../src/modules/flock-cases-by-state/flock-cases-by-state.service";
+import { FlockCasesByStateModel } from "../../../src/modules/flock-cases-by-state/flock-cases-by-state.model";
+import { USSummaryService } from "../../../src/modules/us-summary/us-summary.service";
+import { USSummaryModel } from "../../../src/modules/us-summary/us-summary.model";
+import { DatabaseService } from "../../../src/services/database.service";
 
 dotenv.config();
 
@@ -46,17 +46,19 @@ describe("Routes integration tests", () => {
                 await Mongoose.connect(process.env.MONGODB_URI!);
                 console.log("MongoDB connected successfully.");
                 // Define the state data that we will be storing to the database of the expected type
-                const flockData: IFlockCasesByState[] = [
+                const flockData: FlockCasesByState[] = [
                     {
-                        stateAbbreviation: "PA",
+                        state_abbreviation: "PA",
                         state: "Pennsylvania",
-                        backyardFlocks: 2344370,
-                        commercialFlocks: 7,
-                        birdsAffected: 7,
-                        totalFlocks: 390728,
+                        backyard_flocks: 2344370,
+                        commercial_flocks: 7,
+                        birds_affected: 7,
+                        total_flocks: 390728,
                         latitude: 40.99773861,
                         longitude: -76.19300025,
-                        lastReportedDate: new Date(Date.UTC(2025, 2 - 1, 5)),
+                        last_reported_detection: new Date(
+                            Date.UTC(2025, 2 - 1, 5)
+                        ),
                     },
                 ];
 
@@ -76,15 +78,15 @@ describe("Routes integration tests", () => {
             // typing and the use of new Date(Date.UTC(2025, 2 - 1, 5)) we have to define this as "2025-02-05T00:00:00.000Z".
             const expectedFlockData = [
                 {
-                    stateAbbreviation: "PA",
+                    state_abbreviation: "PA",
                     state: "Pennsylvania",
-                    backyardFlocks: 2344370,
-                    commercialFlocks: 7,
-                    birdsAffected: 7,
-                    totalFlocks: 390728,
+                    backyard_flocks: 2344370,
+                    commercial_flocks: 7,
+                    birds_affected: 7,
+                    total_flocks: 390728,
                     latitude: 40.99773861,
                     longitude: -76.19300025,
-                    lastReportedDate: "2025-02-05T00:00:00.000Z",
+                    last_reported_detection: "2025-02-05T00:00:00.000Z",
                 },
             ];
             // Make the request using a new instance of app and the route to flock cases it should be of type JSON and have a status of 200
@@ -114,28 +116,32 @@ describe("Routes integration tests", () => {
                 await Mongoose.connect(process.env.MONGODB_URI!);
                 console.log("MongoDB connected successfully.");
                 // Define the state data that we will be storing to the database of the expected type
-                const flockData: IFlockCasesByState[] = [
+                const flockData: FlockCasesByState[] = [
                     {
-                        stateAbbreviation: "WA",
+                        state_abbreviation: "WA",
                         state: "Washington",
-                        backyardFlocks: 52,
-                        commercialFlocks: 3,
-                        birdsAffected: 2167079,
-                        totalFlocks: 55,
+                        backyard_flocks: 52,
+                        commercial_flocks: 3,
+                        birds_affected: 2167079,
+                        total_flocks: 55,
                         latitude: 47.556837171,
                         longitude: -122.16233971,
-                        lastReportedDate: new Date(Date.UTC(2025, 2 - 1, 5)),
+                        last_reported_detection: new Date(
+                            Date.UTC(2025, 2 - 1, 5)
+                        ),
                     },
                     {
-                        stateAbbreviation: "PA",
+                        state_abbreviation: "PA",
                         state: "Pennsylvania",
-                        backyardFlocks: 2344370,
-                        commercialFlocks: 7,
-                        birdsAffected: 7,
-                        totalFlocks: 390728,
+                        backyard_flocks: 2344370,
+                        commercial_flocks: 7,
+                        birds_affected: 7,
+                        total_flocks: 390728,
                         latitude: 40.99773861,
                         longitude: -76.19300025,
-                        lastReportedDate: new Date(Date.UTC(2025, 2 - 1, 5)),
+                        last_reported_detection: new Date(
+                            Date.UTC(2025, 2 - 1, 5)
+                        ),
                     },
                 ];
 
@@ -154,15 +160,15 @@ describe("Routes integration tests", () => {
             const loggerSpy = jest.spyOn(logger, "http");
             // Define the object we should get as a response.  Remember this route only returns an object not an array
             const expectedFlockData = {
-                stateAbbreviation: "WA",
+                state_abbreviation: "WA",
                 state: "Washington",
-                backyardFlocks: 52,
-                commercialFlocks: 3,
-                birdsAffected: 2167079,
-                totalFlocks: 55,
+                backyard_flocks: 52,
+                commercial_flocks: 3,
+                birds_affected: 2167079,
+                total_flocks: 55,
                 latitude: 47.556837171,
                 longitude: -122.16233971,
-                lastReportedDate: "2025-02-05T00:00:00.000Z",
+                last_reported_detection: "2025-02-05T00:00:00.000Z",
             };
             // Make the request using a new instance of app and the route to flock cases it should be of type JSON and have a status of 200
             const res = await request(new App().app)
@@ -182,7 +188,7 @@ describe("Routes integration tests", () => {
     });
 
     describe("GET /data/us-summary", () => {
-        let usSummaryData: IUSSummaryStats;
+        let usSummaryData: USSummaryStats;
         let usSummaryService: USSummaryService;
 
         beforeAll(async () => {
@@ -192,27 +198,27 @@ describe("Routes integration tests", () => {
             // Define the us summary model in the new schema
             usSummaryData = {
                 key: "us-summary",
-                allTimeTotals: {
-                    totalBackyardFlocksAffected: 841,
-                    totalBirdsAffected: 166156928,
-                    totalCommercialFlocksAffected: 763,
-                    totalFlocksAffected: 1604,
-                    totalStatesAffected: 51,
+                all_time_totals: {
+                    total_backyard_flocks_affected: 841,
+                    total_birds_affected: 166156928,
+                    total_commercial_flocks_affected: 763,
+                    total_flocks_affected: 1604,
+                    total_states_affected: 51,
                 },
-                periodSummaries: [
+                period_summaries: [
                     {
-                        periodName: "last7Days",
-                        totalBackyardFlocksAffected: 10,
-                        totalBirdsAffected: 50000,
-                        totalCommercialFlocksAffected: 25,
-                        totalFlocksAffected: 35,
+                        period_name: "last_7_days",
+                        total_backyard_flocks_affected: 10,
+                        total_birds_affected: 50000,
+                        total_commercial_flocks_affected: 25,
+                        total_flocks_affected: 35,
                     },
                     {
-                        periodName: "last30Days",
-                        totalBackyardFlocksAffected: 50,
-                        totalBirdsAffected: 1000000,
-                        totalCommercialFlocksAffected: 75,
-                        totalFlocksAffected: 125,
+                        period_name: "last_30_days",
+                        total_backyard_flocks_affected: 50,
+                        total_birds_affected: 1000000,
+                        total_commercial_flocks_affected: 75,
+                        total_flocks_affected: 125,
                     },
                 ],
             };
@@ -230,28 +236,29 @@ describe("Routes integration tests", () => {
                 .expect(200);
 
             const expectedObject = {
-                allTimeTotals: {
-                    totalStatesAffected: 51,
-                    totalBirdsAffected: 166156928,
-                    totalFlocksAffected: 1604,
-                    totalBackyardFlocksAffected: 841,
-                    totalCommercialFlocksAffected: 763,
+                all_time_totals: {
+                    total_states_affected: 51,
+                    total_birds_affected: 166156928,
+                    total_flocks_affected: 1604,
+                    total_backyard_flocks_affected: 841,
+                    total_commercial_flocks_affected: 763,
                 },
-                periodSummaries: {
-                    last7Days: {
-                        totalBirdsAffected: 50000,
-                        totalFlocksAffected: 35,
-                        totalBackyardFlocksAffected: 10,
-                        totalCommercialFlocksAffected: 25,
+                period_summaries: {
+                    last_7_days: {
+                        total_birds_affected: 50000,
+                        total_flocks_affected: 35,
+                        total_backyard_flocks_affected: 10,
+                        total_commercial_flocks_affected: 25,
                     },
-                    last30Days: {
-                        totalBirdsAffected: 1000000,
-                        totalFlocksAffected: 125,
-                        totalBackyardFlocksAffected: 50,
-                        totalCommercialFlocksAffected: 75,
+                    last_30_days: {
+                        total_birds_affected: 1000000,
+                        total_flocks_affected: 125,
+                        total_backyard_flocks_affected: 50,
+                        total_commercial_flocks_affected: 75,
                     },
                 },
             };
+
             // Expect the response to match the new nested schema
             expect(res.body.data).toMatchObject(expectedObject);
 

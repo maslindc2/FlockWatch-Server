@@ -1,10 +1,8 @@
-import { model, Schema } from "mongoose";
-import { IFlockCasesByState } from "../../interfaces/i-flock-cases-by-state";
-import { logger } from "../../utils/winston-logger";
-import { FlockCasesByStateService } from "../model-services/flock-cases-by-state-service";
-import { LastReportDateService } from "../model-services/last-report-date-service";
-import { USSummaryService } from "../model-services/us-summary-service";
-import { RequestDataService } from "./request-data-service";
+import { logger } from "../utils/winston-logger";
+import { FlockCasesByStateService } from "../modules/flock-cases-by-state/flock-cases-by-state.service";
+import { USSummaryService } from "../modules/us-summary/us-summary.service";
+import { RequestDataService } from "../modules/scraping/request-data.service";
+import { LastReportDateService } from "../modules/last-report-date/last-report-date.service";
 
 class FlockDataSyncService {
     // Stores our Last Report Date Service instance
@@ -21,7 +19,7 @@ class FlockDataSyncService {
         const lastReportDateQuery =
             await this.lastReportDateService.getLastScrapedDate();
         const lastScrapedDate =
-            lastReportDateQuery?.lastScrapedDate as unknown as string;
+            lastReportDateQuery?.last_scraped_date as unknown as string;
 
         if (!lastScrapedDate || this.isOutdated(lastScrapedDate)) {
             logger.info(
@@ -49,9 +47,10 @@ class FlockDataSyncService {
 
         // Get the authID from our model
         const modelInfo = await this.lastReportDateService.getAuthID();
+
         // Fetch the latest avian influenza state data
         const data = await scraperDataService.fetchLatestFlockData(
-            modelInfo?.authID!
+            modelInfo?.auth_id!
         );
 
         // If the data was null throw an error
@@ -67,7 +66,7 @@ class FlockDataSyncService {
 
             // Create or update the state data in the database
             await flockCasesByStateService
-                .createOrUpdateStateData(data?.flockCasesByState)
+                .createOrUpdateStateData(data?.flock_cases_by_state)
                 .then(() => {
                     logger.info(
                         "Finished updating state data in the database!"
@@ -79,7 +78,7 @@ class FlockDataSyncService {
 
             // Create or update the USSummaryStats using the data we got back from the scraping service
             await usSummaryStats
-                .upsertUSSummary(data?.usSummaryStats)
+                .upsertUSSummary(data?.us_summary_stats)
                 .then(() => {
                     logger.info("Finished updating US Summary Stats!");
                 })
