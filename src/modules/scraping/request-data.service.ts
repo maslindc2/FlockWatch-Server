@@ -63,16 +63,83 @@ class RequestDataService {
             process.env.SCRAPING_SERVICE_URL ||
             "http://localhost:8080/scraper/process-data";
 
+        // Make the post request using a delay and timeout
+        const fetchWithTimeout = async (
+            url: string,
+            options: RequestInit,
+            timeoutMs: number
+        ): Promise<Response> => {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+            try {
+                return await fetch(url, {
+                    ...options,
+                    signal: controller.signal,
+                });
+            } finally {
+                clearTimeout(timeout);
+            }
+        };
+
+        // Wait for a certain amount of milliseconds
+        const wait = (ms: number) =>
+            new Promise((resolve) => setTimeout(resolve, ms));
+        // Create network jitter to simulate network delays
+        
+
+        const fetchWithRetry = async (
+            url: string,
+            retries: number,
+            timeoutMs: number,
+            baseDelay: number,
+            authID: string
+        ): Promise<Response> => {
+            try {
+                return await fetchWithTimeout(
+                    url,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${authID}`,
+                        },
+                    },
+                    timeoutMs
+                );
+            } catch (error) {
+                if (retries <= 0) {
+                    throw error;
+                }
+                logger.http(
+                    `Failed to make request to FlockWatch Scraping, current retries left ${retries}`
+                );
+                const attemptNumber = retries;
+                const rawDelay = baseDelay * Math.pow(2, attemptNumber);
+                
+                const jitter = Math.floor(Math.random() * baseDelay);
+
+                const totalDelay = rawDelay + jitter;
+
+                await wait(totalDelay);
+                return await fetchWithRetry(
+                    url,
+                    retries - 1,
+                    timeoutMs,
+                    baseDelay,
+                    authID
+                );
+            }
+        };
         // Try and request data from the scraping service
         try {
-            // Make the POST request using the fetch function to our Flock Watch Scraping
-            const res = await fetch(fwScrapingURL, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${authID}`,
-                },
-            });
+            const res = await fetchWithRetry(
+                fwScrapingURL,
+                3,
+                5000,
+                500,
+                authID
+            );
             // If it fails then log the error which will be picked up by our transport and return null
             if (!res.ok) {
                 logger.error(
