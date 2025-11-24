@@ -58,44 +58,105 @@ class RequestDataService {
     private async requestDataFromScrapingService(
         authID: string
     ): Promise<ScraperData | null> {
-        // Define the URL that we will use from our ENV variable or the default localhost url
+        // Store the scraping service URL
         const fwScrapingURL =
             process.env.SCRAPING_SERVICE_URL ||
             "http://localhost:8080/scraper/process-data";
 
-        // Try and request data from the scraping service
+        const wait = (ms: number) =>
+            new Promise((resolve) => setTimeout(resolve, ms));
+
+        // This function handles sending our post request with a timeout, if the timeout expires we retry again
+        const fetchWithTimeout = async (
+            url: string,
+            options: RequestInit,
+            timeoutMs: number
+        ): Promise<Response> => {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), timeoutMs);
+            try {
+                return await fetch(url, {
+                    ...options,
+                    signal: controller.signal,
+                });
+            } finally {
+                clearTimeout(timeout);
+            }
+        };
+
+        // This handles how often we retry our requests, the number of attempts, and creates delay between the attempts to account for network latency
+        const fetchWithRetry = async (
+            url: string,
+            retries: number,
+            timeoutMs: number,
+            baseDelay: number,
+            authID: string
+        ): Promise<Response> => {
+            try {
+                return await fetchWithTimeout(
+                    url,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${authID}`,
+                        },
+                    },
+                    timeoutMs
+                );
+            } catch (error: any) {
+                // Only retry network errors (fetch throws on network issues or abort)
+                if (retries <= 0) throw error;
+
+                logger.http(
+                    `Network error contacting scraper, retries left ${retries}: ${error.message}`
+                );
+
+                const attemptNumber = retries;
+                const rawDelay = baseDelay * Math.pow(2, attemptNumber);
+                const jitter = Math.floor(Math.random() * baseDelay);
+                await wait(rawDelay + jitter);
+
+                return fetchWithRetry(
+                    url,
+                    retries - 1,
+                    timeoutMs,
+                    baseDelay,
+                    authID
+                );
+            }
+        };
+
         try {
-            // Make the POST request using the fetch function to our Flock Watch Scraping
-            const res = await fetch(fwScrapingURL, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${authID}`,
-                },
-            });
-            // If it fails then log the error which will be picked up by our transport and return null
+            const res = await fetchWithRetry(
+                fwScrapingURL,
+                3,
+                120000,
+                500,
+                authID
+            );
+
             if (!res.ok) {
-                logger.error(
-                    `Failed to update data, received status ${res.status}`
-                );
+                logger.error(`Scraping service returned HTTP ${res.status}`);
                 return null;
             }
-            // Parse to JSON and store it to a JS variable
+
             const jsonResponse = await res.json();
-            // If it's not an array or if the response is of length 0 report the error
-            if (jsonResponse.length === 0) {
+
+            if (!jsonResponse || Object.keys(jsonResponse).length === 0) {
                 logger.error(
-                    `Received empty or invalid JSON Array from Scraping Service`
+                    `Received empty or invalid JSON from scraping service`
                 );
                 return null;
             }
-            // Return the data that has been parsed
+
             return jsonResponse;
         } catch (error) {
-            logger.error(`Failed to make request to scraper ${error}`);
+            logger.error(`Failed to fetch from scraper: ${error}`);
             return null;
         }
     }
+
     /**
      * Calls the above function for requesting data from our Scrapers with the authID we fetched from our last report model
      * @param authID This is the UUID from our Last Report Date Model

@@ -10,7 +10,8 @@
         "stryker.config.mjs",
         "coverage/",
         "mutation",
-        "jest.stryker.config.js"
+        "jest.stryker.config.js",
+        "setup-jest.js"
     ],
     "ts-node": {
         "transpileOnly": true,

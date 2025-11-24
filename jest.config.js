@@ -17,6 +17,7 @@ module.exports = {
             displayName: "integration",
             preset: "ts-jest",
             testEnvironment: "node",
+            setupFilesAfterEnv: ["<rootDir>/setup-jest.js"],
             testMatch: ["<rootDir>/tests/integration/**/*.test.ts"],
             testPathIgnorePatterns: ["src/utils/", ".stryker-temp/"],
             coverageDirectory:
