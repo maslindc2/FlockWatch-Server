@@ -101,7 +101,7 @@ class App {
             this.metadata =
                 await this.lastReportDateService.getLastScrapedDate();
             // If we are having the server keep track of updating the information set this variable to true
-            if(process.env.INTERNAL_UPDATE){
+            if (process.env.INTERNAL_UPDATE) {
                 // Call sync data to check if we are out of date and if so request new data from flock watch scraping
                 await this.syncData();
                 // Update the metadata to the latest scrape date after syncing
