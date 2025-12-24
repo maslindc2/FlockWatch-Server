@@ -3,6 +3,12 @@ import { logger } from "../utils/winston-logger";
 import { Request, Response } from "express";
 import { FlockCasesByStateService } from "../modules/flock-cases-by-state/flock-cases-by-state.service";
 import { LastReportDateService } from "../modules/last-report-date/last-report-date.service";
+import { FlockDataUpdateService } from "../modules/data-updating/flock-data-update.service";
+import { BuildUSSummary } from "../modules/data-updating/build-us-summary";
+import { FlockData } from "../modules/data-updating/flock-data.interface";
+import { FlockCasesByState } from "../modules/flock-cases-by-state/flock-cases-by-state.interface";
+import { PeriodSummary } from "../modules/us-summary/us-summary-stats.interface";
+
 
 class DataController {
     // Define the service instances that the data controller will use
@@ -98,6 +104,44 @@ class DataController {
             res.status(500).json({
                 error: "Failed to fetch last report date!",
             });
+        }
+    }
+    /**
+     * 
+     * @param req 
+     * @param res 
+     */
+    public async receiveUpdatedData(req: Request, res: Response){
+        try {
+            const authHeader = req.headers.authorization;
+            const receivedAuthID = authHeader?.startsWith("Bearer ")
+                ? authHeader.slice(7).trim()
+                : null;
+            const authIDObj = await this.lastReportDateService.getAuthID();
+            const expectedAuthID = authIDObj?.auth_id;
+            if(receivedAuthID === expectedAuthID){
+                const buildUSSummary = new BuildUSSummary();
+                const fwUpdateService = new FlockDataUpdateService();
+                const flock_cases_by_state:FlockCasesByState[] = req.body.flock_cases_by_state;
+                const period_summaries:PeriodSummary[] = req.body.period_summaries;
+
+                const us_summary_stats = buildUSSummary.createUSSummaryData(flock_cases_by_state, period_summaries);
+                
+                const dataForDB:FlockData = {
+                    flock_cases_by_state: flock_cases_by_state,
+                    us_summary_stats: us_summary_stats
+                }
+
+                await fwUpdateService.applyUpdate(dataForDB);
+            }else{
+                logger.error(
+                    `Invalid Auth ID from IP ${req.ip}, who sent the auth ID ${receivedAuthID}!`
+                );
+                res.sendStatus(403);
+            }
+            res.sendStatus(200);
+        } catch (error) {
+            res.sendStatus(500);
         }
     }
 }

@@ -5,7 +5,8 @@ import {
     PeriodSummary,
     USSummaryStats,
 } from "../us-summary/us-summary-stats.interface";
-import { LatestFlockData } from "./latest-flock-data.interface";
+import { FlockData } from "./flock-data.interface";
+import { BuildUSSummary } from "./build-us-summary";
 
 interface ScraperData {
     flock_cases_by_state: FlockCasesByState[];
@@ -13,43 +14,11 @@ interface ScraperData {
 }
 
 class RequestDataService {
-    /**
-     * Assemble the US Summary Stats by summing the total birds affected, flocks affected, backyard flocks, and commercial flocks
-     * @param jsonFromScraper Array containing all US State's Avian Influenza data
-     * @returns JS Object containing the US Summary Stats of type USSummaryStats
-     */
-    private createUSSummaryData(
-        jsonFromScraper: FlockCasesByState[],
-        period_summaries: PeriodSummary[]
-    ): USSummaryStats {
-        const all_time_totals: AllTimeTotals = {
-            total_states_affected: 0,
-            total_birds_affected: 0,
-            total_flocks_affected: 0,
-            total_backyard_flocks_affected: 0,
-            total_commercial_flocks_affected: 0,
-        };
+    private buildUSSummaryObj: BuildUSSummary;
 
-        // For each state object populate the usSummaryStats by iterating through each states individual data
-        jsonFromScraper.forEach((stateObj) => {
-            // Since Scraper only sends data for states that have outbreaks...
-            // we can safely increment the totalStatesAffected by 1 for each state object
-            all_time_totals.total_states_affected += 1;
-            all_time_totals.total_birds_affected += stateObj.birds_affected;
-            all_time_totals.total_flocks_affected += stateObj.total_flocks;
-            all_time_totals.total_backyard_flocks_affected +=
-                stateObj.backyard_flocks;
-            all_time_totals.total_commercial_flocks_affected +=
-                stateObj.commercial_flocks;
-        });
-
-        return {
-            key: "us-summary",
-            all_time_totals,
-            period_summaries,
-        };
+    constructor() {
+        this.buildUSSummaryObj = new BuildUSSummary();
     }
-
     /**
      * This will be used for requesting the newest data from our scraping service
      * @param authID This is the authentication ID (random UUID) from our last report date model
@@ -164,7 +133,7 @@ class RequestDataService {
      */
     public async fetchLatestFlockData(
         authID: string
-    ): Promise<LatestFlockData | null> {
+    ): Promise<FlockData | null> {
         // Request the data from the above function using the authID and store it as an array
         const jsonFromScraper: ScraperData | null =
             await this.requestDataFromScrapingService(authID);
@@ -181,13 +150,13 @@ class RequestDataService {
             jsonFromScraper.period_summaries;
 
         // Create the US Summary Data from the array of state data that we received earlier
-        const usSummaryStats: USSummaryStats = this.createUSSummaryData(
+        const usSummaryStats: USSummaryStats = this.buildUSSummaryObj.createUSSummaryData(
             flockCasesByState,
             periodSummaries
         );
 
         // Assemble it as a JS object
-        const latestFlockData: LatestFlockData = {
+        const latestFlockData: FlockData = {
             us_summary_stats: usSummaryStats,
             flock_cases_by_state: flockCasesByState,
         };

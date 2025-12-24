@@ -2,9 +2,10 @@ import { FlockCasesByState } from "../flock-cases-by-state/flock-cases-by-state.
 import { USSummaryStats } from "../us-summary/us-summary-stats.interface";
 
 // This is the data type for object that we get from our scraping service
-interface LatestFlockData {
-    us_summary_stats: USSummaryStats;
+interface FlockData {
     flock_cases_by_state: FlockCasesByState[];
+    us_summary_stats: USSummaryStats;
+    
 }
 
-export { LatestFlockData };
+export { FlockData };

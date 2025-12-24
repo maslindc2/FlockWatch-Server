@@ -20,4 +20,5 @@ FROM base as prod
 COPY package*.json ./
 RUN npm ci --omit=dev --prefer-offline --no-audit --progress=false
 COPY --from=deps /usr/src/app/dist ./dist
+EXPOSE 8080
 CMD ["node", "./dist/server.js"]

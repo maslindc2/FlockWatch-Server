@@ -21,4 +21,11 @@ router.get("/us-summary", async (req: Request, res: Response) => {
     dataController.getUSSummary(req, res);
 });
 
+router.post("/data-update", async(req: Request, res: Response) => {
+    dataController.receiveUpdatedData(req, res);
+});
+
+
+
+
 export default router;
