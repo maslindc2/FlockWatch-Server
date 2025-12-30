@@ -11,6 +11,7 @@ class BuildUSSummary {
         flock_cases_by_state: FlockCasesByState[],
         period_summaries: PeriodSummary[]
     ): USSummaryStats {
+        // Create our all time totals base object
         const all_time_totals: AllTimeTotals = {
             total_states_affected: 0,
             total_birds_affected: 0,
@@ -24,14 +25,18 @@ class BuildUSSummary {
             // Since Scraper only sends data for states that have outbreaks...
             // we can safely increment the totalStatesAffected by 1 for each state object
             all_time_totals.total_states_affected += 1;
+            // Add the birds affected for the current state to total_birds_affected
             all_time_totals.total_birds_affected += stateObj.birds_affected;
+            // Add the flocks affected for the current state to total_flocks_affected
             all_time_totals.total_flocks_affected += stateObj.total_flocks;
+            // Add the backyard_flocks for the current state to total_backyard_flocks_affected
             all_time_totals.total_backyard_flocks_affected +=
                 stateObj.backyard_flocks;
+            // Add the commercial_flocks affected for the current state to total_commercial_flocks_affected
             all_time_totals.total_commercial_flocks_affected +=
                 stateObj.commercial_flocks;
         });
-
+        
         return {
             key: "us-summary",
             all_time_totals,

@@ -6,7 +6,7 @@ import {
     USSummaryStats,
 } from "../us-summary/us-summary-stats.interface";
 import { FlockData } from "./flock-data.interface";
-import { BuildUSSummary } from "./build-us-summary";
+import { BuildUSSummary } from "./build-us-summary.service";
 
 interface ScraperData {
     flock_cases_by_state: FlockCasesByState[];

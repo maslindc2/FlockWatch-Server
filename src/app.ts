@@ -100,16 +100,18 @@ class App {
 
             this.metadata =
                 await this.lastReportDateService.getLastScrapedDate();
+                
             // If we are having the server keep track of updating the information set this variable to true
-            if (!process.env.INTERNAL_UPDATE || process.env.INTERNAL_UPDATE === "false") {
-                logger.info("Data Update Mode: Internal, Server will request info from Scraping Service!");
+            if (!process.env.AUTO_UPDATE || process.env.AUTO_UPDATE === "true") {
+                logger.info("Data Update Mode: Auto, Server will request info from Scraping Service!");
                 // Call sync data to check if we are out of date and if so request new data from flock watch scraping
                 await this.syncData();
                 // Update the metadata to the latest scrape date after syncing
                 this.metadata =
                     await this.lastReportDateService.getLastScrapedDate();
             }else{
-                logger.info("Data Update Mode: External, /data/data-update route is enabled");
+                logger.info("Auto Update Data is Disabled, /data/data-update route is enabled, scraper will send new info to this route");
+                logger.info("Scraper system will be responsible for knowing when to update!");
             }
             // Log that we are ready
             logger.info(`FlockWatch Server is ready!`);
