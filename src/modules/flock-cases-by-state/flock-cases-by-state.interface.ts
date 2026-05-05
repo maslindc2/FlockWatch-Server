@@ -9,4 +9,4 @@ interface FlockCasesByState {
     longitude: number;
     last_reported_detection: Date;
 }
-export { FlockCasesByState };
+export type { FlockCasesByState };

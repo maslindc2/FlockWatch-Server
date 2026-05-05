@@ -4,23 +4,26 @@ import { LastReportDateModel } from "../../../src/modules/last-report-date/last-
 import * as Mongoose from "mongoose";
 import dotenv from "dotenv";
 
+import { connect, disconnect, clearCollections } from "../setup/mongodb-setup";
+
 dotenv.config();
 
 describe("LastReportDateService Integration", () => {
     let lastReportDateService: LastReportDateService;
     beforeAll(async () => {
-        try {
-            await Mongoose.connect(process.env.MONGODB_URI!);
-            console.log("MongoDB connected successfully.");
-        } catch (error) {
-            console.error("Error connecting to MongoDB:", error);
-            throw new Error("MongoDB connection failed");
-        }
-    }, 10000);
+        await connect();
+    });
 
     beforeEach(() => {
-        jest.resetModules();
         lastReportDateService = new LastReportDateService();
+    });
+
+    afterEach(async () => {
+        await clearCollections();
+    });
+
+    afterAll(async () => {
+        await disconnect();
     });
 
     it("should initialize the database with a new data entry", async () => {
@@ -98,14 +101,5 @@ describe("LastReportDateService Integration", () => {
             lastScrapedDateObject?.last_scraped_date
         );
         expect(initialRecord.auth_id).not.toEqual(updatedAuthID);
-    });
-
-    afterEach(async () => {
-        // Drop the database so it's ready for our next test
-        await LastReportDateModel.getModel.db.dropDatabase();
-    });
-    afterAll(async () => {
-        // Disconnect from mongo after all our tests
-        await Mongoose.disconnect();
     });
 });

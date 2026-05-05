@@ -4,24 +4,26 @@ import dotenv from "dotenv";
 import { FlockCasesByStateService } from "../../../src/modules/flock-cases-by-state/flock-cases-by-state.service";
 import { FlockCasesByStateModel } from "../../../src/modules/flock-cases-by-state/flock-cases-by-state.model";
 
+import { connect, disconnect, clearCollections } from "../setup/mongodb-setup";
+
 dotenv.config();
 
 describe("FlockCasesByStateService Integration", () => {
     let flockCasesByStateService: FlockCasesByStateService;
-
     beforeAll(async () => {
-        try {
-            await Mongoose.connect(process.env.MONGODB_URI!);
-            console.log("MongoDB connected successfully.");
-        } catch (error) {
-            console.error("Error connecting to MongoDB:", error);
-            throw new Error("MongoDB connection failed");
-        }
-    }, 10000);
+        await connect();
+    });
 
     beforeEach(() => {
-        jest.resetModules();
         flockCasesByStateService = new FlockCasesByStateService();
+    });
+
+    afterEach(async () => {
+        await clearCollections();
+    });
+
+    afterAll(async () => {
+        await disconnect();
     });
 
     it("should create a state data entry when createOrUpdateStateData is called with an array containing state data", async () => {
@@ -113,15 +115,5 @@ describe("FlockCasesByStateService Integration", () => {
         expect(queryFromDB[0].birds_affected).toEqual(0);
 
         expect(queryFromDB[0]._id).toEqual(originalStateInfo[0]._id);
-    });
-
-    afterEach(async () => {
-        // Drop the database so it's ready for our next test
-        await FlockCasesByStateModel.getModel.db.dropDatabase();
-    });
-
-    afterAll(async () => {
-        // Disconnect from mongo after all our tests
-        await Mongoose.disconnect();
     });
 });

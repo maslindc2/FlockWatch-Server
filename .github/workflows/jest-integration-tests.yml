@@ -24,17 +24,8 @@ jobs:
           node-version: ${{ secrets.NODE_VERSION }}
           cache: "npm"
 
-      - name: Start MongoDB
-        uses: supercharge/mongodb-github-action@1.12.0
-        with:
-          mongodb-version: '8.0'
-          mongodb-username: ${{ secrets.MONGODB_USER }}
-          mongodb-password: ${{ secrets.MONGODB_PASSWORD }}
-
       - name: Install Dependencies
         run: npm install
 
       - name: Run Jest Integration Tests
         run: npm run test:integration
-        env:
-          MONGODB_URI: mongodb://${{ secrets.MONGODB_USER }}:${{ secrets.MONGODB_PASSWORD }}@localhost:27017/flock_watch_test?authSource=admin

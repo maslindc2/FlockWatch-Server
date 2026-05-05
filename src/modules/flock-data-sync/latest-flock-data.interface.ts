@@ -7,4 +7,4 @@ interface LatestFlockData {
     flock_cases_by_state: FlockCasesByState[];
 }
 
-export { LatestFlockData };
+export type { LatestFlockData };

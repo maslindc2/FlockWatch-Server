@@ -1,5 +1,3 @@
-import { model, Schema } from "mongoose";
-import { FlockCasesByState } from "../flock-cases-by-state/flock-cases-by-state.interface";
 import { logger } from "../../utils/winston-logger";
 import { USSummaryService } from "../us-summary/us-summary.service";
 import { RequestDataService } from "./request-data.service";
@@ -7,12 +5,22 @@ import { FlockCasesByStateService } from "../flock-cases-by-state/flock-cases-by
 import { LastReportDateService } from "../last-report-date/last-report-date.service";
 
 class FlockDataSyncService {
-    // Stores our Last Report Date Service instance
     private lastReportDateService: LastReportDateService;
+    private requestDataService: RequestDataService;
+    private flockCasesByStateService: FlockCasesByStateService;
+    private usSummaryService: USSummaryService;
 
     // Create our last report date service
-    constructor() {
-        this.lastReportDateService = new LastReportDateService();
+    constructor(
+        lastReportDateService: LastReportDateService = new LastReportDateService(),
+        requestDataService: RequestDataService = new RequestDataService(),
+        flockCasesByStateService: FlockCasesByStateService = new FlockCasesByStateService(),
+        usSummaryService: USSummaryService = new USSummaryService()
+    ) {
+        this.lastReportDateService = lastReportDateService;
+        this.requestDataService = requestDataService;
+        this.flockCasesByStateService = flockCasesByStateService;
+        this.usSummaryService = usSummaryService;
     }
 
     // Sync if we are out of date, we will check the last scraped date and see if we are out of date or not

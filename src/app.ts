@@ -2,7 +2,7 @@ import express, { Application, Request, Response, NextFunction } from "express";
 import serverRoutes from "./routes/server.routes";
 import { DatabaseService } from "./services/database.service";
 import { logger } from "./utils/winston-logger";
-import { FlockDataSyncService } from "./modules/scraping/flock-data-sync.service";
+import { FlockDataSyncService } from "./modules/flock-data-sync/flock-data-sync.service";
 import { LastReportDateService } from "./modules/last-report-date/last-report-date.service";
 import cors from "cors";
 
