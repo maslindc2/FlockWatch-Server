@@ -8,7 +8,9 @@ import {
 
 // ---- Factories --------------------------------------------------------------
 
-const makeAllTimeTotals = (overrides: Partial<AllTimeTotals> = {}): AllTimeTotals => ({
+const makeAllTimeTotals = (
+    overrides: Partial<AllTimeTotals> = {}
+): AllTimeTotals => ({
     total_states_affected: 20,
     total_birds_affected: 500,
     total_flocks_affected: 50,
@@ -26,7 +28,9 @@ const makePeriod = (overrides: Partial<PeriodSummary> = {}): PeriodSummary => ({
     ...overrides,
 });
 
-const makeUSSummaryStats = (overrides: Partial<USSummaryStats> = {}): USSummaryStats => ({
+const makeUSSummaryStats = (
+    overrides: Partial<USSummaryStats> = {}
+): USSummaryStats => ({
     key: "us-summary",
     all_time_totals: makeAllTimeTotals(),
     period_summaries: [makePeriod()],
@@ -124,7 +128,8 @@ describe("USSummaryService", () => {
                 expected as any
             );
 
-            const result = await service.updateAllTimeTotals(makeAllTimeTotals());
+            const result =
+                await service.updateAllTimeTotals(makeAllTimeTotals());
             expect(result).toEqual(expected);
         });
     });
@@ -163,7 +168,9 @@ describe("USSummaryService", () => {
             const updateSpy = jest
                 .spyOn(service, "updateAllTimeTotals")
                 .mockResolvedValue({} as any);
-            jest.spyOn(service, "upsertPeriodSummary").mockResolvedValue({} as any);
+            jest.spyOn(service, "upsertPeriodSummary").mockResolvedValue(
+                {} as any
+            );
             mockFindOneChain(stats);
 
             await service.upsertUSSummary(stats);
@@ -173,9 +180,14 @@ describe("USSummaryService", () => {
         });
 
         it("should call upsertPeriodSummary once per period", async () => {
-            const periods = [makePeriod({ period_name: "last_30_days" }), makePeriod({ period_name: "last_60_days" })];
+            const periods = [
+                makePeriod({ period_name: "last_30_days" }),
+                makePeriod({ period_name: "last_60_days" }),
+            ];
             const stats = makeUSSummaryStats({ period_summaries: periods });
-            jest.spyOn(service, "updateAllTimeTotals").mockResolvedValue({} as any);
+            jest.spyOn(service, "updateAllTimeTotals").mockResolvedValue(
+                {} as any
+            );
             const periodSpy = jest
                 .spyOn(service, "upsertPeriodSummary")
                 .mockResolvedValue({} as any);
@@ -190,7 +202,9 @@ describe("USSummaryService", () => {
 
         it("should not call upsertPeriodSummary when period_summaries is empty", async () => {
             const stats = makeUSSummaryStats({ period_summaries: [] });
-            jest.spyOn(service, "updateAllTimeTotals").mockResolvedValue({} as any);
+            jest.spyOn(service, "updateAllTimeTotals").mockResolvedValue(
+                {} as any
+            );
             const periodSpy = jest
                 .spyOn(service, "upsertPeriodSummary")
                 .mockResolvedValue({} as any);
@@ -203,10 +217,20 @@ describe("USSummaryService", () => {
 
         it("should call getUSSummary after all updates and return its result", async () => {
             const stats = makeUSSummaryStats();
-            const finalDoc = makeUSSummaryStats({ all_time_totals: makeAllTimeTotals({ total_states_affected: 99 }) });
-            jest.spyOn(service, "updateAllTimeTotals").mockResolvedValue({} as any);
-            jest.spyOn(service, "upsertPeriodSummary").mockResolvedValue({} as any);
-            const getSpy = jest.spyOn(service, "getUSSummary").mockResolvedValue(finalDoc);
+            const finalDoc = makeUSSummaryStats({
+                all_time_totals: makeAllTimeTotals({
+                    total_states_affected: 99,
+                }),
+            });
+            jest.spyOn(service, "updateAllTimeTotals").mockResolvedValue(
+                {} as any
+            );
+            jest.spyOn(service, "upsertPeriodSummary").mockResolvedValue(
+                {} as any
+            );
+            const getSpy = jest
+                .spyOn(service, "getUSSummary")
+                .mockResolvedValue(finalDoc);
 
             const result = await service.upsertUSSummary(stats);
 
@@ -216,16 +240,22 @@ describe("USSummaryService", () => {
 
         it("should call getUSSummary after all period upserts, not before", async () => {
             const callOrder: string[] = [];
-            const stats = makeUSSummaryStats({ period_summaries: [makePeriod()] });
+            const stats = makeUSSummaryStats({
+                period_summaries: [makePeriod()],
+            });
 
-            jest.spyOn(service, "updateAllTimeTotals").mockImplementation(async () => {
-                callOrder.push("updateAllTimeTotals");
-                return {} as any;
-            });
-            jest.spyOn(service, "upsertPeriodSummary").mockImplementation(async () => {
-                callOrder.push("upsertPeriodSummary");
-                return {} as any;
-            });
+            jest.spyOn(service, "updateAllTimeTotals").mockImplementation(
+                async () => {
+                    callOrder.push("updateAllTimeTotals");
+                    return {} as any;
+                }
+            );
+            jest.spyOn(service, "upsertPeriodSummary").mockImplementation(
+                async () => {
+                    callOrder.push("upsertPeriodSummary");
+                    return {} as any;
+                }
+            );
             jest.spyOn(service, "getUSSummary").mockImplementation(async () => {
                 callOrder.push("getUSSummary");
                 return makeUSSummaryStats();
@@ -233,7 +263,11 @@ describe("USSummaryService", () => {
 
             await service.upsertUSSummary(stats);
 
-            expect(callOrder).toEqual(["updateAllTimeTotals", "upsertPeriodSummary", "getUSSummary"]);
+            expect(callOrder).toEqual([
+                "updateAllTimeTotals",
+                "upsertPeriodSummary",
+                "getUSSummary",
+            ]);
         });
     });
 });

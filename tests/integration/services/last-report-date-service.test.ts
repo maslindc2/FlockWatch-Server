@@ -4,7 +4,7 @@ import { LastReportDateModel } from "../../../src/modules/last-report-date/last-
 import * as Mongoose from "mongoose";
 import dotenv from "dotenv";
 
-import {connect, disconnect, clearCollections} from "../setup/mongodb-setup";
+import { connect, disconnect, clearCollections } from "../setup/mongodb-setup";
 
 dotenv.config();
 
@@ -17,11 +17,11 @@ describe("LastReportDateService Integration", () => {
     beforeEach(() => {
         lastReportDateService = new LastReportDateService();
     });
-    
+
     afterEach(async () => {
         await clearCollections();
     });
-    
+
     afterAll(async () => {
         await disconnect();
     });
@@ -102,6 +102,4 @@ describe("LastReportDateService Integration", () => {
         );
         expect(initialRecord.auth_id).not.toEqual(updatedAuthID);
     });
-
-
 });

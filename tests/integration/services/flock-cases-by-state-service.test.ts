@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import { FlockCasesByStateService } from "../../../src/modules/flock-cases-by-state/flock-cases-by-state.service";
 import { FlockCasesByStateModel } from "../../../src/modules/flock-cases-by-state/flock-cases-by-state.model";
 
-import {connect, disconnect, clearCollections} from "../setup/mongodb-setup";
+import { connect, disconnect, clearCollections } from "../setup/mongodb-setup";
 
 dotenv.config();
 
@@ -13,7 +13,7 @@ describe("FlockCasesByStateService Integration", () => {
     beforeAll(async () => {
         await connect();
     });
-    
+
     beforeEach(() => {
         flockCasesByStateService = new FlockCasesByStateService();
     });
@@ -21,11 +21,10 @@ describe("FlockCasesByStateService Integration", () => {
     afterEach(async () => {
         await clearCollections();
     });
-    
+
     afterAll(async () => {
         await disconnect();
     });
-    
 
     it("should create a state data entry when createOrUpdateStateData is called with an array containing state data", async () => {
         // First define the object that we want to store using the data type we are using

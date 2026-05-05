@@ -18,7 +18,9 @@ describe("DatabaseService Unit", () => {
 
             await DatabaseService.connect("mongodb://localhost:27017");
 
-            expect(connectSpy).toHaveBeenCalledWith("mongodb://localhost:27017");
+            expect(connectSpy).toHaveBeenCalledWith(
+                "mongodb://localhost:27017"
+            );
         });
 
         it("should log success when mongoose.connect resolves", async () => {
@@ -46,8 +48,12 @@ describe("DatabaseService Unit", () => {
         });
 
         it("should call logger.error with the original error when mongoose.connect fails", async () => {
-            const originalError = new MongooseError("Invalid connection string");
-            jest.spyOn(mongoose, "connect").mockRejectedValueOnce(originalError);
+            const originalError = new MongooseError(
+                "Invalid connection string"
+            );
+            jest.spyOn(mongoose, "connect").mockRejectedValueOnce(
+                originalError
+            );
             const loggerErrorSpy = jest.spyOn(logger, "error");
 
             await expect(
@@ -56,7 +62,9 @@ describe("DatabaseService Unit", () => {
 
             expect(loggerErrorSpy).toHaveBeenCalledWith(
                 "Error connecting to MongoDB:",
-                expect.objectContaining({ message: "Invalid connection string" })
+                expect.objectContaining({
+                    message: "Invalid connection string",
+                })
             );
         });
 
@@ -118,7 +126,9 @@ describe("DatabaseService Unit", () => {
 
         it("should call logger.error with the original error when mongoose.disconnect fails", async () => {
             const originalError = new MongooseError("Failed to Disconnect!");
-            jest.spyOn(mongoose, "disconnect").mockRejectedValueOnce(originalError);
+            jest.spyOn(mongoose, "disconnect").mockRejectedValueOnce(
+                originalError
+            );
             const loggerErrorSpy = jest.spyOn(logger, "error");
 
             await expect(DatabaseService.disconnect()).rejects.toThrow();
@@ -134,9 +144,9 @@ describe("DatabaseService Unit", () => {
                 new MongooseError("Failed to Disconnect!")
             );
 
-            await expect(
-                DatabaseService.disconnect()
-            ).rejects.toBeInstanceOf(Error);
+            await expect(DatabaseService.disconnect()).rejects.toBeInstanceOf(
+                Error
+            );
         });
 
         it("should throw 'MongoDB database failed to disconnect.' when mongoose.disconnect fails", async () => {
@@ -144,9 +154,9 @@ describe("DatabaseService Unit", () => {
                 new MongooseError("Failed to Disconnect!")
             );
 
-            await expect(
-                DatabaseService.disconnect()
-            ).rejects.toThrow("MongoDB database failed to disconnect.");
+            await expect(DatabaseService.disconnect()).rejects.toThrow(
+                "MongoDB database failed to disconnect."
+            );
         });
     });
 });

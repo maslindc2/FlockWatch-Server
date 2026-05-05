@@ -1,6 +1,9 @@
 import { RollingPeriods } from "../../../src/config/rolling-periods";
 import { USSummaryModel } from "../../../src/modules/us-summary/us-summary.model";
-import { PeriodSummary, AllTimeTotals } from "../../../src/modules/us-summary/us-summary-stats.interface";
+import {
+    PeriodSummary,
+    AllTimeTotals,
+} from "../../../src/modules/us-summary/us-summary-stats.interface";
 
 // ---- Helpers ----------------------------------------------------------------
 
@@ -17,7 +20,9 @@ const makePeriod = (overrides: Partial<PeriodSummary> = {}): PeriodSummary => ({
     ...overrides,
 });
 
-const makeAllTimeTotals = (overrides: Partial<AllTimeTotals> = {}): AllTimeTotals => ({
+const makeAllTimeTotals = (
+    overrides: Partial<AllTimeTotals> = {}
+): AllTimeTotals => ({
     total_states_affected: 20,
     total_birds_affected: 500,
     total_flocks_affected: 50,
@@ -101,7 +106,10 @@ describe("USSummaryModel.formatPeriods", () => {
     });
 
     it("should key each entry by period_name", () => {
-        const periods = [makePeriod({ period_name: "30-day" }), makePeriod({ period_name: "60-day" })];
+        const periods = [
+            makePeriod({ period_name: "30-day" }),
+            makePeriod({ period_name: "60-day" }),
+        ];
         const result = USSummaryModel.formatPeriods(periods);
         expect(Object.keys(result)).toEqual(["30-day", "60-day"]);
     });
@@ -118,8 +126,10 @@ describe("USSummaryModel.formatPeriods", () => {
         expect(result["30-day"]).toEqual({
             total_birds_affected: period.total_birds_affected,
             total_flocks_affected: period.total_flocks_affected,
-            total_backyard_flocks_affected: period.total_backyard_flocks_affected,
-            total_commercial_flocks_affected: period.total_commercial_flocks_affected,
+            total_backyard_flocks_affected:
+                period.total_backyard_flocks_affected,
+            total_commercial_flocks_affected:
+                period.total_commercial_flocks_affected,
         });
     });
 
@@ -136,14 +146,16 @@ describe("USSummaryModel.formatPeriods", () => {
 describe("USSummaryModel.upsertPeriodAtomic - validation", () => {
     it("should throw for an invalid period_name without hitting the DB", async () => {
         const badPeriod = makePeriod({ period_name: "not-a-real-period" });
-        await expect(USSummaryModel.upsertPeriodAtomic(badPeriod)).rejects.toThrow(
-            "Invalid period_name: not-a-real-period"
-        );
+        await expect(
+            USSummaryModel.upsertPeriodAtomic(badPeriod)
+        ).rejects.toThrow("Invalid period_name: not-a-real-period");
     });
 
     it("should throw an Error instance for an invalid period_name", async () => {
         const badPeriod = makePeriod({ period_name: "bad" });
-        await expect(USSummaryModel.upsertPeriodAtomic(badPeriod)).rejects.toBeInstanceOf(Error);
+        await expect(
+            USSummaryModel.upsertPeriodAtomic(badPeriod)
+        ).rejects.toBeInstanceOf(Error);
     });
 });
 
@@ -189,7 +201,8 @@ describe("USSummaryModel.updateAllTimeTotals", () => {
     });
 
     it("should return the result from findOneAndUpdate", async () => {
-        const result = await USSummaryModel.updateAllTimeTotals(makeAllTimeTotals());
+        const result =
+            await USSummaryModel.updateAllTimeTotals(makeAllTimeTotals());
         expect(result).toEqual({ key: "us-summary" });
     });
 });
@@ -208,7 +221,10 @@ describe("USSummaryModel.upsertPeriodAtomic - DB calls", () => {
         await USSummaryModel.upsertPeriodAtomic(period);
 
         expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
-            { key: "us-summary", "period_summaries.period_name": period.period_name },
+            {
+                key: "us-summary",
+                "period_summaries.period_name": period.period_name,
+            },
             { $set: { "period_summaries.$": period } },
             { upsert: false, new: true }
         );

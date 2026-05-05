@@ -4,7 +4,6 @@ import { RequestDataService } from "./request-data.service";
 import { FlockCasesByStateService } from "../flock-cases-by-state/flock-cases-by-state.service";
 import { LastReportDateService } from "../last-report-date/last-report-date.service";
 
-
 class FlockDataSyncService {
     private lastReportDateService: LastReportDateService;
     private requestDataService: RequestDataService;

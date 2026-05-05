@@ -4,7 +4,7 @@ import { USSummaryService } from "../../../src/modules/us-summary/us-summary.ser
 import { USSummaryModel } from "../../../src/modules/us-summary/us-summary.model";
 import { USSummaryStats } from "../../../src/modules/us-summary/us-summary-stats.interface";
 
-import {connect, disconnect, clearCollections} from "../setup/mongodb-setup";
+import { connect, disconnect, clearCollections } from "../setup/mongodb-setup";
 
 dotenv.config();
 
@@ -123,6 +123,4 @@ describe("USSummaryService Integration", () => {
             updatedData.period_summaries[0]
         );
     });
-
-    
 });

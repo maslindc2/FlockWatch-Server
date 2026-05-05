@@ -33,10 +33,15 @@ describe("LastReportDateService", () => {
                 last_scraped_date: new Date(),
                 auth_id: "existing-uuid",
             };
-            jest.spyOn(LastReportDateModel.getModel, "findOne").mockReturnValue({
-                lean: jest.fn().mockResolvedValue(existingRecord),
-            } as any);
-            const createSpy = jest.spyOn(LastReportDateModel.getModel, "create");
+            jest.spyOn(LastReportDateModel.getModel, "findOne").mockReturnValue(
+                {
+                    lean: jest.fn().mockResolvedValue(existingRecord),
+                } as any
+            );
+            const createSpy = jest.spyOn(
+                LastReportDateModel.getModel,
+                "create"
+            );
 
             const result = await service.initializeLastReportDate();
 
@@ -45,11 +50,19 @@ describe("LastReportDateService", () => {
         });
 
         it("should create a new document when no record exists", async () => {
-            jest.spyOn(LastReportDateModel.getModel, "findOne").mockReturnValue({
-                lean: jest.fn().mockResolvedValue(null),
-            } as any);
-            const fakeDoc = { last_scraped_date: new Date(0), auth_id: "new-uuid" };
-            jest.spyOn(LastReportDateModel.getModel, "create").mockResolvedValue({
+            jest.spyOn(LastReportDateModel.getModel, "findOne").mockReturnValue(
+                {
+                    lean: jest.fn().mockResolvedValue(null),
+                } as any
+            );
+            const fakeDoc = {
+                last_scraped_date: new Date(0),
+                auth_id: "new-uuid",
+            };
+            jest.spyOn(
+                LastReportDateModel.getModel,
+                "create"
+            ).mockResolvedValue({
                 toObject: () => fakeDoc,
             } as any);
 
@@ -59,9 +72,11 @@ describe("LastReportDateService", () => {
         });
 
         it("should set last_scraped_date to Unix epoch when creating a new document", async () => {
-            jest.spyOn(LastReportDateModel.getModel, "findOne").mockReturnValue({
-                lean: jest.fn().mockResolvedValue(null),
-            } as any);
+            jest.spyOn(LastReportDateModel.getModel, "findOne").mockReturnValue(
+                {
+                    lean: jest.fn().mockResolvedValue(null),
+                } as any
+            );
             const createSpy = jest
                 .spyOn(LastReportDateModel.getModel, "create")
                 .mockResolvedValue({ toObject: () => ({}) } as any);
@@ -73,9 +88,11 @@ describe("LastReportDateService", () => {
         });
 
         it("should generate a UUID for auth_id when creating a new document", async () => {
-            jest.spyOn(LastReportDateModel.getModel, "findOne").mockReturnValue({
-                lean: jest.fn().mockResolvedValue(null),
-            } as any);
+            jest.spyOn(LastReportDateModel.getModel, "findOne").mockReturnValue(
+                {
+                    lean: jest.fn().mockResolvedValue(null),
+                } as any
+            );
             const createSpy = jest
                 .spyOn(LastReportDateModel.getModel, "create")
                 .mockResolvedValue({ toObject: () => ({}) } as any);
@@ -91,11 +108,18 @@ describe("LastReportDateService", () => {
         });
 
         it("should call toObject() on the newly created document", async () => {
-            jest.spyOn(LastReportDateModel.getModel, "findOne").mockReturnValue({
-                lean: jest.fn().mockResolvedValue(null),
-            } as any);
-            const toObjectMock = jest.fn().mockReturnValue({ auth_id: "new-uuid" });
-            jest.spyOn(LastReportDateModel.getModel, "create").mockResolvedValue({
+            jest.spyOn(LastReportDateModel.getModel, "findOne").mockReturnValue(
+                {
+                    lean: jest.fn().mockResolvedValue(null),
+                } as any
+            );
+            const toObjectMock = jest
+                .fn()
+                .mockReturnValue({ auth_id: "new-uuid" });
+            jest.spyOn(
+                LastReportDateModel.getModel,
+                "create"
+            ).mockResolvedValue({
                 toObject: toObjectMock,
             } as any);
 
@@ -135,15 +159,21 @@ describe("LastReportDateService", () => {
             const updateOneSpy = jest
                 .spyOn(LastReportDateModel.getModel, "updateOne")
                 .mockResolvedValue({} as any);
-            jest.spyOn(crypto, "randomUUID").mockReturnValue("fresh-uuid" as any);
+            jest.spyOn(crypto, "randomUUID").mockReturnValue(
+                "fresh-uuid" as any
+            );
 
             await service.updateLastReportDate(true);
-            expect((updateOneSpy.mock.calls[0] as any)[1].auth_id).toBe("fresh-uuid");
+            expect((updateOneSpy.mock.calls[0] as any)[1].auth_id).toBe(
+                "fresh-uuid"
+            );
 
             updateOneSpy.mockClear();
 
             await service.updateLastReportDate(false);
-            expect((updateOneSpy.mock.calls[0] as any)[1].auth_id).toBe("fresh-uuid");
+            expect((updateOneSpy.mock.calls[0] as any)[1].auth_id).toBe(
+                "fresh-uuid"
+            );
         });
 
         it("should call updateOne with an empty filter", async () => {
@@ -158,8 +188,13 @@ describe("LastReportDateService", () => {
 
         it("should log an error and rethrow when updateOne throws", async () => {
             const dbError = new Error("DB write failed");
-            jest.spyOn(LastReportDateModel.getModel, "updateOne").mockRejectedValue(dbError);
-            const logSpy = jest.spyOn(logger, "error").mockImplementation(() => logger);
+            jest.spyOn(
+                LastReportDateModel.getModel,
+                "updateOne"
+            ).mockRejectedValue(dbError);
+            const logSpy = jest
+                .spyOn(logger, "error")
+                .mockImplementation(() => logger);
 
             await expect(service.updateLastReportDate(true)).rejects.toThrow(
                 "Failed to update the last report date model!"
@@ -168,23 +203,31 @@ describe("LastReportDateService", () => {
         });
 
         it("should throw an Error instance when updateOne fails", async () => {
-            jest.spyOn(LastReportDateModel.getModel, "updateOne").mockRejectedValue(
-                new Error("DB write failed")
-            );
+            jest.spyOn(
+                LastReportDateModel.getModel,
+                "updateOne"
+            ).mockRejectedValue(new Error("DB write failed"));
             jest.spyOn(logger, "error").mockImplementation(() => logger);
 
-            await expect(service.updateLastReportDate(false)).rejects.toBeInstanceOf(Error);
+            await expect(
+                service.updateLastReportDate(false)
+            ).rejects.toBeInstanceOf(Error);
         });
 
         it("should include the isSuccessfulUpdate value in the error log message", async () => {
-            jest.spyOn(LastReportDateModel.getModel, "updateOne").mockRejectedValue(
-                new Error("oops")
-            );
-            const logSpy = jest.spyOn(logger, "error").mockImplementation(() => logger);
+            jest.spyOn(
+                LastReportDateModel.getModel,
+                "updateOne"
+            ).mockRejectedValue(new Error("oops"));
+            const logSpy = jest
+                .spyOn(logger, "error")
+                .mockImplementation(() => logger);
 
             await expect(service.updateLastReportDate(false)).rejects.toThrow();
 
-            const logMessage = (logSpy.mock.calls[0] as any)[0] as unknown as string;
+            const logMessage = (
+                logSpy.mock.calls[0] as any
+            )[0] as unknown as string;
             expect(logMessage).toContain("false");
         });
         it("should return the result from getLastScrapedDate", async () => {
