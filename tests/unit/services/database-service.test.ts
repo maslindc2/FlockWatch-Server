@@ -6,101 +6,147 @@ import mongoose, { ConnectOptions, Mongoose, MongooseError } from "mongoose";
 dotenv.config();
 
 describe("DatabaseService Unit", () => {
-    it("should call our logger with the message that we failed to connect when we fail to connect to MongoDB", async () => {
-        // Spy on logger info and error, info should not be called only error
-        const loggerErrorSpy = jest.spyOn(logger, "error");
+    afterEach(() => jest.restoreAllMocks());
 
-        // Use a spy to mock the mongoose.connect function and reject the promise to throw an error
-        const mongooseConnectSpy = jest
-            .spyOn(mongoose, "connect")
-            .mockImplementationOnce(() => {
-                return Promise.reject(
-                    new MongooseError("Invalid connection string")
-                );
-            });
+    // -- connect --------------------------------------------------------------
 
-        // Catch should catch the error and throw MongoDB connection failed
-        await expect(
-            DatabaseService.connect("invalid connection string")
-        ).rejects.toThrow("MongoDB connection failed.");
+    describe("connect", () => {
+        it("should call mongoose.connect with the provided connection string", async () => {
+            const connectSpy = jest
+                .spyOn(mongoose, "connect")
+                .mockResolvedValueOnce(mongoose);
 
-        // error should be called with the expected message
-        expect(loggerErrorSpy).toHaveBeenCalledWith(
-            "Error connecting to MongoDB:",
-            expect.objectContaining({ message: "Invalid connection string" })
-        );
-        mongooseConnectSpy.mockRestore();
-    });
+            await DatabaseService.connect("mongodb://localhost:27017");
 
-    it("should throw an error and call our logger with the message that we failed to disconnect when we fail to disconnect from MongoDB", async () => {
-        // Spy on logger info and error, info should not be called only error
-        const loggerErrorSpy = jest.spyOn(logger, "error");
+            expect(connectSpy).toHaveBeenCalledWith("mongodb://localhost:27017");
+        });
 
-        // Use a spy to mock the mongoose.connect function and reject the promise to throw an error
-        const mongooseConnectSpy = jest
-            .spyOn(mongoose, "disconnect")
-            .mockImplementationOnce(() => {
-                return Promise.reject(
-                    new MongooseError("Failed to Disconnect!")
-                );
-            });
+        it("should log success when mongoose.connect resolves", async () => {
+            jest.spyOn(mongoose, "connect").mockResolvedValueOnce(mongoose);
+            const loggerInfoSpy = jest.spyOn(logger, "info");
 
-        // Catch should catch the error and throw MongoDB connection failed
-        await expect(DatabaseService.disconnect()).rejects.toThrow(
-            "MongoDB database failed to disconnect."
-        );
+            await DatabaseService.connect("mongodb://localhost:27017");
 
-        // error should be called with the expected message
-        expect(loggerErrorSpy).toHaveBeenCalledWith(
-            "Failed to disconnect from MongoDB.",
-            new MongooseError("Failed to Disconnect!")
-        );
-        mongooseConnectSpy.mockRestore();
-    });
+            expect(loggerInfoSpy).toHaveBeenCalledWith(
+                "MongoDB connected successfully."
+            );
+        });
 
-    it("should call our logger with the message disconnected successfully when we disconnect from MongoDB successfully", async () => {
-        // Create a spy for our logger to check if we log that we connected
-        const loggerInfoSpy = jest.spyOn(logger, "info");
-        // Create a spy for the mongoose connect function and mock the implementation to resolve a promise
-        const mongooseConnectSpy = jest
-            .spyOn<Mongoose, "connect">(mongoose, "connect")
-            .mockImplementationOnce(
-                (
-                    uris: string,
-                    options?: ConnectOptions,
-                    callback?: (err?: MongooseError) => void
-                ) => {
-                    return Promise.resolve(mongoose);
-                }
+        it("should not call logger.info when mongoose.connect fails", async () => {
+            jest.spyOn(mongoose, "connect").mockRejectedValueOnce(
+                new MongooseError("Invalid connection string")
+            );
+            const loggerInfoSpy = jest.spyOn(logger, "info");
+
+            await expect(
+                DatabaseService.connect("invalid connection string")
+            ).rejects.toThrow();
+
+            expect(loggerInfoSpy).not.toHaveBeenCalled();
+        });
+
+        it("should call logger.error with the original error when mongoose.connect fails", async () => {
+            const originalError = new MongooseError("Invalid connection string");
+            jest.spyOn(mongoose, "connect").mockRejectedValueOnce(originalError);
+            const loggerErrorSpy = jest.spyOn(logger, "error");
+
+            await expect(
+                DatabaseService.connect("invalid connection string")
+            ).rejects.toThrow();
+
+            expect(loggerErrorSpy).toHaveBeenCalledWith(
+                "Error connecting to MongoDB:",
+                expect.objectContaining({ message: "Invalid connection string" })
+            );
+        });
+
+        it("should throw an Error instance when mongoose.connect fails", async () => {
+            jest.spyOn(mongoose, "connect").mockRejectedValueOnce(
+                new MongooseError("Invalid connection string")
             );
 
-        // Create a spy for disconnect function and mock the implementation to resolve a promise
-        const mongooseDisconnectSpy = jest
-            .spyOn<Mongoose, "disconnect">(mongoose, "disconnect")
-            .mockImplementationOnce(() => {
-                return Promise.resolve();
-            });
+            await expect(
+                DatabaseService.connect("invalid connection string")
+            ).rejects.toBeInstanceOf(Error);
+        });
 
-        // Call connect function with fake URI
-        await DatabaseService.connect("mongodb://localhost:27017");
-        // Expect that we called connect with our fake URI
-        expect(mongooseConnectSpy).toHaveBeenCalledWith(
-            "mongodb://localhost:27017"
-        );
-        // Expect info logger to report that we connected successfully
-        expect(loggerInfoSpy).toHaveBeenCalledWith(
-            "MongoDB connected successfully."
-        );
+        it("should throw 'MongoDB connection failed.' when mongoose.connect fails", async () => {
+            jest.spyOn(mongoose, "connect").mockRejectedValueOnce(
+                new MongooseError("Invalid connection string")
+            );
 
-        // Disconnect from the service
-        await DatabaseService.disconnect();
-        // Expect that there we called the Mongoose disconnect function
-        expect(mongooseDisconnectSpy).toHaveBeenCalled();
-        // Expect the spy to report that we disconnected from MongoDB
-        expect(loggerInfoSpy).toHaveBeenCalledWith(
-            "MongoDB disconnected successfully."
-        );
-        // Restore implementation
-        mongooseConnectSpy.mockRestore();
+            await expect(
+                DatabaseService.connect("invalid connection string")
+            ).rejects.toThrow("MongoDB connection failed.");
+        });
+    });
+
+    // -- disconnect -----------------------------------------------------------
+
+    describe("disconnect", () => {
+        it("should call mongoose.disconnect", async () => {
+            const disconnectSpy = jest
+                .spyOn(mongoose, "disconnect")
+                .mockResolvedValueOnce();
+
+            await DatabaseService.disconnect();
+
+            expect(disconnectSpy).toHaveBeenCalledTimes(1);
+        });
+
+        it("should log success when mongoose.disconnect resolves", async () => {
+            jest.spyOn(mongoose, "disconnect").mockResolvedValueOnce();
+            const loggerInfoSpy = jest.spyOn(logger, "info");
+
+            await DatabaseService.disconnect();
+
+            expect(loggerInfoSpy).toHaveBeenCalledWith(
+                "MongoDB disconnected successfully."
+            );
+        });
+
+        it("should not call logger.info when mongoose.disconnect fails", async () => {
+            jest.spyOn(mongoose, "disconnect").mockRejectedValueOnce(
+                new MongooseError("Failed to Disconnect!")
+            );
+            const loggerInfoSpy = jest.spyOn(logger, "info");
+
+            await expect(DatabaseService.disconnect()).rejects.toThrow();
+
+            expect(loggerInfoSpy).not.toHaveBeenCalled();
+        });
+
+        it("should call logger.error with the original error when mongoose.disconnect fails", async () => {
+            const originalError = new MongooseError("Failed to Disconnect!");
+            jest.spyOn(mongoose, "disconnect").mockRejectedValueOnce(originalError);
+            const loggerErrorSpy = jest.spyOn(logger, "error");
+
+            await expect(DatabaseService.disconnect()).rejects.toThrow();
+
+            expect(loggerErrorSpy).toHaveBeenCalledWith(
+                "Failed to disconnect from MongoDB.",
+                originalError
+            );
+        });
+
+        it("should throw an Error instance when mongoose.disconnect fails", async () => {
+            jest.spyOn(mongoose, "disconnect").mockRejectedValueOnce(
+                new MongooseError("Failed to Disconnect!")
+            );
+
+            await expect(
+                DatabaseService.disconnect()
+            ).rejects.toBeInstanceOf(Error);
+        });
+
+        it("should throw 'MongoDB database failed to disconnect.' when mongoose.disconnect fails", async () => {
+            jest.spyOn(mongoose, "disconnect").mockRejectedValueOnce(
+                new MongooseError("Failed to Disconnect!")
+            );
+
+            await expect(
+                DatabaseService.disconnect()
+            ).rejects.toThrow("MongoDB database failed to disconnect.");
+        });
     });
 });

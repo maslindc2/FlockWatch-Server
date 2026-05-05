@@ -3,17 +3,28 @@ import dotenv from "dotenv";
 import { USSummaryService } from "../../../src/modules/us-summary/us-summary.service";
 import { USSummaryModel } from "../../../src/modules/us-summary/us-summary.model";
 import { USSummaryStats } from "../../../src/modules/us-summary/us-summary-stats.interface";
+
+import {connect, disconnect, clearCollections} from "../setup/mongodb-setup";
+
 dotenv.config();
 
 describe("USSummaryService Integration", () => {
     let usSummaryService: USSummaryService;
 
     beforeAll(async () => {
-        await Mongoose.connect(process.env.MONGODB_URI!);
-    }, 10000);
+        await connect();
+    });
 
     beforeEach(() => {
         usSummaryService = new USSummaryService();
+    });
+
+    afterEach(async () => {
+        await clearCollections();
+    });
+
+    afterAll(async () => {
+        await disconnect();
     });
 
     it("should insert and retrieve a full US summary correctly", async () => {
@@ -113,12 +124,5 @@ describe("USSummaryService Integration", () => {
         );
     });
 
-    afterEach(async () => {
-        // Clear only the collection to keep things isolated
-        await USSummaryModel.getModel.deleteMany({});
-    });
-
-    afterAll(async () => {
-        await Mongoose.disconnect();
-    });
+    
 });
