@@ -6,4 +6,4 @@ interface LastReportDate extends Mongoose.Document {
     last_scraped_date: Date; // Stores the last date this was updated
     auth_id: string;
 }
-export { LastReportDate };
+export type { LastReportDate };

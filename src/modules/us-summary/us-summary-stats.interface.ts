@@ -20,4 +20,4 @@ interface USSummaryStats {
     period_summaries: PeriodSummary[];
 }
 
-export { AllTimeTotals, PeriodSummary, USSummaryStats };
+export type { AllTimeTotals, PeriodSummary, USSummaryStats };
