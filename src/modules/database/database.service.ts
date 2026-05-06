@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { logger } from "../utils/winston-logger";
+import { logger } from "../../utils/winston-logger";
 
 class DatabaseService {
     /**

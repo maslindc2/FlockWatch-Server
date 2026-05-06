@@ -1,10 +1,10 @@
 import express, { Application, Request, Response, NextFunction } from "express";
 import serverRoutes from "./routes/server.routes";
-import { DatabaseService } from "./services/database.service";
 import { logger } from "./utils/winston-logger";
-import { FlockDataSyncService } from "./modules/flock-data-sync/flock-data-sync.service";
 import { LastReportDateService } from "./modules/last-report-date/last-report-date.service";
 import cors from "cors";
+import { FlockDataSyncService } from "./modules/data-updating/flock-data-sync.service";
+import { DatabaseService } from "./modules/database/database.service";
 
 class App {
     // Stores the express app instance
@@ -41,7 +41,7 @@ class App {
             this.app.use(
                 cors({
                     origin: "*",
-                    methods: ["GET"],
+                    methods: ["GET", "POST"],
                     allowedHeaders: ["Content-Type"],
                 })
             );
@@ -65,7 +65,7 @@ class App {
                         callback(new Error("Not allowed by CORS"));
                     },
                     // Only allow GET methods
-                    methods: ["GET"],
+                    methods: ["GET", "POST"],
                     allowedHeaders: ["Content-Type"],
                 })
             );
@@ -89,6 +89,7 @@ class App {
             });
         });
     }
+
     // Start the server instance be connecting to the DB and check if we are out of date
     private async serverStart(): Promise<void> {
         try {
@@ -100,13 +101,18 @@ class App {
 
             this.metadata =
                 await this.lastReportDateService.getLastScrapedDate();
+                
             // If we are having the server keep track of updating the information set this variable to true
-            if (process.env.INTERNAL_UPDATE) {
+            if (process.env.AUTO_UPDATE && (process.env.AUTO_UPDATE === "true" || process.env.AUTO_UPDATE === "True" || process.env.AUTO_UPDATE === "TRUE")) {
+                logger.info("Auto Update is Enabled! We will request new information from the Scraper!");
                 // Call sync data to check if we are out of date and if so request new data from flock watch scraping
                 await this.syncData();
                 // Update the metadata to the latest scrape date after syncing
                 this.metadata =
                     await this.lastReportDateService.getLastScrapedDate();
+            }else{
+                logger.info("Auto Update Data is Disabled, /data/data-update route is enabled, scraper will send new info to this route");
+                logger.info("Scraper system will be responsible for knowing when to update!");
             }
             // Log that we are ready
             logger.info(`FlockWatch Server is ready!`);
