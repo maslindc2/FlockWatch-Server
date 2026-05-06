@@ -33,11 +33,19 @@ class FlockCasesByStateService {
     public async createOrUpdateStateData(flockData: FlockCasesByState[]) {
         try {
             for (const currState in flockData) {
+                const stateData = flockData[currState];
+                // Validate state_abbreviation is a valid 2-letter code to prevent injection
+                if (!/^[A-Z]{2}$/.test(stateData.state_abbreviation)) {
+                    logger.warn(
+                        `Invalid state_abbreviation: ${stateData.state_abbreviation}`
+                    );
+                    continue;
+                }
                 await FlockCasesByStateModel.getModel.findOneAndUpdate(
-                    // Find a record matching the current state name
-                    { state: flockData[currState].state },
+                    // Find a record matching the state abbreviation (controlled field)
+                    { state_abbreviation: stateData.state_abbreviation },
                     // Store the object we got from our scraping service
-                    flockData[currState],
+                    stateData,
                     // Create it if it's not there already
                     { upsert: true }
                 );
