@@ -6,7 +6,9 @@ import { logger } from "../../../../src/utils/winston-logger";
 
 // ---- Helpers ----------------------------------------------------------------
 
-const makeLastScrapedDate = (hoursAgo: number): { last_scraped_date: string } => {
+const makeLastScrapedDate = (
+    hoursAgo: number
+): { last_scraped_date: string } => {
     const date = new Date(Date.now() - hoursAgo * 60 * 60 * 1000);
     return { last_scraped_date: date.toISOString() };
 };
@@ -55,7 +57,9 @@ describe("FlockDataSyncService", () => {
                 LastReportDateService.prototype,
                 "updateLastReportDate"
             ).mockResolvedValueOnce(undefined);
-            const logSpy = jest.spyOn(logger, "info").mockImplementation(() => logger);
+            const logSpy = jest
+                .spyOn(logger, "info")
+                .mockImplementation(() => logger);
 
             await service.syncIfOutdated();
 
@@ -81,7 +85,9 @@ describe("FlockDataSyncService", () => {
                 LastReportDateService.prototype,
                 "updateLastReportDate"
             ).mockResolvedValueOnce(undefined);
-            const logSpy = jest.spyOn(logger, "info").mockImplementation(() => logger);
+            const logSpy = jest
+                .spyOn(logger, "info")
+                .mockImplementation(() => logger);
 
             await service.syncIfOutdated();
 
@@ -95,7 +101,9 @@ describe("FlockDataSyncService", () => {
                 LastReportDateService.prototype,
                 "getLastScrapedDate"
             ).mockResolvedValueOnce(makeLastScrapedDate(1) as any);
-            const sillySpy = jest.spyOn(logger, "silly").mockImplementation(() => logger);
+            const sillySpy = jest
+                .spyOn(logger, "silly")
+                .mockImplementation(() => logger);
 
             await service.syncIfOutdated();
 
@@ -136,7 +144,9 @@ describe("FlockDataSyncService", () => {
                 LastReportDateService.prototype,
                 "updateLastReportDate"
             ).mockResolvedValueOnce(undefined);
-            const logSpy = jest.spyOn(logger, "info").mockImplementation(() => logger);
+            const logSpy = jest
+                .spyOn(logger, "info")
+                .mockImplementation(() => logger);
 
             await service.syncIfOutdated();
 
@@ -206,7 +216,9 @@ describe("FlockDataSyncService", () => {
                 LastReportDateService.prototype,
                 "updateLastReportDate"
             ).mockResolvedValueOnce(undefined);
-            const logSpy = jest.spyOn(logger, "error").mockImplementation(() => logger);
+            const logSpy = jest
+                .spyOn(logger, "error")
+                .mockImplementation(() => logger);
 
             await service.syncIfOutdated();
 

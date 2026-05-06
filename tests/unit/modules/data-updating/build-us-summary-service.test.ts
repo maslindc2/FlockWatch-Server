@@ -4,7 +4,9 @@ import { PeriodSummary } from "../../../../src/modules/us-summary/us-summary-sta
 
 // ---- Factories --------------------------------------------------------------
 
-const makeStateObj = (overrides: Partial<FlockCasesByState> = {}): FlockCasesByState => ({
+const makeStateObj = (
+    overrides: Partial<FlockCasesByState> = {}
+): FlockCasesByState => ({
     state_abbreviation: "PA",
     state: "Pennsylvania",
     birds_affected: 100,
@@ -84,12 +86,16 @@ describe("BuildUSSummary", () => {
 
         it("should return zero for total_backyard_flocks_affected", () => {
             const result = buildUSSummary.createUSSummaryData([], []);
-            expect(result.all_time_totals.total_backyard_flocks_affected).toBe(0);
+            expect(result.all_time_totals.total_backyard_flocks_affected).toBe(
+                0
+            );
         });
 
         it("should return zero for total_commercial_flocks_affected", () => {
             const result = buildUSSummary.createUSSummaryData([], []);
-            expect(result.all_time_totals.total_commercial_flocks_affected).toBe(0);
+            expect(
+                result.all_time_totals.total_commercial_flocks_affected
+            ).toBe(0);
         });
     });
 
@@ -97,7 +103,10 @@ describe("BuildUSSummary", () => {
 
     describe("single state", () => {
         it("should count one state as total_states_affected", () => {
-            const result = buildUSSummary.createUSSummaryData([makeStateObj()], []);
+            const result = buildUSSummary.createUSSummaryData(
+                [makeStateObj()],
+                []
+            );
             expect(result.all_time_totals.total_states_affected).toBe(1);
         });
 
@@ -122,7 +131,9 @@ describe("BuildUSSummary", () => {
                 [makeStateObj({ backyard_flocks: 8 })],
                 []
             );
-            expect(result.all_time_totals.total_backyard_flocks_affected).toBe(8);
+            expect(result.all_time_totals.total_backyard_flocks_affected).toBe(
+                8
+            );
         });
 
         it("should sum commercial_flocks correctly", () => {
@@ -130,7 +141,9 @@ describe("BuildUSSummary", () => {
                 [makeStateObj({ commercial_flocks: 12 })],
                 []
             );
-            expect(result.all_time_totals.total_commercial_flocks_affected).toBe(12);
+            expect(
+                result.all_time_totals.total_commercial_flocks_affected
+            ).toBe(12);
         });
     });
 
@@ -172,7 +185,9 @@ describe("BuildUSSummary", () => {
                 makeStateObj({ backyard_flocks: 6 }),
             ];
             const result = buildUSSummary.createUSSummaryData(states, []);
-            expect(result.all_time_totals.total_backyard_flocks_affected).toBe(10);
+            expect(result.all_time_totals.total_backyard_flocks_affected).toBe(
+                10
+            );
         });
 
         it("should sum commercial_flocks across all states", () => {
@@ -181,7 +196,9 @@ describe("BuildUSSummary", () => {
                 makeStateObj({ commercial_flocks: 9 }),
             ];
             const result = buildUSSummary.createUSSummaryData(states, []);
-            expect(result.all_time_totals.total_commercial_flocks_affected).toBe(12);
+            expect(
+                result.all_time_totals.total_commercial_flocks_affected
+            ).toBe(12);
         });
 
         it("should produce correct totals across all fields simultaneously", () => {

@@ -9,7 +9,6 @@ import { FlockData } from "../modules/data-updating/flock-data.interface";
 import { FlockCasesByState } from "../modules/flock-cases-by-state/flock-cases-by-state.interface";
 import { PeriodSummary } from "../modules/us-summary/us-summary-stats.interface";
 
-
 class DataController {
     // Define the service instances that the data controller will use
     private flockCasesByStateService: FlockCasesByStateService;
@@ -107,11 +106,11 @@ class DataController {
         }
     }
     /**
-     * 
-     * @param req 
-     * @param res 
+     *
+     * @param req
+     * @param res
      */
-    public async receiveUpdatedData(req: Request, res: Response){
+    public async receiveUpdatedData(req: Request, res: Response) {
         try {
             // Extract the auth header
             const authHeader = req.headers.authorization;
@@ -124,27 +123,32 @@ class DataController {
             // Get the expected auth ID
             const expectedAuthID = authIDObj?.auth_id;
             // Check if the received auth ID is equal to the expected auth ID
-            if(receivedAuthID === expectedAuthID){
+            if (receivedAuthID === expectedAuthID) {
                 // Create our build us summary service
                 const buildUSSummary = new BuildUSSummary();
                 // Create our Flock Watch Update Service
                 const fwUpdateService = new FlockDataUpdateService();
                 // Get the array containing all the states' infection information
-                const flock_cases_by_state:FlockCasesByState[] = req.body.flock_cases_by_state;
+                const flock_cases_by_state: FlockCasesByState[] =
+                    req.body.flock_cases_by_state;
                 // Get the period summaries
-                const period_summaries:PeriodSummary[] = req.body.period_summaries;
+                const period_summaries: PeriodSummary[] =
+                    req.body.period_summaries;
                 // Use the flock cases by state and period summaries to create the us summary stats
                 // Contains: All Time Totals and Last 30 Day infections
-                const us_summary_stats = buildUSSummary.createUSSummaryData(flock_cases_by_state, period_summaries);
-                
+                const us_summary_stats = buildUSSummary.createUSSummaryData(
+                    flock_cases_by_state,
+                    period_summaries
+                );
+
                 // Assemble the object we will use for updating the database
-                const dataForDB:FlockData = {
+                const dataForDB: FlockData = {
                     flock_cases_by_state: flock_cases_by_state,
-                    us_summary_stats: us_summary_stats
-                }
+                    us_summary_stats: us_summary_stats,
+                };
                 // Send our assembled data and apply the update
                 await fwUpdateService.applyUpdate(dataForDB);
-            }else{
+            } else {
                 logger.error(
                     `Invalid Auth ID from IP ${req.ip}, who sent the auth ID ${receivedAuthID}!`
                 );

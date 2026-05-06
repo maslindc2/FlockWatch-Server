@@ -5,7 +5,6 @@ import { USSummaryStats } from "../us-summary/us-summary-stats.interface";
 interface FlockData {
     flock_cases_by_state: FlockCasesByState[];
     us_summary_stats: USSummaryStats;
-    
 }
 
 export type { FlockData };

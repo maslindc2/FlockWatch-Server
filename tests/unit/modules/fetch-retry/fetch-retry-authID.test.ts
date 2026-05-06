@@ -1,11 +1,10 @@
 import { FetchRetryAuthID } from "../../../../src/modules/fetch-retry/fetch-retry-authID";
 import { logger } from "../../../../src/utils/winston-logger";
 
-
 // ---- Helpers ----------------------------------------------------------------
 
 const makeMockResponse = (status = 200): Response =>
-    ({ status, ok: status >= 200 && status < 300 } as Response);
+    ({ status, ok: status >= 200 && status < 300 }) as Response;
 
 // ---- Tests ------------------------------------------------------------------
 

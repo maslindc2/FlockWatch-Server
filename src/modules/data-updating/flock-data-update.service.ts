@@ -1,4 +1,4 @@
-import {logger} from "../../utils/winston-logger";
+import { logger } from "../../utils/winston-logger";
 import { FlockCasesByStateService } from "../flock-cases-by-state/flock-cases-by-state.service";
 import { USSummaryService } from "../us-summary/us-summary.service";
 import { LastReportDateService } from "../last-report-date/last-report-date.service";
@@ -7,8 +7,8 @@ import { PeriodSummary } from "../us-summary/us-summary-stats.interface";
 import { FlockData } from "./flock-data.interface";
 
 interface FlockDataPayload {
-    flock_cases_by_state: FlockCasesByState[]
-    period_summaries: PeriodSummary[]
+    flock_cases_by_state: FlockCasesByState[];
+    period_summaries: PeriodSummary[];
 }
 
 class FlockDataUpdateService {
@@ -35,11 +35,9 @@ class FlockDataUpdateService {
             // We failed to update our flock cases by state model, so only update our Auth ID
             isSuccessfulUpdate = false;
         }
-        
+
         try {
-            await this.usSummaryService.upsertUSSummary(
-                data.us_summary_stats
-            );
+            await this.usSummaryService.upsertUSSummary(data.us_summary_stats);
             logger.info("Finished updating US Summary Stats!");
         } catch (error) {
             logger.error("Failed updating US Summary Stats", error);
@@ -47,10 +45,12 @@ class FlockDataUpdateService {
             isSuccessfulUpdate = false;
         }
         // Update last report date model, either only rotating the auth ID or update both authID and the date
-        await this.lastReportDateService.updateLastReportDate(isSuccessfulUpdate);
+        await this.lastReportDateService.updateLastReportDate(
+            isSuccessfulUpdate
+        );
         return isSuccessfulUpdate;
     }
 }
 
 export { FlockDataUpdateService };
-export type {FlockDataPayload};
+export type { FlockDataPayload };

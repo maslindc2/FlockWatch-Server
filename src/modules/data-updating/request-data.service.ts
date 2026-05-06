@@ -35,7 +35,12 @@ class RequestDataService {
 
         try {
             const fetchRetry = new FetchRetryAuthID(authID);
-            const res = await fetchRetry.getRetry(fwScrapingURL, 3,  2 * 60 * 1000, 500);
+            const res = await fetchRetry.getRetry(
+                fwScrapingURL,
+                3,
+                2 * 60 * 1000,
+                500
+            );
 
             if (!res!.ok) {
                 logger.error(`Scraping service returned HTTP ${res!.status}`);
@@ -82,10 +87,11 @@ class RequestDataService {
             jsonFromScraper.period_summaries;
 
         // Create the US Summary Data from the array of state data that we received earlier
-        const usSummaryStats: USSummaryStats = this.buildUSSummaryObj.createUSSummaryData(
-            flockCasesByState,
-            periodSummaries
-        );
+        const usSummaryStats: USSummaryStats =
+            this.buildUSSummaryObj.createUSSummaryData(
+                flockCasesByState,
+                periodSummaries
+            );
 
         // Assemble it as a JS object
         const latestFlockData: FlockData = {

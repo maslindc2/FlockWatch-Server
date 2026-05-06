@@ -42,7 +42,11 @@ const makeUSSummaryStats = () => ({
     period_summaries: [],
 });
 
-const makeMockResponse = (ok: boolean, status = 200, json: any = makeScraperData()) => ({
+const makeMockResponse = (
+    ok: boolean,
+    status = 200,
+    json: any = makeScraperData()
+) => ({
     ok,
     status,
     json: jest.fn().mockResolvedValue(json),
@@ -91,7 +95,9 @@ describe("RequestDataService", () => {
             jest.spyOn(
                 FetchRetryAuthID.prototype,
                 "getRetry"
-            ).mockResolvedValueOnce(makeMockResponse(true, 200, scraperData) as any);
+            ).mockResolvedValueOnce(
+                makeMockResponse(true, 200, scraperData) as any
+            );
             const buildSpy = jest
                 .spyOn(BuildUSSummary.prototype, "createUSSummaryData")
                 .mockReturnValueOnce(makeUSSummaryStats() as any);
@@ -109,7 +115,9 @@ describe("RequestDataService", () => {
             jest.spyOn(
                 FetchRetryAuthID.prototype,
                 "getRetry"
-            ).mockResolvedValueOnce(makeMockResponse(true, 200, scraperData) as any);
+            ).mockResolvedValueOnce(
+                makeMockResponse(true, 200, scraperData) as any
+            );
             jest.spyOn(
                 BuildUSSummary.prototype,
                 "createUSSummaryData"
@@ -128,7 +136,9 @@ describe("RequestDataService", () => {
             jest.spyOn(
                 FetchRetryAuthID.prototype,
                 "getRetry"
-            ).mockResolvedValueOnce(makeMockResponse(true, 200, scraperData) as any);
+            ).mockResolvedValueOnce(
+                makeMockResponse(true, 200, scraperData) as any
+            );
             jest.spyOn(
                 BuildUSSummary.prototype,
                 "createUSSummaryData"
@@ -144,7 +154,9 @@ describe("RequestDataService", () => {
             jest.spyOn(
                 FetchRetryAuthID.prototype,
                 "getRetry"
-            ).mockResolvedValueOnce(makeMockResponse(true, 200, scraperData) as any);
+            ).mockResolvedValueOnce(
+                makeMockResponse(true, 200, scraperData) as any
+            );
             jest.spyOn(
                 BuildUSSummary.prototype,
                 "createUSSummaryData"
@@ -162,10 +174,11 @@ describe("RequestDataService", () => {
     describe("requestDataFromScrapingService", () => {
         it("should create FetchRetryAuthID with the provided authID", async () => {
             const scraperData = makeScraperData();
-            const constructorSpy = jest.spyOn(
-                FetchRetryAuthID.prototype,
-                "getRetry"
-            ).mockResolvedValueOnce(makeMockResponse(true, 200, scraperData) as any);
+            const constructorSpy = jest
+                .spyOn(FetchRetryAuthID.prototype, "getRetry")
+                .mockResolvedValueOnce(
+                    makeMockResponse(true, 200, scraperData) as any
+                );
             jest.spyOn(
                 BuildUSSummary.prototype,
                 "createUSSummaryData"
@@ -183,7 +196,9 @@ describe("RequestDataService", () => {
             const scraperData = makeScraperData();
             const getRetrySpy = jest
                 .spyOn(FetchRetryAuthID.prototype, "getRetry")
-                .mockResolvedValueOnce(makeMockResponse(true, 200, scraperData) as any);
+                .mockResolvedValueOnce(
+                    makeMockResponse(true, 200, scraperData) as any
+                );
             jest.spyOn(
                 BuildUSSummary.prototype,
                 "createUSSummaryData"
@@ -200,11 +215,14 @@ describe("RequestDataService", () => {
         });
 
         it("should use SCRAPING_SERVICE_URL env var when set", async () => {
-            process.env.SCRAPING_SERVICE_URL = "http://custom-scraper:9090/data";
+            process.env.SCRAPING_SERVICE_URL =
+                "http://custom-scraper:9090/data";
             const scraperData = makeScraperData();
             const getRetrySpy = jest
                 .spyOn(FetchRetryAuthID.prototype, "getRetry")
-                .mockResolvedValueOnce(makeMockResponse(true, 200, scraperData) as any);
+                .mockResolvedValueOnce(
+                    makeMockResponse(true, 200, scraperData) as any
+                );
             jest.spyOn(
                 BuildUSSummary.prototype,
                 "createUSSummaryData"
@@ -227,15 +245,15 @@ describe("RequestDataService", () => {
                 FetchRetryAuthID.prototype,
                 "getRetry"
             ).mockResolvedValueOnce(makeMockResponse(false, 503) as any);
-            const logSpy = jest.spyOn(logger, "error").mockImplementation(() => logger);
+            const logSpy = jest
+                .spyOn(logger, "error")
+                .mockImplementation(() => logger);
 
             await expect(
                 service.fetchLatestFlockData("test-auth-id")
             ).rejects.toThrow();
 
-            expect(logSpy).toHaveBeenCalledWith(
-                expect.stringContaining("503")
-            );
+            expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("503"));
         });
 
         it("should log an error when the response JSON is empty", async () => {
@@ -243,7 +261,9 @@ describe("RequestDataService", () => {
                 FetchRetryAuthID.prototype,
                 "getRetry"
             ).mockResolvedValueOnce(makeMockResponse(true, 200, {}) as any);
-            const logSpy = jest.spyOn(logger, "error").mockImplementation(() => logger);
+            const logSpy = jest
+                .spyOn(logger, "error")
+                .mockImplementation(() => logger);
 
             await expect(
                 service.fetchLatestFlockData("test-auth-id")
@@ -259,7 +279,9 @@ describe("RequestDataService", () => {
                 FetchRetryAuthID.prototype,
                 "getRetry"
             ).mockResolvedValueOnce(makeMockResponse(true, 200, null) as any);
-            const logSpy = jest.spyOn(logger, "error").mockImplementation(() => logger);
+            const logSpy = jest
+                .spyOn(logger, "error")
+                .mockImplementation(() => logger);
 
             await expect(
                 service.fetchLatestFlockData("test-auth-id")
@@ -275,7 +297,9 @@ describe("RequestDataService", () => {
                 FetchRetryAuthID.prototype,
                 "getRetry"
             ).mockRejectedValueOnce(new Error("Network failure"));
-            const logSpy = jest.spyOn(logger, "error").mockImplementation(() => logger);
+            const logSpy = jest
+                .spyOn(logger, "error")
+                .mockImplementation(() => logger);
 
             await expect(
                 service.fetchLatestFlockData("test-auth-id")
@@ -290,7 +314,9 @@ describe("RequestDataService", () => {
             const scraperData = makeScraperData();
             const getRetrySpy = jest
                 .spyOn(FetchRetryAuthID.prototype, "getRetry")
-                .mockResolvedValueOnce(makeMockResponse(true, 200, scraperData) as any);
+                .mockResolvedValueOnce(
+                    makeMockResponse(true, 200, scraperData) as any
+                );
             jest.spyOn(
                 BuildUSSummary.prototype,
                 "createUSSummaryData"

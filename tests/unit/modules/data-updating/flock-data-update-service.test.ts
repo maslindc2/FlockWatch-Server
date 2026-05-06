@@ -58,10 +58,12 @@ describe("FlockDataUpdateService", () => {
             const data = makeFlockData({
                 flock_cases_by_state: [{ state_abbreviation: "PA" } as any],
             });
-            const spy = jest.spyOn(
-                FlockCasesByStateService.prototype,
-                "createOrUpdateStateData"
-            ).mockResolvedValue({} as any);
+            const spy = jest
+                .spyOn(
+                    FlockCasesByStateService.prototype,
+                    "createOrUpdateStateData"
+                )
+                .mockResolvedValue({} as any);
 
             await service.applyUpdate(data);
 
@@ -70,10 +72,9 @@ describe("FlockDataUpdateService", () => {
 
         it("should call upsertUSSummary with us_summary_stats", async () => {
             const data = makeFlockData();
-            const spy = jest.spyOn(
-                USSummaryService.prototype,
-                "upsertUSSummary"
-            ).mockResolvedValue({} as any);
+            const spy = jest
+                .spyOn(USSummaryService.prototype, "upsertUSSummary")
+                .mockResolvedValue({} as any);
 
             await service.applyUpdate(data);
 
@@ -81,10 +82,9 @@ describe("FlockDataUpdateService", () => {
         });
 
         it("should call updateLastReportDate with true on full success", async () => {
-            const spy = jest.spyOn(
-                LastReportDateService.prototype,
-                "updateLastReportDate"
-            ).mockResolvedValue(undefined);
+            const spy = jest
+                .spyOn(LastReportDateService.prototype, "updateLastReportDate")
+                .mockResolvedValue(undefined);
 
             await service.applyUpdate(makeFlockData());
 
@@ -97,7 +97,9 @@ describe("FlockDataUpdateService", () => {
         });
 
         it("should log success after createOrUpdateStateData", async () => {
-            const logSpy = jest.spyOn(logger, "info").mockImplementation(() => logger);
+            const logSpy = jest
+                .spyOn(logger, "info")
+                .mockImplementation(() => logger);
 
             await service.applyUpdate(makeFlockData());
 
@@ -107,7 +109,9 @@ describe("FlockDataUpdateService", () => {
         });
 
         it("should log success after upsertUSSummary", async () => {
-            const logSpy = jest.spyOn(logger, "info").mockImplementation(() => logger);
+            const logSpy = jest
+                .spyOn(logger, "info")
+                .mockImplementation(() => logger);
 
             await service.applyUpdate(makeFlockData());
 
@@ -117,10 +121,9 @@ describe("FlockDataUpdateService", () => {
         });
 
         it("should always call updateLastReportDate exactly once", async () => {
-            const spy = jest.spyOn(
-                LastReportDateService.prototype,
-                "updateLastReportDate"
-            ).mockResolvedValue(undefined);
+            const spy = jest
+                .spyOn(LastReportDateService.prototype, "updateLastReportDate")
+                .mockResolvedValue(undefined);
 
             await service.applyUpdate(makeFlockData());
 
@@ -152,7 +155,9 @@ describe("FlockDataUpdateService", () => {
                 FlockCasesByStateService.prototype,
                 "createOrUpdateStateData"
             ).mockRejectedValue(error);
-            const logSpy = jest.spyOn(logger, "error").mockImplementation(() => logger);
+            const logSpy = jest
+                .spyOn(logger, "error")
+                .mockImplementation(() => logger);
 
             await service.applyUpdate(makeFlockData());
 
@@ -163,10 +168,9 @@ describe("FlockDataUpdateService", () => {
         });
 
         it("should still call upsertUSSummary when createOrUpdateStateData fails", async () => {
-            const spy = jest.spyOn(
-                USSummaryService.prototype,
-                "upsertUSSummary"
-            ).mockResolvedValue({} as any);
+            const spy = jest
+                .spyOn(USSummaryService.prototype, "upsertUSSummary")
+                .mockResolvedValue({} as any);
 
             await service.applyUpdate(makeFlockData());
 
@@ -174,10 +178,9 @@ describe("FlockDataUpdateService", () => {
         });
 
         it("should call updateLastReportDate with false when createOrUpdateStateData fails", async () => {
-            const spy = jest.spyOn(
-                LastReportDateService.prototype,
-                "updateLastReportDate"
-            ).mockResolvedValue(undefined);
+            const spy = jest
+                .spyOn(LastReportDateService.prototype, "updateLastReportDate")
+                .mockResolvedValue(undefined);
 
             await service.applyUpdate(makeFlockData());
 
@@ -214,7 +217,9 @@ describe("FlockDataUpdateService", () => {
                 USSummaryService.prototype,
                 "upsertUSSummary"
             ).mockRejectedValue(error);
-            const logSpy = jest.spyOn(logger, "error").mockImplementation(() => logger);
+            const logSpy = jest
+                .spyOn(logger, "error")
+                .mockImplementation(() => logger);
 
             await service.applyUpdate(makeFlockData());
 
@@ -225,10 +230,9 @@ describe("FlockDataUpdateService", () => {
         });
 
         it("should call updateLastReportDate with false when upsertUSSummary fails", async () => {
-            const spy = jest.spyOn(
-                LastReportDateService.prototype,
-                "updateLastReportDate"
-            ).mockResolvedValue(undefined);
+            const spy = jest
+                .spyOn(LastReportDateService.prototype, "updateLastReportDate")
+                .mockResolvedValue(undefined);
 
             await service.applyUpdate(makeFlockData());
 
@@ -260,10 +264,9 @@ describe("FlockDataUpdateService", () => {
         });
 
         it("should call updateLastReportDate with false when both services fail", async () => {
-            const spy = jest.spyOn(
-                LastReportDateService.prototype,
-                "updateLastReportDate"
-            ).mockResolvedValue(undefined);
+            const spy = jest
+                .spyOn(LastReportDateService.prototype, "updateLastReportDate")
+                .mockResolvedValue(undefined);
 
             await service.applyUpdate(makeFlockData());
 
@@ -276,7 +279,9 @@ describe("FlockDataUpdateService", () => {
         });
 
         it("should log both error messages when both services fail", async () => {
-            const logSpy = jest.spyOn(logger, "error").mockImplementation(() => logger);
+            const logSpy = jest
+                .spyOn(logger, "error")
+                .mockImplementation(() => logger);
 
             await service.applyUpdate(makeFlockData());
 
@@ -286,10 +291,9 @@ describe("FlockDataUpdateService", () => {
         });
 
         it("should still call updateLastReportDate even when both services fail", async () => {
-            const spy = jest.spyOn(
-                LastReportDateService.prototype,
-                "updateLastReportDate"
-            ).mockResolvedValue(undefined);
+            const spy = jest
+                .spyOn(LastReportDateService.prototype, "updateLastReportDate")
+                .mockResolvedValue(undefined);
 
             await service.applyUpdate(makeFlockData());
 

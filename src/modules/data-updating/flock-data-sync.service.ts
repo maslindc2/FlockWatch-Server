@@ -8,7 +8,7 @@ class FlockDataSyncService {
     private lastReportDateService: LastReportDateService;
     private requestDataService: RequestDataService;
     private updateService: FlockDataUpdateService;
-    
+
     // Create our last report date service
     constructor() {
         this.lastReportDateService = new LastReportDateService();
@@ -42,14 +42,16 @@ class FlockDataSyncService {
         const diffInMs = now.getTime() - last.getTime();
         return diffInMs >= 24 * 60 * 60 * 1000; // 24 hours
     }
-    
+
     // Request new data from Flock Watch Scraping
     private async requestAndApplyData() {
         const modelInfo = await this.lastReportDateService.getAuthID();
 
-        const data = await this.requestDataService.fetchLatestFlockData(modelInfo?.auth_id!);
+        const data = await this.requestDataService.fetchLatestFlockData(
+            modelInfo?.auth_id!
+        );
 
-        if(!data){
+        if (!data) {
             logger.error("Data is empty!");
             await this.lastReportDateService.updateLastReportDate(false);
             return;

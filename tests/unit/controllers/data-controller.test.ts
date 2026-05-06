@@ -17,7 +17,7 @@ const mockRequest = (overrides: Partial<Request> = {}): Request =>
         body: {},
         ip: "127.0.0.1",
         ...overrides,
-    } as unknown as Request);
+    }) as unknown as Request;
 
 const mockResponse = (): Response => {
     const res = {} as Response;
@@ -75,7 +75,9 @@ describe("DataController", () => {
                 FlockCasesByStateService.prototype,
                 "getAllFlockCases"
             ).mockResolvedValueOnce([]);
-            const logSpy = jest.spyOn(logger, "http").mockImplementation(() => logger);
+            const logSpy = jest
+                .spyOn(logger, "http")
+                .mockImplementation(() => logger);
             req = mockRequest({ url: "/flock-cases" });
 
             await controller.getAllFlockCases(req, res);
@@ -106,7 +108,9 @@ describe("DataController", () => {
                 FlockCasesByStateService.prototype,
                 "getAllFlockCases"
             ).mockRejectedValueOnce(error);
-            const logSpy = jest.spyOn(logger, "error").mockImplementation(() => logger);
+            const logSpy = jest
+                .spyOn(logger, "error")
+                .mockImplementation(() => logger);
             req = mockRequest();
 
             await controller.getAllFlockCases(req, res);
@@ -125,7 +129,10 @@ describe("DataController", () => {
             const serviceSpy = jest
                 .spyOn(FlockCasesByStateService.prototype, "getStateFlockCase")
                 .mockResolvedValueOnce({} as any);
-            req = mockRequest({ url: "/flock-cases/WA", params: { stateAbbreviation: "WA" } });
+            req = mockRequest({
+                url: "/flock-cases/WA",
+                params: { stateAbbreviation: "WA" },
+            });
 
             await controller.getStateFlockCase(req, res);
 
@@ -138,7 +145,10 @@ describe("DataController", () => {
                 FlockCasesByStateService.prototype,
                 "getStateFlockCase"
             ).mockResolvedValueOnce(fakeData as any);
-            req = mockRequest({ url: "/flock-cases/WA", params: { stateAbbreviation: "WA" } });
+            req = mockRequest({
+                url: "/flock-cases/WA",
+                params: { stateAbbreviation: "WA" },
+            });
 
             await controller.getStateFlockCase(req, res);
 
@@ -150,8 +160,13 @@ describe("DataController", () => {
                 FlockCasesByStateService.prototype,
                 "getStateFlockCase"
             ).mockResolvedValueOnce({} as any);
-            const logSpy = jest.spyOn(logger, "http").mockImplementation(() => logger);
-            req = mockRequest({ url: "/flock-cases/WA", params: { stateAbbreviation: "WA" } });
+            const logSpy = jest
+                .spyOn(logger, "http")
+                .mockImplementation(() => logger);
+            req = mockRequest({
+                url: "/flock-cases/WA",
+                params: { stateAbbreviation: "WA" },
+            });
 
             await controller.getStateFlockCase(req, res);
 
@@ -234,7 +249,9 @@ describe("DataController", () => {
                 USSummaryService.prototype,
                 "getFormattedUSSummary"
             ).mockResolvedValueOnce(null);
-            const logSpy = jest.spyOn(logger, "http").mockImplementation(() => logger);
+            const logSpy = jest
+                .spyOn(logger, "http")
+                .mockImplementation(() => logger);
             req = mockRequest();
 
             await controller.getUSSummary(req, res);
@@ -247,7 +264,9 @@ describe("DataController", () => {
                 USSummaryService.prototype,
                 "getFormattedUSSummary"
             ).mockResolvedValueOnce({} as any);
-            const logSpy = jest.spyOn(logger, "http").mockImplementation(() => logger);
+            const logSpy = jest
+                .spyOn(logger, "http")
+                .mockImplementation(() => logger);
             req = mockRequest({ url: "/us-summary" });
 
             await controller.getUSSummary(req, res);
@@ -305,7 +324,9 @@ describe("DataController", () => {
                 LastReportDateService.prototype,
                 "getLastScrapedDate"
             ).mockResolvedValueOnce({} as any);
-            const logSpy = jest.spyOn(logger, "http").mockImplementation(() => logger);
+            const logSpy = jest
+                .spyOn(logger, "http")
+                .mockImplementation(() => logger);
             req = mockRequest({ url: "/last-report-date" });
 
             await controller.getLastScrapedDate(req, res);
@@ -373,10 +394,9 @@ describe("DataController", () => {
         });
 
         it("should call applyUpdate when the auth ID is valid", async () => {
-            const applyUpdateSpy = jest.spyOn(
-                FlockDataUpdateService.prototype,
-                "applyUpdate"
-            ).mockResolvedValue({} as any);
+            const applyUpdateSpy = jest
+                .spyOn(FlockDataUpdateService.prototype, "applyUpdate")
+                .mockResolvedValue({} as any);
             req = makeAuthReq(VALID_AUTH_ID);
 
             await controller.receiveUpdatedData(req, res);
@@ -386,11 +406,12 @@ describe("DataController", () => {
 
         it("should pass flock_cases_by_state and us_summary_stats to applyUpdate", async () => {
             const flockData = [{ state: "PA" }];
-            const applyUpdateSpy = jest.spyOn(
-                FlockDataUpdateService.prototype,
-                "applyUpdate"
-            ).mockResolvedValue({} as any);
-            req = makeAuthReq(VALID_AUTH_ID, { flock_cases_by_state: flockData });
+            const applyUpdateSpy = jest
+                .spyOn(FlockDataUpdateService.prototype, "applyUpdate")
+                .mockResolvedValue({} as any);
+            req = makeAuthReq(VALID_AUTH_ID, {
+                flock_cases_by_state: flockData,
+            });
 
             await controller.receiveUpdatedData(req, res);
 
@@ -410,7 +431,9 @@ describe("DataController", () => {
         });
 
         it("should log an error when the auth ID is invalid", async () => {
-            const logSpy = jest.spyOn(logger, "error").mockImplementation(() => logger);
+            const logSpy = jest
+                .spyOn(logger, "error")
+                .mockImplementation(() => logger);
             req = makeAuthReq("wrong-token");
 
             await controller.receiveUpdatedData(req, res);
@@ -421,7 +444,9 @@ describe("DataController", () => {
         });
 
         it("should include the received auth ID in the error log", async () => {
-            const logSpy = jest.spyOn(logger, "error").mockImplementation(() => logger);
+            const logSpy = jest
+                .spyOn(logger, "error")
+                .mockImplementation(() => logger);
             req = makeAuthReq("bad-token");
 
             await controller.receiveUpdatedData(req, res);

@@ -1,5 +1,9 @@
 import { FlockCasesByState } from "../flock-cases-by-state/flock-cases-by-state.interface";
-import { AllTimeTotals, PeriodSummary, USSummaryStats } from "../us-summary/us-summary-stats.interface";
+import {
+    AllTimeTotals,
+    PeriodSummary,
+    USSummaryStats,
+} from "../us-summary/us-summary-stats.interface";
 
 class BuildUSSummary {
     /**
@@ -36,7 +40,7 @@ class BuildUSSummary {
             all_time_totals.total_commercial_flocks_affected +=
                 stateObj.commercial_flocks;
         });
-        
+
         return {
             key: "us-summary",
             all_time_totals,
@@ -44,4 +48,4 @@ class BuildUSSummary {
         };
     }
 }
-export {BuildUSSummary}
+export { BuildUSSummary };
