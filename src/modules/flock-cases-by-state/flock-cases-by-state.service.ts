@@ -41,11 +41,19 @@ class FlockCasesByStateService {
                     );
                     continue;
                 }
+                const sanitizedStateData: Partial<FlockCasesByState> = {
+                    state_abbreviation: stateData.state_abbreviation,
+                    state_name: stateData.state_name,
+                    affected_counties: stateData.affected_counties,
+                    affected_birds: stateData.affected_birds,
+                    last_reported_date: stateData.last_reported_date,
+                };
+
                 await FlockCasesByStateModel.getModel.findOneAndUpdate(
-                    // Find a record matching the state abbreviation (controlled field)
-                    { state_abbreviation: stateData.state_abbreviation },
-                    // Store the object we got from our scraping service
-                    stateData,
+                    // Treat the abbreviation as a literal value (not an operator/object)
+                    { state_abbreviation: { $eq: stateData.state_abbreviation } },
+                    // Update only explicit, expected fields
+                    { $set: sanitizedStateData },
                     // Create it if it's not there already
                     { upsert: true }
                 );
