@@ -54,7 +54,7 @@ describe("FlockCasesByStateService Integration", () => {
 
         // Expect that the findOneAndUpdate function was called with the correct parameters
         expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
-            { state_abbreviation: flockData[0].state_abbreviation },
+            { state: flockData[0].state },
             flockData[0],
             { upsert: true }
         );

@@ -82,24 +82,15 @@ class USSummaryModel {
     }
 
     public static async upsertPeriodAtomic(period: PeriodSummary) {
-        // Sanitize period_name using a switch statement (CodeQL-safe)
-        let sanitizedPeriodName: string;
-        switch (period.period_name) {
-            case "last_7_days":
-            case "last_30_days":
-            case "last_90_days":
-            case "year_to_date":
-                sanitizedPeriodName = period.period_name;
-                break;
-            default:
-                throw new Error(`Invalid period_name: ${period.period_name}`);
+        if (!RollingPeriods.includes(period.period_name as RollingPeriodName)) {
+            throw new Error(`Invalid period_name: ${period.period_name}`);
         }
 
         return this.getModel
             .findOneAndUpdate(
                 {
                     key: "us-summary",
-                    "period_summaries.period_name": sanitizedPeriodName,
+                    "period_summaries.period_name": period.period_name,
                 },
                 { $set: { "period_summaries.$": period } }, // update existing period
                 { upsert: false, new: true }
