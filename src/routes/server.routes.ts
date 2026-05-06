@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { DataController } from "../controllers/data-controller";
+import { DataController } from "../controllers/data.controller";
 
 const router = Router();
 const dataController = new DataController();

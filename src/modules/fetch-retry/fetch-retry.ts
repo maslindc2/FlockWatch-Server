@@ -20,6 +20,7 @@ class FetchRetry {
             clearTimeout(timeout);
         }
     }
+    
     /**
      * Responsible for Retrying our fetch operation if we encounter any network issues with our initial fetch operation
      * @param URL This the URL we are making the fetch operation to

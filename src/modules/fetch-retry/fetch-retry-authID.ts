@@ -6,7 +6,7 @@ class FetchRetryAuthID extends FetchRetry {
     }
     protected override buildHeaders(): Record<string, string> {
         return {
-            ...super.buildHeaders,
+            ...super.buildHeaders(),
             Authorization: `Bearer ${this.authID}`
         }
     }
