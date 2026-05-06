@@ -51,7 +51,11 @@ class FlockCasesByStateService {
 
                 await FlockCasesByStateModel.getModel.findOneAndUpdate(
                     // Treat the abbreviation as a literal value (not an operator/object)
-                    { state_abbreviation: { $eq: stateData.state_abbreviation } },
+                    {
+                        state_abbreviation: {
+                            $eq: stateData.state_abbreviation,
+                        },
+                    },
                     // Update only explicit, expected fields
                     { $set: sanitizedStateData },
                     // Create it if it's not there already
