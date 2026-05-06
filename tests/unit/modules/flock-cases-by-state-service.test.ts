@@ -5,7 +5,9 @@ import { logger } from "../../../src/utils/winston-logger";
 
 // ---- Factories --------------------------------------------------------------
 
-const makeEntry = (overrides: Partial<FlockCasesByState> = {}): FlockCasesByState => ({
+const makeEntry = (
+    overrides: Partial<FlockCasesByState> = {}
+): FlockCasesByState => ({
     state_abbreviation: "PA",
     state: "Pennsylvania",
     birds_affected: 100,
@@ -51,7 +53,9 @@ describe("FlockCasesByStateService", () => {
                 FlockCasesByStateModel.getModel,
                 "findOneAndUpdate"
             ).mockResolvedValue({} as any);
-            const warnSpy = jest.spyOn(logger, "warn").mockImplementation(() => logger);
+            const warnSpy = jest
+                .spyOn(logger, "warn")
+                .mockImplementation(() => logger);
 
             await service.createOrUpdateStateData([
                 makeEntry({ state_abbreviation: "INVALID" }),
@@ -206,14 +210,18 @@ describe("FlockCasesByStateService", () => {
                 FlockCasesByStateModel.getModel,
                 "findOneAndUpdate"
             ).mockRejectedValueOnce(new Error("DB error"));
-            const logSpy = jest.spyOn(logger, "error").mockImplementation(() => logger);
+            const logSpy = jest
+                .spyOn(logger, "error")
+                .mockImplementation(() => logger);
 
             await expect(
                 service.createOrUpdateStateData([makeEntry()])
             ).rejects.toThrow();
 
             expect(logSpy).toHaveBeenCalledWith(
-                expect.stringContaining("Failed to update data for Flock Cases By State")
+                expect.stringContaining(
+                    "Failed to update data for Flock Cases By State"
+                )
             );
         });
 
