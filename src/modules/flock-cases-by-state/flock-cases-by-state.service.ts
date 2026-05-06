@@ -2,11 +2,17 @@ import { FlockCasesByState } from "./flock-cases-by-state.interface";
 import { FlockCasesByStateModel } from "./flock-cases-by-state.model";
 import { logger } from "../../utils/winston-logger";
 
+// Complete list of valid US state and territory abbreviations
+const VALID_STATE_ABBREVIATIONS = new Set([
+    "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
+    "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+    "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+    "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
+    "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY",
+    "DC", "PR", "GU", "VI", "AS", "MP",
+]);
+
 class FlockCasesByStateService {
-    /**
-     * Uses Find to retrieve all the flock cases from MongoDB
-     * @returns All the flock cases for the United States from MongoDB
-     */
     public async getAllFlockCases() {
         return await FlockCasesByStateModel.getModel
             .find({})
@@ -14,11 +20,6 @@ class FlockCasesByStateService {
             .lean();
     }
 
-    /**
-     * Uses findOne to retrieve a specific State's flock cases from MongoDB
-     * @param requestedState Uses the State's Abbreviation to request a specific State's data (i.e. "WA")
-     * @returns The requested State's data
-     */
     public async getStateFlockCase(requestedState: String) {
         return await FlockCasesByStateModel.getModel
             .findOne({ state_abbreviation: requestedState })
@@ -27,18 +28,54 @@ class FlockCasesByStateService {
     }
 
     /**
-     * Creates or updates the current US State's data in MongoDB
-     * @param flockData This is the array of states, each index is an object containing all the fields in IFlockCasesByState, check this interface for more information
+     * Validates a single FlockCasesByState entry before it is written to the DB.
+     * Returns false and logs a warning if any field fails validation.
      */
+    private isValidFlockEntry(entry: FlockCasesByState): boolean {
+        if (
+            !entry.state_abbreviation ||
+            typeof entry.state_abbreviation !== "string" ||
+            !VALID_STATE_ABBREVIATIONS.has(entry.state_abbreviation.toUpperCase())
+        ) {
+            logger.warn(
+                `Rejected flock entry with invalid state_abbreviation: "${entry.state_abbreviation}"`
+            );
+            return false;
+        }
+
+        const numericFields: (keyof FlockCasesByState)[] = [
+            "birds_affected",
+            "total_flocks",
+            "backyard_flocks",
+            "commercial_flocks",
+            "latitude",
+            "longitude",
+        ];
+
+        for (const field of numericFields) {
+            if (typeof entry[field] !== "number" || !isFinite(entry[field] as number)) {
+                logger.warn(
+                    `Rejected flock entry for ${entry.state_abbreviation}: invalid value for "${field}"`
+                );
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public async createOrUpdateStateData(flockData: FlockCasesByState[]) {
         try {
-            for (const currState in flockData) {
+            for (const entry of flockData) {
+                if (!this.isValidFlockEntry(entry)) {
+                    continue;
+                }
+
+                // Use state_abbreviation as the unique key -- it is validated
+                // against a whitelist above and is never raw user input
                 await FlockCasesByStateModel.getModel.findOneAndUpdate(
-                    // Find a record matching the current state name
-                    { state: flockData[currState].state },
-                    // Store the object we got from our scraping service
-                    flockData[currState],
-                    // Create it if it's not there already
+                    { state_abbreviation: entry.state_abbreviation.toUpperCase() },
+                    entry,
                     { upsert: true }
                 );
             }

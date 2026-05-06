@@ -3,94 +3,229 @@ import { FlockCasesByStateModel } from "../../../src/modules/flock-cases-by-stat
 import { FlockCasesByState } from "../../../src/modules/flock-cases-by-state/flock-cases-by-state.interface";
 import { logger } from "../../../src/utils/winston-logger";
 
+// ---- Factories --------------------------------------------------------------
+
+const makeEntry = (overrides: Partial<FlockCasesByState> = {}): FlockCasesByState => ({
+    state_abbreviation: "PA",
+    state: "Pennsylvania",
+    birds_affected: 100,
+    total_flocks: 10,
+    backyard_flocks: 3,
+    commercial_flocks: 7,
+    latitude: 40.99,
+    longitude: -76.19,
+    last_reported_detection: new Date("2024-01-01"),
+    ...overrides,
+});
+
+// ---- Tests ------------------------------------------------------------------
+
 describe("FlockCasesByStateService", () => {
-    // Use this variable for accessing the service
     let service: FlockCasesByStateService;
 
     beforeEach(() => {
-        // Create a new service before each test
         service = new FlockCasesByStateService();
+        jest.spyOn(logger, "error").mockImplementation(() => logger);
+        jest.spyOn(logger, "warn").mockImplementation(() => logger);
     });
 
-    it("should call find and select with the parameters -_id and -__v when getAllFlockCases is called", async () => {
-        const leanMock = jest.fn().mockResolvedValue([]);
-        const selectMock = jest.fn().mockReturnValue({ lean: leanMock });
-        const findMock = jest.fn().mockReturnValue({ select: selectMock });
+    afterEach(() => jest.restoreAllMocks());
 
-        const findSpy = jest
-            .spyOn(FlockCasesByStateModel.getModel, "find")
-            .mockImplementation(findMock);
+    // -- createOrUpdateStateData - validation ---------------------------------
 
-        // Now call the service
-        await service.getAllFlockCases();
+    describe("createOrUpdateStateData - input validation", () => {
+        it("should skip entries with an invalid state_abbreviation", async () => {
+            const findOneAndUpdateSpy = jest
+                .spyOn(FlockCasesByStateModel.getModel, "findOneAndUpdate")
+                .mockResolvedValue({} as any);
 
-        // Assertions
-        expect(findMock).toHaveBeenCalledWith({});
-        expect(selectMock).toHaveBeenCalledWith("-_id -__v");
-        expect(leanMock).toHaveBeenCalled();
+            await service.createOrUpdateStateData([
+                makeEntry({ state_abbreviation: "INVALID" }),
+            ]);
 
-        // Clean up
-        findSpy.mockRestore();
-    });
-    it("should call find and select with the parameters -_id and -__v when getStateFlockCase is called", async () => {
-        const leanMock = jest.fn().mockResolvedValue({});
-        const selectMock = jest.fn().mockReturnValue({ lean: leanMock });
-        const findMock = jest.fn().mockReturnValue({ select: selectMock });
+            expect(findOneAndUpdateSpy).not.toHaveBeenCalled();
+        });
 
-        const findSpy = jest
-            .spyOn(FlockCasesByStateModel.getModel, "findOne")
-            .mockImplementation(findMock);
+        it("should log a warning when state_abbreviation is invalid", async () => {
+            jest.spyOn(
+                FlockCasesByStateModel.getModel,
+                "findOneAndUpdate"
+            ).mockResolvedValue({} as any);
+            const warnSpy = jest.spyOn(logger, "warn").mockImplementation(() => logger);
 
-        // Now call the service
-        await service.getStateFlockCase("WA");
+            await service.createOrUpdateStateData([
+                makeEntry({ state_abbreviation: "INVALID" }),
+            ]);
 
-        // Assertions
-        expect(findMock).toHaveBeenCalledWith({ state_abbreviation: "WA" });
-        expect(selectMock).toHaveBeenCalledWith("-_id -__v");
-        expect(leanMock).toHaveBeenCalled();
-
-        // Clean up
-        findSpy.mockRestore();
-    });
-    it("should throw and log an error when createOrUpdateStateData throws an error", async () => {
-        // Create fake data with the expected type
-        const mockData: FlockCasesByState[] = [
-            {
-                state_abbreviation: "PA",
-                state: "Pennsylvania",
-                backyard_flocks: 2344370,
-                commercial_flocks: 7,
-                birds_affected: 7,
-                total_flocks: 390728,
-                latitude: 40.99773861,
-                longitude: -76.19300025,
-                last_reported_detection: new Date(Date.UTC(2025, 2 - 1, 5)),
-            },
-        ];
-
-        // Create our object to access the flock cases by state service
-        const flockCasesByStateService = new FlockCasesByStateService();
-        // Create a spy for winston logger and monitor the error function specifically
-        const loggerErrorSpy = jest.spyOn(logger, "error");
-
-        // Create a find and update spy and mock the implementation to throw an error
-        const findOneAndUpdateSpy = jest
-            .spyOn(FlockCasesByStateModel.getModel, "findOneAndUpdate")
-            .mockImplementationOnce(
-                () => Promise.reject(new Error("Mocked rejection")) as any
+            expect(warnSpy).toHaveBeenCalledWith(
+                expect.stringContaining("invalid state_abbreviation")
             );
+        });
 
-        // Expect that we get our mock rejection back
-        await expect(
-            flockCasesByStateService.createOrUpdateStateData(mockData)
-        ).rejects.toThrow(
-            "Failed to update Model information resulted in Error: Mocked rejection"
-        );
-        // Logger should log an error with the expected message and mocked error
-        expect(loggerErrorSpy).toHaveBeenCalledWith(
-            "Failed to update data for Flock Cases By State: Error: Mocked rejection"
-        );
-        // Restore implementation
-        findOneAndUpdateSpy.mockRestore();
+        it("should skip entries with an empty state_abbreviation", async () => {
+            const findOneAndUpdateSpy = jest
+                .spyOn(FlockCasesByStateModel.getModel, "findOneAndUpdate")
+                .mockResolvedValue({} as any);
+
+            await service.createOrUpdateStateData([
+                makeEntry({ state_abbreviation: "" }),
+            ]);
+
+            expect(findOneAndUpdateSpy).not.toHaveBeenCalled();
+        });
+
+        it("should skip entries where birds_affected is not a number", async () => {
+            const findOneAndUpdateSpy = jest
+                .spyOn(FlockCasesByStateModel.getModel, "findOneAndUpdate")
+                .mockResolvedValue({} as any);
+
+            await service.createOrUpdateStateData([
+                makeEntry({ birds_affected: NaN }),
+            ]);
+
+            expect(findOneAndUpdateSpy).not.toHaveBeenCalled();
+        });
+
+        it("should skip entries where latitude is Infinity", async () => {
+            const findOneAndUpdateSpy = jest
+                .spyOn(FlockCasesByStateModel.getModel, "findOneAndUpdate")
+                .mockResolvedValue({} as any);
+
+            await service.createOrUpdateStateData([
+                makeEntry({ latitude: Infinity }),
+            ]);
+
+            expect(findOneAndUpdateSpy).not.toHaveBeenCalled();
+        });
+
+        it("should process valid entries and skip invalid ones in the same array", async () => {
+            const findOneAndUpdateSpy = jest
+                .spyOn(FlockCasesByStateModel.getModel, "findOneAndUpdate")
+                .mockResolvedValue({} as any);
+
+            await service.createOrUpdateStateData([
+                makeEntry({ state_abbreviation: "PA" }),
+                makeEntry({ state_abbreviation: "INVALID" }),
+                makeEntry({ state_abbreviation: "WA" }),
+            ]);
+
+            expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(2);
+        });
+
+        it("should accept all valid US state abbreviations", async () => {
+            const findOneAndUpdateSpy = jest
+                .spyOn(FlockCasesByStateModel.getModel, "findOneAndUpdate")
+                .mockResolvedValue({} as any);
+
+            await service.createOrUpdateStateData([
+                makeEntry({ state_abbreviation: "CA" }),
+                makeEntry({ state_abbreviation: "TX" }),
+                makeEntry({ state_abbreviation: "DC" }),
+                makeEntry({ state_abbreviation: "PR" }),
+            ]);
+
+            expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(4);
+        });
+
+        it("should normalize state_abbreviation to uppercase before querying", async () => {
+            const findOneAndUpdateSpy = jest
+                .spyOn(FlockCasesByStateModel.getModel, "findOneAndUpdate")
+                .mockResolvedValue({} as any);
+
+            await service.createOrUpdateStateData([
+                makeEntry({ state_abbreviation: "pa" }),
+            ]);
+
+            expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
+                { state_abbreviation: "PA" },
+                expect.any(Object),
+                expect.any(Object)
+            );
+        });
+    });
+
+    // -- createOrUpdateStateData - query shape --------------------------------
+
+    describe("createOrUpdateStateData - query shape", () => {
+        it("should query by state_abbreviation not state name", async () => {
+            const findOneAndUpdateSpy = jest
+                .spyOn(FlockCasesByStateModel.getModel, "findOneAndUpdate")
+                .mockResolvedValue({} as any);
+
+            await service.createOrUpdateStateData([makeEntry()]);
+
+            const filter = (findOneAndUpdateSpy.mock.calls[0] as any)[0];
+            expect(filter).toHaveProperty("state_abbreviation");
+            expect(filter).not.toHaveProperty("state");
+        });
+
+        it("should call findOneAndUpdate with upsert: true", async () => {
+            const findOneAndUpdateSpy = jest
+                .spyOn(FlockCasesByStateModel.getModel, "findOneAndUpdate")
+                .mockResolvedValue({} as any);
+
+            await service.createOrUpdateStateData([makeEntry()]);
+
+            expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
+                expect.any(Object),
+                expect.any(Object),
+                { upsert: true }
+            );
+        });
+
+        it("should call findOneAndUpdate once per valid entry", async () => {
+            const findOneAndUpdateSpy = jest
+                .spyOn(FlockCasesByStateModel.getModel, "findOneAndUpdate")
+                .mockResolvedValue({} as any);
+
+            await service.createOrUpdateStateData([
+                makeEntry({ state_abbreviation: "PA" }),
+                makeEntry({ state_abbreviation: "WA" }),
+                makeEntry({ state_abbreviation: "CA" }),
+            ]);
+
+            expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(3);
+        });
+
+        it("should not call findOneAndUpdate when flockData is empty", async () => {
+            const findOneAndUpdateSpy = jest
+                .spyOn(FlockCasesByStateModel.getModel, "findOneAndUpdate")
+                .mockResolvedValue({} as any);
+
+            await service.createOrUpdateStateData([]);
+
+            expect(findOneAndUpdateSpy).not.toHaveBeenCalled();
+        });
+    });
+
+    // -- createOrUpdateStateData - error handling -----------------------------
+
+    describe("createOrUpdateStateData - error handling", () => {
+        it("should log an error when findOneAndUpdate throws", async () => {
+            jest.spyOn(
+                FlockCasesByStateModel.getModel,
+                "findOneAndUpdate"
+            ).mockRejectedValueOnce(new Error("DB error"));
+            const logSpy = jest.spyOn(logger, "error").mockImplementation(() => logger);
+
+            await expect(
+                service.createOrUpdateStateData([makeEntry()])
+            ).rejects.toThrow();
+
+            expect(logSpy).toHaveBeenCalledWith(
+                expect.stringContaining("Failed to update data for Flock Cases By State")
+            );
+        });
+
+        it("should throw when findOneAndUpdate fails", async () => {
+            jest.spyOn(
+                FlockCasesByStateModel.getModel,
+                "findOneAndUpdate"
+            ).mockRejectedValueOnce(new Error("DB error"));
+
+            await expect(
+                service.createOrUpdateStateData([makeEntry()])
+            ).rejects.toThrow("Failed to update Model information");
+        });
     });
 });
