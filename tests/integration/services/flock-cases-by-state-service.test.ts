@@ -53,12 +53,25 @@ describe("FlockCasesByStateService Integration", () => {
         const queryFromDB = await flockCasesByStateService.getAllFlockCases();
 
         // Expect that the findOneAndUpdate function was called with the correct parameters
+        // The service now uses $set with a sanitized entry
+        const expectedSanitizedEntry = {
+            state_abbreviation: flockData[0].state_abbreviation.toUpperCase(),
+            state: flockData[0].state,
+            backyard_flocks: flockData[0].backyard_flocks,
+            commercial_flocks: flockData[0].commercial_flocks,
+            birds_affected: flockData[0].birds_affected,
+            total_flocks: flockData[0].total_flocks,
+            latitude: flockData[0].latitude,
+            longitude: flockData[0].longitude,
+            last_reported_detection: flockData[0].last_reported_detection,
+        };
+        
         expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
             {
                 state_abbreviation:
                     flockData[0].state_abbreviation.toUpperCase(),
             },
-            flockData[0],
+            { $set: expectedSanitizedEntry },
             { upsert: true }
         );
 

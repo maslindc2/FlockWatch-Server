@@ -126,16 +126,23 @@ class FlockCasesByStateService {
                     continue;
                 }
 
+                if (!entry.state || typeof entry.state !== "string" || entry.state.length > 100) {
+                    logger.warn(`Rejected flock entry with invalid state name: "${entry.state}"`);
+                    return false;
+                }
+
                 // Use state_abbreviation as the unique key -- it is validated
                 // against a whitelist above and is never raw user input
                 const sanitizedEntry: FlockCasesByState = {
                     state_abbreviation: entry.state_abbreviation.toUpperCase(),
-                    birds_affected: entry.birds_affected,
-                    total_flocks: entry.total_flocks,
+                    state: entry.state,
                     backyard_flocks: entry.backyard_flocks,
                     commercial_flocks: entry.commercial_flocks,
+                    birds_affected: entry.birds_affected,
+                    total_flocks: entry.total_flocks,
                     latitude: entry.latitude,
                     longitude: entry.longitude,
+                    last_reported_detection: entry.last_reported_detection,
                 };
 
                 await FlockCasesByStateModel.getModel.findOneAndUpdate(
