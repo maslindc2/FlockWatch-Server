@@ -86,13 +86,22 @@ class USSummaryModel {
             throw new Error(`Invalid period_name: ${period.period_name}`);
         }
 
+        // Sanitize the period object to prevent injection attacks
+        const sanitizedPeriod: PeriodSummary = {
+            period_name: period.period_name,
+            total_birds_affected: period.total_birds_affected,
+            total_flocks_affected: period.total_flocks_affected,
+            total_backyard_flocks_affected: period.total_backyard_flocks_affected,
+            total_commercial_flocks_affected: period.total_commercial_flocks_affected,
+        };
+
         return this.getModel
             .findOneAndUpdate(
                 {
                     key: "us-summary",
-                    "period_summaries.period_name": period.period_name,
+                    "period_summaries.period_name": sanitizedPeriod.period_name,
                 },
-                { $set: { "period_summaries.$": period } }, // update existing period
+                { $set: { "period_summaries.$": sanitizedPeriod } }, // update existing period
                 { upsert: false, new: true }
             )
             .then(async (doc) => {
@@ -100,7 +109,7 @@ class USSummaryModel {
                 if (!doc) {
                     return this.getModel.findOneAndUpdate(
                         { key: "us-summary" },
-                        { $push: { period_summaries: period } },
+                        { $push: { period_summaries: sanitizedPeriod } },
                         { upsert: true, new: true }
                     );
                 }

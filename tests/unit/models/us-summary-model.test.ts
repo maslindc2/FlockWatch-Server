@@ -144,6 +144,10 @@ describe("USSummaryModel.formatPeriods", () => {
 // ---- upsertPeriodAtomic validation ------------------------------------------
 
 describe("USSummaryModel.upsertPeriodAtomic - validation", () => {
+    let findOneAndUpdateSpy: jest.SpyInstance;
+
+    afterEach(() => jest.restoreAllMocks());
+
     it("should throw for an invalid period_name without hitting the DB", async () => {
         const badPeriod = makePeriod({ period_name: "not-a-real-period" });
         await expect(
@@ -156,6 +160,33 @@ describe("USSummaryModel.upsertPeriodAtomic - validation", () => {
         await expect(
             USSummaryModel.upsertPeriodAtomic(badPeriod)
         ).rejects.toBeInstanceOf(Error);
+    });
+
+    it("should sanitize the period object by stripping extra fields", async () => {
+        const periodWithExtraFields = {
+            ...makePeriod(),
+            malicious_field: "injected",
+            __proto__: { polluted: true },
+        } as any;
+
+        findOneAndUpdateSpy = jest
+            .spyOn(USSummaryModel.getModel, "findOneAndUpdate")
+            .mockResolvedValue({ key: "us-summary" } as any);
+
+        await USSummaryModel.upsertPeriodAtomic(periodWithExtraFields);
+
+        // Verify the sanitized period (without extra fields) was passed to DB
+        expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
+            expect.any(Object),
+            {
+                $set: {
+                    "period_summaries.$": expect.not.objectContaining({
+                        malicious_field: "injected",
+                    }),
+                },
+            },
+            expect.any(Object)
+        );
     });
 });
 
