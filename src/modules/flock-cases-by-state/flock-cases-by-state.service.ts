@@ -128,12 +128,21 @@ class FlockCasesByStateService {
 
                 // Use state_abbreviation as the unique key -- it is validated
                 // against a whitelist above and is never raw user input
+                const sanitizedEntry: FlockCasesByState = {
+                    state_abbreviation: entry.state_abbreviation.toUpperCase(),
+                    birds_affected: entry.birds_affected,
+                    total_flocks: entry.total_flocks,
+                    backyard_flocks: entry.backyard_flocks,
+                    commercial_flocks: entry.commercial_flocks,
+                    latitude: entry.latitude,
+                    longitude: entry.longitude,
+                };
+
                 await FlockCasesByStateModel.getModel.findOneAndUpdate(
                     {
-                        state_abbreviation:
-                            entry.state_abbreviation.toUpperCase(),
+                        state_abbreviation: sanitizedEntry.state_abbreviation,
                     },
-                    entry,
+                    { $set: sanitizedEntry },
                     { upsert: true }
                 );
             }
