@@ -126,8 +126,14 @@ class FlockCasesByStateService {
                     continue;
                 }
 
-                if (!entry.state || typeof entry.state !== "string" || entry.state.length > 100) {
-                    logger.warn(`Rejected flock entry with invalid state name: "${entry.state}"`);
+                if (
+                    !entry.state ||
+                    typeof entry.state !== "string" ||
+                    entry.state.length > 100
+                ) {
+                    logger.warn(
+                        `Rejected flock entry with invalid state name: "${entry.state}"`
+                    );
                     return false;
                 }
 

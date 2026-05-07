@@ -65,7 +65,7 @@ describe("FlockCasesByStateService Integration", () => {
             longitude: flockData[0].longitude,
             last_reported_detection: flockData[0].last_reported_detection,
         };
-        
+
         expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
             {
                 state_abbreviation:
