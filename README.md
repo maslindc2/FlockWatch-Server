@@ -53,7 +53,9 @@ npm run format
 MONGODB_URI=mongodb://user:password@localhost:27017/flockwatch
 SCRAPING_SERVICE_URL= Custom url to FlockWatch-Scraping or the default value of http://localhost:8080/scraper/process-data
 PORT=server's port number default is 5050
+AUTO_UPDATE= If set to false, scraper determines when an update is needed. If set to true, the server manages when to update.
 ```
+
 ### API Routes
 | Endpoint                                | Method | Description                              |
 | --------------------------------------- | ------ | ---------------------------------------- |

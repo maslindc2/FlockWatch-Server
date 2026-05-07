@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { DataController } from "../controllers/data-controller";
+import { DataController } from "../controllers/data.controller";
 
 const router = Router();
 const dataController = new DataController();
@@ -20,5 +20,11 @@ router.get(
 router.get("/us-summary", async (req: Request, res: Response) => {
     dataController.getUSSummary(req, res);
 });
+
+if (process.env.AUTO_UPDATE && process.env.AUTO_UPDATE === "false") {
+    router.post("/data-update", async (req: Request, res: Response) => {
+        dataController.receiveUpdatedData(req, res);
+    });
+}
 
 export default router;
