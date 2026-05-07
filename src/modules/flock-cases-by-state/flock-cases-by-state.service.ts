@@ -129,12 +129,14 @@ class FlockCasesByStateService {
                 if (
                     !entry.state ||
                     typeof entry.state !== "string" ||
-                    entry.state.length > 100
+                    entry.state.length > 13
                 ) {
-                    logger.warn(
+                    logger.error(
                         `Rejected flock entry with invalid state name: "${entry.state}"`
                     );
-                    return false;
+                    throw new Error(
+                        `Failed to update Model information due to state name: ${entry.state}`
+                    );
                 }
 
                 // Use state_abbreviation as the unique key -- it is validated
