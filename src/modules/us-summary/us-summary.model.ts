@@ -86,7 +86,11 @@ class USSummaryModel {
             throw new Error(`Invalid period_name: ${period.period_name}`);
         }
 
-        if(!period.period_name || typeof period.period_name !== "string" || period.period_name.length > 12) {
+        if (
+            !period.period_name ||
+            typeof period.period_name !== "string" ||
+            period.period_name.length > 12
+        ) {
             throw new Error(`Invalid period_name: ${period.period_name}`);
         }
 
