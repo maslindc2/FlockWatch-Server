@@ -62,6 +62,65 @@ const VALID_STATE_ABBREVIATIONS = new Set([
     "MP",
 ]);
 
+const VALID_STATE_NAMES = new Set([
+    "Alabama",
+    "Alaska",
+    "Arizona",
+    "Arkansas",
+    "California",
+    "Colorado",
+    "Connecticut",
+    "Delaware",
+    "Florida",
+    "Georgia",
+    "Hawaii",
+    "Idaho",
+    "Illinois",
+    "Indiana",
+    "Iowa",
+    "Kansas",
+    "Kentucky",
+    "Louisiana",
+    "Maine",
+    "Maryland",
+    "Massachusetts",
+    "Michigan",
+    "Minnesota",
+    "Mississippi",
+    "Missouri",
+    "Montana",
+    "Nebraska",
+    "Nevada",
+    "New Hampshire",
+    "New Jersey",
+    "New Mexico",
+    "New York",
+    "North Carolina",
+    "North Dakota",
+    "Ohio",
+    "Oklahoma",
+    "Oregon",
+    "Pennsylvania",
+    "Rhode Island",
+    "South Carolina",
+    "South Dakota",
+    "Tennessee",
+    "Texas",
+    "Utah",
+    "Vermont",
+    "Virginia",
+    "Washington",
+    "West Virginia",
+    "Wisconsin",
+    "Wyoming",
+    "District of Columbia",
+    "Puerto Rico",
+    "Guam",
+    "Virgin Islands",
+    "American Samoa",
+    "Northern Mariana Islands",
+]);
+
 class FlockCasesByStateService {
     public async getAllFlockCases() {
         return await FlockCasesByStateModel.getModel
@@ -125,11 +184,10 @@ class FlockCasesByStateService {
                 if (!this.isValidFlockEntry(entry)) {
                     continue;
                 }
-
                 if (
                     !entry.state ||
                     typeof entry.state !== "string" ||
-                    entry.state.length > 13
+                    !VALID_STATE_NAMES.has(entry.state)
                 ) {
                     logger.error(
                         `Rejected flock entry with invalid state name: "${entry.state}"`

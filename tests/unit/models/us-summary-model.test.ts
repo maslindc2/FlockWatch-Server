@@ -155,13 +155,6 @@ describe("USSummaryModel.upsertPeriodAtomic - validation", () => {
         ).rejects.toThrow("Invalid period_name: not-a-real-period");
     });
 
-    it("should throw an Error instance for an invalid period_name", async () => {
-        const badPeriod = makePeriod({ period_name: "bad" });
-        await expect(
-            USSummaryModel.upsertPeriodAtomic(badPeriod)
-        ).rejects.toBeInstanceOf(Error);
-    });
-
     it("should sanitize the period object by stripping extra fields", async () => {
         const periodWithExtraFields = {
             ...makePeriod(),

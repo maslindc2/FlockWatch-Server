@@ -30,8 +30,8 @@ class App {
     // Define the middleware that we will be using
     private middleware(): void {
         // Accepting json
-        this.app.use(express.json());
-        this.app.use(express.urlencoded({ extended: false }));
+        this.app.use(express.json({ limit: "1mb" }));
+        this.app.use(express.urlencoded({ extended: false, limit: "1mb" }));
         // Set CORS policies depending on what ENV mode we are in
         if (process.env.NODE_ENV === "development") {
             // Alert that we are in development mode for the CORS policies

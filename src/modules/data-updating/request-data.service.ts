@@ -8,11 +8,18 @@ import {
 } from "../us-summary/us-summary-stats.interface";
 import { FlockData } from "./flock-data.interface";
 import { BuildUSSummary } from "./build-us-summary.service";
+import { SiteDetails } from "../site-details/site-details.interface";
 
 interface ScraperData {
     flock_cases_by_state: FlockCasesByState[];
     period_summaries: PeriodSummary[];
+    site_details: SiteDetails[];
+    historical_summary: Omit<HistoricalSummary, "key">;
+    status_summary: Omit<StatusSummary, "key">;
 }
+
+import { HistoricalSummary } from "../historical-summary/historical-summary.interface";
+import { StatusSummary } from "../status-summary/status-summary.interface";
 
 class RequestDataService {
     private buildUSSummaryObj: BuildUSSummary;
@@ -93,10 +100,24 @@ class RequestDataService {
                 periodSummaries
             );
 
-        // Assemble it as a JS object
+        // Assemble all of the fields we received from the scraper into a FlockData object that we can use to update our database
         const latestFlockData: FlockData = {
             us_summary_stats: usSummaryStats,
             flock_cases_by_state: flockCasesByState,
+            site_details: jsonFromScraper.site_details || [],
+            historical_summary: jsonFromScraper.historical_summary || {
+                total_birds_affected_all_time: 0,
+                total_sites_all_time: 0,
+                total_active_sites: 0,
+                total_released_sites: 0,
+                total_na_sites: 0,
+                total_birds_active: 0,
+            },
+            status_summary: jsonFromScraper.status_summary || {
+                sites_confirmed_last_30_days: 0,
+                sites_released_last_30_days: 0,
+                birds_affected_last_30_days: 0,
+            },
         };
         // Return the flock data
         return latestFlockData;

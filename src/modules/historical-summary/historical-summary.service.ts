@@ -1,0 +1,42 @@
+import { HistoricalSummary } from "./historical-summary.interface";
+import { HistoricalSummaryModel } from "./historical-summary.model";
+import { logger } from "../../utils/winston-logger";
+
+class HistoricalSummaryService {
+    public async getHistoricalSummary() {
+        return HistoricalSummaryModel.getModel
+            .findOne({ key: "historical-summary" })
+            .select("-_id -__v -key")
+            .lean<Omit<HistoricalSummary, "key"> | null>();
+    }
+
+    public async upsertHistoricalSummary(
+        data: Omit<HistoricalSummary, "key">
+    ) {
+        try {
+            const sanitizedEntry = {
+                total_birds_affected_all_time:
+                    data.total_birds_affected_all_time,
+                total_sites_all_time: data.total_sites_all_time,
+                total_active_sites: data.total_active_sites,
+                total_released_sites: data.total_released_sites,
+                total_na_sites: data.total_na_sites,
+                total_birds_active: data.total_birds_active,
+            };
+
+            await HistoricalSummaryModel.getModel.findOneAndUpdate(
+                { key: "historical-summary" },
+                { $set: { key: "historical-summary", ...sanitizedEntry } },
+                { upsert: true }
+            );
+        } catch (error) {
+            logger.error(
+                `Failed to update historical summary: ${error}`
+            );
+            throw new Error(
+                `Failed to update historical summary: ${error}`
+            );
+        }
+    }
+}
+export { HistoricalSummaryService };

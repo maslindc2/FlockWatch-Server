@@ -21,6 +21,31 @@ router.get("/us-summary", async (req: Request, res: Response) => {
     dataController.getUSSummary(req, res);
 });
 
+// Get all site details
+router.get("/sites", async (req: Request, res: Response) => {
+    dataController.getAllSites(req, res);
+});
+
+// Get site details by status (e.g., "active", "na", "released")
+router.get("/sites/status/:status", async (req: Request, res: Response) => {
+    dataController.getSitesByStatus(req, res);
+});
+
+// Get site details by special ID (e.g., "Elkhart 28", "Skagit 01")
+router.get("/sites/:specialId", async (req: Request, res: Response) => {
+    dataController.getSiteById(req, res);
+});
+
+// Get historical summary
+router.get("/historical-summary", async (req: Request, res: Response) => {
+    dataController.getHistoricalSummary(req, res);
+});
+
+// Get status summary
+router.get("/status-summary", async (req: Request, res: Response) => {
+    dataController.getStatusSummary(req, res);
+});
+
 if (process.env.AUTO_UPDATE && process.env.AUTO_UPDATE === "false") {
     router.post("/data-update", async (req: Request, res: Response) => {
         dataController.receiveUpdatedData(req, res);

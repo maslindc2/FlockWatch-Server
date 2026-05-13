@@ -86,14 +86,6 @@ class USSummaryModel {
             throw new Error(`Invalid period_name: ${period.period_name}`);
         }
 
-        if (
-            !period.period_name ||
-            typeof period.period_name !== "string" ||
-            period.period_name.length > 12
-        ) {
-            throw new Error(`Invalid period_name: ${period.period_name}`);
-        }
-
         // Sanitize the period object to prevent injection attacks
         const sanitizedPeriod: PeriodSummary = {
             period_name: period.period_name,

@@ -3,6 +3,9 @@ import { logger } from "../utils/winston-logger";
 import { Request, Response } from "express";
 import { FlockCasesByStateService } from "../modules/flock-cases-by-state/flock-cases-by-state.service";
 import { LastReportDateService } from "../modules/last-report-date/last-report-date.service";
+import { SiteDetailsService } from "../modules/site-details/site-details.service";
+import { HistoricalSummaryService } from "../modules/historical-summary/historical-summary.service";
+import { StatusSummaryService } from "../modules/status-summary/status-summary.service";
 import { FlockDataUpdateService } from "../modules/data-updating/flock-data-update.service";
 import { BuildUSSummary } from "../modules/data-updating/build-us-summary.service";
 import { FlockData } from "../modules/data-updating/flock-data.interface";
@@ -14,12 +17,18 @@ class DataController {
     private flockCasesByStateService: FlockCasesByStateService;
     private lastReportDateService: LastReportDateService;
     private usSummaryService: USSummaryService;
+    private siteDetailsService: SiteDetailsService;
+    private historicalSummaryService: HistoricalSummaryService;
+    private statusSummaryService: StatusSummaryService;
 
     // Create the service instances that Data Controller will use
     constructor() {
         this.flockCasesByStateService = new FlockCasesByStateService();
         this.lastReportDateService = new LastReportDateService();
         this.usSummaryService = new USSummaryService();
+        this.siteDetailsService = new SiteDetailsService();
+        this.historicalSummaryService = new HistoricalSummaryService();
+        this.statusSummaryService = new StatusSummaryService();
     }
     /**
      * Get all Avian Influenza cases in the United States
@@ -105,11 +114,115 @@ class DataController {
             });
         }
     }
+
     /**
-     *
-     * @param req
-     * @param res
+     * Get all site details
+     * @param req Clients request that we received
+     * @param res Response that we will use to send back data retrieved from MongoDB
      */
+    public async getAllSites(req: Request, res: Response) {
+        try {
+            // Retrieve all Sites (farms) that have been affected by Avian Influenza from the database
+            const sites = await this.siteDetailsService.getAllSiteDetails();
+            logger.http(`Received Request at Get All Sites: ${req.url}`);
+            // Send the retrieved site details back to the client that requested it
+            res.json({ data: sites });
+        } catch (error) {
+            logger.error("Error fetching site details:", error);
+            res.status(500).json({ error: "Failed to fetch site details" });
+        }
+    }
+
+    /**
+     * Get a single site detail by special ID
+     * @param req Clients request that we received with the special ID
+     * @param res Response that we will use to send back data retrieved from MongoDB
+     */
+    public async getSiteById(req: Request, res: Response) {
+        const specialId = req.params.specialId;
+        try {
+            const site = await this.siteDetailsService.getSiteDetailById(
+                specialId
+            );
+            if (!site) {
+                return res.status(404).json({ message: "Site not found" });
+            }
+            logger.http(`Received Request at Get Site By ID: ${req.url}`);
+            res.json({ data: site });
+        } catch (error) {
+            logger.error(
+                `Error fetching site by ID ${specialId}:`,
+                error
+            );
+            res.status(500).json({ error: "Failed to fetch site details" });
+        }
+    }
+
+    /**
+     * Get site details by status (active, released, na)
+     * @param req Clients request that we received with the status parameter
+     * @param res Response that we will use to send back data retrieved from MongoDB
+     */
+    public async getSitesByStatus(req: Request, res: Response) {
+        const status = req.params.status;
+        try {
+            const sites = await this.siteDetailsService.getSitesByStatus(
+                status
+            );
+            logger.http(`Received Request at Get Sites By Status: ${req.url}`);
+            res.json({ data: sites });
+        } catch (error) {
+            logger.error(
+                `Error fetching sites by status ${status}:`,
+                error
+            );
+            res.status(500).json({ error: "Failed to fetch site details" });
+        }
+    }
+
+    /**
+     * Get the historical summary
+     * @param req Clients request that we received
+     * @param res Response that we will use to send back data retrieved from MongoDB
+     */
+    public async getHistoricalSummary(req: Request, res: Response) {
+        try {
+            const historicalSummary =
+                await this.historicalSummaryService.getHistoricalSummary();
+            if (!historicalSummary) {
+                return res.status(404).json({ message: "No historical summary found" });
+            }
+            logger.http(
+                `Received Request at Historical Summary: ${req.url}`
+            );
+            res.json({ data: historicalSummary });
+        } catch (error) {
+            logger.error(`Error fetching historical summary: ${error}`);
+            res.status(500).json({ error: "Failed to fetch historical summary" });
+        }
+    }
+
+    /**
+     * Get the status summary
+     * @param req Clients request that we received
+     * @param res Response that we will use to send back data retrieved from MongoDB
+     */
+    public async getStatusSummary(req: Request, res: Response) {
+        try {
+            const statusSummary =
+                await this.statusSummaryService.getStatusSummary();
+            if (!statusSummary) {
+                return res.status(404).json({ message: "No status summary found" });
+            }
+            logger.http(`Received Request at Status Summary: ${req.url}`);
+            res.json({ data: statusSummary });
+        } catch (error) {
+            logger.error(`Error fetching status summary: ${error}`);
+            res.status(500).json({ error: "Failed to fetch status summary" });
+        }
+    }
+
+    
     public async receiveUpdatedData(req: Request, res: Response) {
         try {
             // Extract the auth header
@@ -140,13 +253,26 @@ class DataController {
                     flock_cases_by_state,
                     period_summaries
                 );
-
                 // Assemble the object we will use for updating the database
                 const dataForDB: FlockData = {
                     flock_cases_by_state: flock_cases_by_state,
                     us_summary_stats: us_summary_stats,
+                    site_details: req.body.site_details || [],
+                    historical_summary: req.body.historical_summary || {
+                        total_birds_affected_all_time: 0,
+                        total_sites_all_time: 0,
+                        total_active_sites: 0,
+                        total_released_sites: 0,
+                        total_na_sites: 0,
+                        total_birds_active: 0,
+                    },
+                    status_summary: req.body.status_summary || {
+                        sites_confirmed_last_30_days: 0,
+                        sites_released_last_30_days: 0,
+                        birds_affected_last_30_days: 0,
+                    },
                 };
-                // Send our assembled data and apply the update
+                // Update the database using the new data we received from the scraper system
                 await fwUpdateService.applyUpdate(dataForDB);
             } else {
                 logger.error(

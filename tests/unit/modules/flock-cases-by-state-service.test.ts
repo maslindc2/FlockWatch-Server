@@ -131,6 +131,55 @@ describe("FlockCasesByStateService", () => {
             expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(4);
         });
 
+        it("should throw when state name is empty string", async () => {
+            const findOneAndUpdateSpy = jest
+                .spyOn(FlockCasesByStateModel.getModel, "findOneAndUpdate")
+                .mockResolvedValue({} as any);
+
+            await expect(
+                service.createOrUpdateStateData([
+                    makeEntry({ state: "" }),
+                ])
+            ).rejects.toThrow("Failed to update Model information due to state name");
+
+            expect(findOneAndUpdateSpy).not.toHaveBeenCalled();
+        });
+
+        it("should throw when state name is not in VALID_STATE_NAMES", async () => {
+            const findOneAndUpdateSpy = jest
+                .spyOn(FlockCasesByStateModel.getModel, "findOneAndUpdate")
+                .mockResolvedValue({} as any);
+
+            await expect(
+                service.createOrUpdateStateData([
+                    makeEntry({ state: "Pensylvania" }),
+                ])
+            ).rejects.toThrow("Failed to update Model information due to state name");
+
+            expect(findOneAndUpdateSpy).not.toHaveBeenCalled();
+        });
+
+        it("should log an error when state name is invalid", async () => {
+            const errorSpy = jest
+                .spyOn(logger, "error")
+                .mockImplementation(() => logger);
+
+            jest.spyOn(
+                FlockCasesByStateModel.getModel,
+                "findOneAndUpdate"
+            ).mockResolvedValue({} as any);
+
+            await expect(
+                service.createOrUpdateStateData([
+                    makeEntry({ state: "" }),
+                ])
+            ).rejects.toThrow();
+
+            expect(errorSpy).toHaveBeenCalledWith(
+                expect.stringContaining("invalid state name")
+            );
+        });
+
         it("should normalize state_abbreviation to uppercase before querying", async () => {
             const findOneAndUpdateSpy = jest
                 .spyOn(FlockCasesByStateModel.getModel, "findOneAndUpdate")
