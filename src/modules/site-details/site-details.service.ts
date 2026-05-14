@@ -85,12 +85,8 @@ class SiteDetailsService {
                 );
             }
         } catch (error) {
-            logger.error(
-                `Failed to update site details: ${error}`
-            );
-            throw new Error(
-                `Failed to update site details: ${error}`
-            );
+            logger.error(`Failed to update site details: ${error}`);
+            throw new Error(`Failed to update site details: ${error}`);
         }
     }
 }

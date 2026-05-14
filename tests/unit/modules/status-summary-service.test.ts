@@ -5,9 +5,7 @@ import { logger } from "../../../src/utils/winston-logger";
 
 // ---- Factories --------------------------------------------------------------
 
-const makeEntry = (
-    overrides: Partial<StatusSummary> = {}
-): StatusSummary => ({
+const makeEntry = (overrides: Partial<StatusSummary> = {}): StatusSummary => ({
     key: "status-summary",
     sites_confirmed_last_30_days: 10,
     sites_released_last_30_days: 5,

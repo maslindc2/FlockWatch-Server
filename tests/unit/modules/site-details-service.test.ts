@@ -5,9 +5,7 @@ import { logger } from "../../../src/utils/winston-logger";
 
 // ---- Factories --------------------------------------------------------------
 
-const makeEntry = (
-    overrides: Partial<SiteDetails> = {}
-): SiteDetails => ({
+const makeEntry = (overrides: Partial<SiteDetails> = {}): SiteDetails => ({
     special_id: "Elkhart 28",
     county: "Elkhart",
     state: "Indiana",
@@ -164,9 +162,7 @@ describe("SiteDetailsService", () => {
                 .spyOn(SiteDetailsModel.getModel, "findOneAndUpdate")
                 .mockResolvedValue({} as any);
 
-            await service.upsertSiteDetails([
-                makeEntry({ special_id: "" }),
-            ]);
+            await service.upsertSiteDetails([makeEntry({ special_id: "" })]);
 
             expect(findOneAndUpdateSpy).not.toHaveBeenCalled();
         });
@@ -193,9 +189,7 @@ describe("SiteDetailsService", () => {
                 "findOneAndUpdate"
             ).mockResolvedValue({} as any);
 
-            await service.upsertSiteDetails([
-                makeEntry({ special_id: "" }),
-            ]);
+            await service.upsertSiteDetails([makeEntry({ special_id: "" })]);
 
             expect(warnSpy).toHaveBeenCalledWith(
                 expect.stringContaining("invalid special_id")
@@ -262,9 +256,7 @@ describe("SiteDetailsService", () => {
                 .spyOn(SiteDetailsModel.getModel, "findOneAndUpdate")
                 .mockResolvedValue({} as any);
 
-            await service.upsertSiteDetails([
-                makeEntry({ status: "" }),
-            ]);
+            await service.upsertSiteDetails([makeEntry({ status: "" })]);
 
             expect(findOneAndUpdateSpy).not.toHaveBeenCalled();
         });
@@ -279,9 +271,7 @@ describe("SiteDetailsService", () => {
                 "findOneAndUpdate"
             ).mockResolvedValue({} as any);
 
-            await service.upsertSiteDetails([
-                makeEntry({ status: "bogus" }),
-            ]);
+            await service.upsertSiteDetails([makeEntry({ status: "bogus" })]);
 
             expect(warnSpy).toHaveBeenCalledWith(
                 expect.stringContaining("invalid status")
@@ -293,9 +283,7 @@ describe("SiteDetailsService", () => {
                 .spyOn(SiteDetailsModel.getModel, "findOneAndUpdate")
                 .mockResolvedValue({} as any);
 
-            await service.upsertSiteDetails([
-                makeEntry({ status: "ACTIVE" }),
-            ]);
+            await service.upsertSiteDetails([makeEntry({ status: "ACTIVE" })]);
 
             expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(1);
         });
@@ -351,9 +339,7 @@ describe("SiteDetailsService", () => {
                 .spyOn(SiteDetailsModel.getModel, "findOneAndUpdate")
                 .mockResolvedValue({} as any);
 
-            await service.upsertSiteDetails([
-                makeEntry({ status: "ACTIVE" }),
-            ]);
+            await service.upsertSiteDetails([makeEntry({ status: "ACTIVE" })]);
 
             const update = (findOneAndUpdateSpy.mock.calls[0] as any)[1];
             expect(update.$set.status).toBe("active");

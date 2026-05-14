@@ -1,4 +1,5 @@
 import { Router, Request, Response } from "express";
+import rateLimit from "express-rate-limit";
 import { DataController } from "../controllers/data.controller";
 
 const router = Router();
@@ -46,10 +47,22 @@ router.get("/status-summary", async (req: Request, res: Response) => {
     dataController.getStatusSummary(req, res);
 });
 
+const dataUpdateLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 5,
+    message: { error: "Too many requests, please try again later" },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
 if (process.env.AUTO_UPDATE && process.env.AUTO_UPDATE === "false") {
-    router.post("/data-update", async (req: Request, res: Response) => {
-        dataController.receiveUpdatedData(req, res);
-    });
+    router.post(
+        "/data-update",
+        dataUpdateLimiter,
+        async (req: Request, res: Response) => {
+            dataController.receiveUpdatedData(req, res);
+        }
+    );
 }
 
 export default router;

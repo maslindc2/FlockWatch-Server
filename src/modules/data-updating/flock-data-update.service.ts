@@ -55,9 +55,7 @@ class FlockDataUpdateService {
         }
 
         try {
-            await this.siteDetailsService.upsertSiteDetails(
-                data.site_details
-            );
+            await this.siteDetailsService.upsertSiteDetails(data.site_details);
             logger.info("Finished updating site details in the database!");
         } catch (error) {
             logger.error("Failed updating site details", error);
@@ -68,7 +66,9 @@ class FlockDataUpdateService {
             await this.historicalSummaryService.upsertHistoricalSummary(
                 data.historical_summary
             );
-            logger.info("Finished updating historical summary in the database!");
+            logger.info(
+                "Finished updating historical summary in the database!"
+            );
         } catch (error) {
             logger.error("Failed updating historical summary", error);
             isSuccessfulUpdate = false;

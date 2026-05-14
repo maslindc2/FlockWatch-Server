@@ -10,9 +10,7 @@ class HistoricalSummaryService {
             .lean<Omit<HistoricalSummary, "key"> | null>();
     }
 
-    public async upsertHistoricalSummary(
-        data: Omit<HistoricalSummary, "key">
-    ) {
+    public async upsertHistoricalSummary(data: Omit<HistoricalSummary, "key">) {
         try {
             const sanitizedEntry = {
                 total_birds_affected_all_time:
@@ -30,12 +28,8 @@ class HistoricalSummaryService {
                 { upsert: true }
             );
         } catch (error) {
-            logger.error(
-                `Failed to update historical summary: ${error}`
-            );
-            throw new Error(
-                `Failed to update historical summary: ${error}`
-            );
+            logger.error(`Failed to update historical summary: ${error}`);
+            throw new Error(`Failed to update historical summary: ${error}`);
         }
     }
 }

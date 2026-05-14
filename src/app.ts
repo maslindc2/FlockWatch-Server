@@ -1,4 +1,5 @@
 import express, { Application, Request, Response, NextFunction } from "express";
+import helmet from "helmet";
 import serverRoutes from "./routes/server.routes";
 import { logger } from "./utils/winston-logger";
 import { LastReportDateService } from "./modules/last-report-date/last-report-date.service";
@@ -29,6 +30,8 @@ class App {
 
     // Define the middleware that we will be using
     private middleware(): void {
+        // Security headers
+        this.app.use(helmet());
         // Accepting json
         this.app.use(express.json({ limit: "1mb" }));
         this.app.use(express.urlencoded({ extended: false, limit: "1mb" }));

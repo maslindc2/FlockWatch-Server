@@ -443,7 +443,7 @@ describe("DataController", () => {
             );
         });
 
-        it("should include the received auth ID in the error log", async () => {
+        it("should log an error when the auth ID is invalid", async () => {
             const logSpy = jest
                 .spyOn(logger, "error")
                 .mockImplementation(() => logger);
@@ -452,7 +452,7 @@ describe("DataController", () => {
             await controller.receiveUpdatedData(req, res);
 
             expect(logSpy).toHaveBeenCalledWith(
-                expect.stringContaining("bad-token")
+                expect.stringContaining("Invalid Auth ID received")
             );
         });
 

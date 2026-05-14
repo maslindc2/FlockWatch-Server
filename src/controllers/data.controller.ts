@@ -56,6 +56,12 @@ class DataController {
     public async getStateFlockCase(req: Request, res: Response) {
         const requestedState = req.params.stateAbbreviation;
         try {
+            if (!requestedState || !/^[A-Za-z]{2}$/.test(requestedState)) {
+                res.status(400).json({
+                    error: "Invalid state abbreviation format",
+                });
+                return;
+            }
             const stateFlockCases =
                 await this.flockCasesByStateService.getStateFlockCase(
                     requestedState
@@ -141,19 +147,19 @@ class DataController {
     public async getSiteById(req: Request, res: Response) {
         const specialId = req.params.specialId;
         try {
-            const site = await this.siteDetailsService.getSiteDetailById(
-                specialId
-            );
+            if (!specialId || specialId.trim().length === 0) {
+                res.status(400).json({ error: "Invalid special ID" });
+                return;
+            }
+            const site =
+                await this.siteDetailsService.getSiteDetailById(specialId);
             if (!site) {
                 return res.status(404).json({ message: "Site not found" });
             }
             logger.http(`Received Request at Get Site By ID: ${req.url}`);
             res.json({ data: site });
         } catch (error) {
-            logger.error(
-                `Error fetching site by ID ${specialId}:`,
-                error
-            );
+            logger.error(`Error fetching site by ID ${specialId}:`, error);
             res.status(500).json({ error: "Failed to fetch site details" });
         }
     }
@@ -166,16 +172,19 @@ class DataController {
     public async getSitesByStatus(req: Request, res: Response) {
         const status = req.params.status;
         try {
-            const sites = await this.siteDetailsService.getSitesByStatus(
-                status
-            );
+            const validStatuses = ["active", "released", "na"];
+            if (!status || !validStatuses.includes(status.toLowerCase())) {
+                res.status(400).json({
+                    error: `Invalid status. Valid values: ${validStatuses.join(", ")}`,
+                });
+                return;
+            }
+            const sites =
+                await this.siteDetailsService.getSitesByStatus(status);
             logger.http(`Received Request at Get Sites By Status: ${req.url}`);
             res.json({ data: sites });
         } catch (error) {
-            logger.error(
-                `Error fetching sites by status ${status}:`,
-                error
-            );
+            logger.error(`Error fetching sites by status ${status}:`, error);
             res.status(500).json({ error: "Failed to fetch site details" });
         }
     }
@@ -190,15 +199,17 @@ class DataController {
             const historicalSummary =
                 await this.historicalSummaryService.getHistoricalSummary();
             if (!historicalSummary) {
-                return res.status(404).json({ message: "No historical summary found" });
+                return res
+                    .status(404)
+                    .json({ message: "No historical summary found" });
             }
-            logger.http(
-                `Received Request at Historical Summary: ${req.url}`
-            );
+            logger.http(`Received Request at Historical Summary: ${req.url}`);
             res.json({ data: historicalSummary });
         } catch (error) {
             logger.error(`Error fetching historical summary: ${error}`);
-            res.status(500).json({ error: "Failed to fetch historical summary" });
+            res.status(500).json({
+                error: "Failed to fetch historical summary",
+            });
         }
     }
 
@@ -212,7 +223,9 @@ class DataController {
             const statusSummary =
                 await this.statusSummaryService.getStatusSummary();
             if (!statusSummary) {
-                return res.status(404).json({ message: "No status summary found" });
+                return res
+                    .status(404)
+                    .json({ message: "No status summary found" });
             }
             logger.http(`Received Request at Status Summary: ${req.url}`);
             res.json({ data: statusSummary });
@@ -222,7 +235,6 @@ class DataController {
         }
     }
 
-    
     public async receiveUpdatedData(req: Request, res: Response) {
         try {
             // Extract the auth header
@@ -275,10 +287,9 @@ class DataController {
                 // Update the database using the new data we received from the scraper system
                 await fwUpdateService.applyUpdate(dataForDB);
             } else {
-                logger.error(
-                    `Invalid Auth ID from IP ${req.ip}, who sent the auth ID ${receivedAuthID}!`
-                );
+                logger.error(`Invalid Auth ID received!`);
                 res.sendStatus(403);
+                return;
             }
             res.sendStatus(200);
         } catch (error) {

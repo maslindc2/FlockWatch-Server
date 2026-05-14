@@ -10,13 +10,10 @@ class StatusSummaryService {
             .lean<Omit<StatusSummary, "key"> | null>();
     }
 
-    public async upsertStatusSummary(
-        data: Omit<StatusSummary, "key">
-    ) {
+    public async upsertStatusSummary(data: Omit<StatusSummary, "key">) {
         try {
             const sanitizedEntry = {
-                sites_confirmed_last_30_days:
-                    data.sites_confirmed_last_30_days,
+                sites_confirmed_last_30_days: data.sites_confirmed_last_30_days,
                 sites_released_last_30_days: data.sites_released_last_30_days,
                 birds_affected_last_30_days: data.birds_affected_last_30_days,
             };
@@ -27,12 +24,8 @@ class StatusSummaryService {
                 { upsert: true }
             );
         } catch (error) {
-            logger.error(
-                `Failed to update status summary: ${error}`
-            );
-            throw new Error(
-                `Failed to update status summary: ${error}`
-            );
+            logger.error(`Failed to update status summary: ${error}`);
+            throw new Error(`Failed to update status summary: ${error}`);
         }
     }
 }

@@ -137,10 +137,10 @@ describe("FlockCasesByStateService", () => {
                 .mockResolvedValue({} as any);
 
             await expect(
-                service.createOrUpdateStateData([
-                    makeEntry({ state: "" }),
-                ])
-            ).rejects.toThrow("Failed to update Model information due to state name");
+                service.createOrUpdateStateData([makeEntry({ state: "" })])
+            ).rejects.toThrow(
+                "Failed to update Model information due to state name"
+            );
 
             expect(findOneAndUpdateSpy).not.toHaveBeenCalled();
         });
@@ -154,7 +154,9 @@ describe("FlockCasesByStateService", () => {
                 service.createOrUpdateStateData([
                     makeEntry({ state: "Pensylvania" }),
                 ])
-            ).rejects.toThrow("Failed to update Model information due to state name");
+            ).rejects.toThrow(
+                "Failed to update Model information due to state name"
+            );
 
             expect(findOneAndUpdateSpy).not.toHaveBeenCalled();
         });
@@ -170,9 +172,7 @@ describe("FlockCasesByStateService", () => {
             ).mockResolvedValue({} as any);
 
             await expect(
-                service.createOrUpdateStateData([
-                    makeEntry({ state: "" }),
-                ])
+                service.createOrUpdateStateData([makeEntry({ state: "" })])
             ).rejects.toThrow();
 
             expect(errorSpy).toHaveBeenCalledWith(
