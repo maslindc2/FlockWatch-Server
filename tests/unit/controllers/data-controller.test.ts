@@ -1,5 +1,6 @@
 import { DataController } from "../../../src/controllers/data.controller";
 import { FlockCasesByStateService } from "../../../src/modules/flock-cases-by-state/flock-cases-by-state.service";
+import { SiteDetailsService } from "../../../src/modules/site-details/site-details.service";
 import { LastReportDateService } from "../../../src/modules/last-report-date/last-report-date.service";
 import { USSummaryService } from "../../../src/modules/us-summary/us-summary.service";
 import { FlockDataUpdateService } from "../../../src/modules/data-updating/flock-data-update.service";
@@ -198,6 +199,239 @@ describe("DataController", () => {
 
             expect(res.json).toHaveBeenCalledWith({
                 error: '"Failed to fetch requested state WA"',
+            });
+        });
+    });
+
+    // -- getAllSites -----------------------------------------------------------
+
+    describe("getAllSites", () => {
+        const paginatedResult = {
+            data: [],
+            total: 0,
+            page: 1,
+            limit: 100,
+            totalPages: 0,
+        };
+
+        it("should call getAllSiteDetailsPaginated with default page=1 limit=100", async () => {
+            const serviceSpy = jest
+                .spyOn(
+                    SiteDetailsService.prototype,
+                    "getAllSiteDetailsPaginated"
+                )
+                .mockResolvedValueOnce(paginatedResult);
+            req = mockRequest({ url: "/sites", query: {} });
+
+            await controller.getAllSites(req, res);
+
+            expect(serviceSpy).toHaveBeenCalledWith(1, 100);
+        });
+
+        it("should pass page and limit from query params", async () => {
+            const serviceSpy = jest
+                .spyOn(
+                    SiteDetailsService.prototype,
+                    "getAllSiteDetailsPaginated"
+                )
+                .mockResolvedValueOnce(paginatedResult);
+            req = mockRequest({
+                url: "/sites",
+                query: { page: "2", limit: "50" },
+            });
+
+            await controller.getAllSites(req, res);
+
+            expect(serviceSpy).toHaveBeenCalledWith(2, 50);
+        });
+
+        it("should cap limit at 500", async () => {
+            const serviceSpy = jest
+                .spyOn(
+                    SiteDetailsService.prototype,
+                    "getAllSiteDetailsPaginated"
+                )
+                .mockResolvedValueOnce(paginatedResult);
+            req = mockRequest({ url: "/sites", query: { limit: "9999" } });
+
+            await controller.getAllSites(req, res);
+
+            expect(serviceSpy).toHaveBeenCalledWith(1, 500);
+        });
+
+        it("should respond with the paginated result", async () => {
+            const result = {
+                data: [{ special_id: "Elkhart 28", birds_affected: 100 }],
+                total: 1,
+                page: 1,
+                limit: 100,
+                totalPages: 1,
+            };
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "getAllSiteDetailsPaginated"
+            ).mockResolvedValueOnce(result as any);
+            req = mockRequest({ url: "/sites", query: {} });
+
+            await controller.getAllSites(req, res);
+
+            expect(res.json).toHaveBeenCalledWith(result);
+        });
+
+        it("should log the request url", async () => {
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "getAllSiteDetailsPaginated"
+            ).mockResolvedValueOnce(paginatedResult);
+            const logSpy = jest
+                .spyOn(logger, "http")
+                .mockImplementation(() => logger);
+            req = mockRequest({ url: "/sites", query: {} });
+
+            await controller.getAllSites(req, res);
+
+            expect(logSpy).toHaveBeenCalledWith(
+                "Received Request at Get All Sites: /sites"
+            );
+        });
+
+        it("should return 500 when the service throws", async () => {
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "getAllSiteDetailsPaginated"
+            ).mockRejectedValueOnce(new Error("DB error"));
+            req = mockRequest({ query: {} });
+
+            await controller.getAllSites(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.json).toHaveBeenCalledWith({
+                error: "Failed to fetch site details",
+            });
+        });
+    });
+
+    // -- getSitesByStatus -----------------------------------------------------
+
+    describe("getSitesByStatus", () => {
+        const paginatedResult = {
+            data: [],
+            total: 0,
+            page: 1,
+            limit: 100,
+            totalPages: 0,
+        };
+
+        it("should call getSitesByStatusPaginated with status and default params", async () => {
+            const serviceSpy = jest
+                .spyOn(
+                    SiteDetailsService.prototype,
+                    "getSitesByStatusPaginated"
+                )
+                .mockResolvedValueOnce(paginatedResult);
+            req = mockRequest({
+                url: "/sites/status/active",
+                params: { status: "active" },
+                query: {},
+            });
+
+            await controller.getSitesByStatus(req, res);
+
+            expect(serviceSpy).toHaveBeenCalledWith("active", 1, 100);
+        });
+
+        it("should pass page and limit from query params", async () => {
+            const serviceSpy = jest
+                .spyOn(
+                    SiteDetailsService.prototype,
+                    "getSitesByStatusPaginated"
+                )
+                .mockResolvedValueOnce(paginatedResult);
+            req = mockRequest({
+                url: "/sites/status/released",
+                params: { status: "released" },
+                query: { page: "3", limit: "25" },
+            });
+
+            await controller.getSitesByStatus(req, res);
+
+            expect(serviceSpy).toHaveBeenCalledWith("released", 3, 25);
+        });
+
+        it("should return 400 for invalid status", async () => {
+            req = mockRequest({
+                url: "/sites/status/invalid",
+                params: { status: "invalid" },
+            });
+
+            await controller.getSitesByStatus(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({
+                error: "Invalid status. Valid values: active, released, na",
+            });
+        });
+
+        it("should respond with the paginated result", async () => {
+            const result = {
+                data: [{ special_id: "Elkhart 28", birds_affected: 100 }],
+                total: 1,
+                page: 1,
+                limit: 100,
+                totalPages: 1,
+            };
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "getSitesByStatusPaginated"
+            ).mockResolvedValueOnce(result as any);
+            req = mockRequest({
+                url: "/sites/status/active",
+                params: { status: "active" },
+                query: {},
+            });
+
+            await controller.getSitesByStatus(req, res);
+
+            expect(res.json).toHaveBeenCalledWith(result);
+        });
+
+        it("should log the request url", async () => {
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "getSitesByStatusPaginated"
+            ).mockResolvedValueOnce(paginatedResult);
+            const logSpy = jest
+                .spyOn(logger, "http")
+                .mockImplementation(() => logger);
+            req = mockRequest({
+                url: "/sites/status/active",
+                params: { status: "active" },
+                query: {},
+            });
+
+            await controller.getSitesByStatus(req, res);
+
+            expect(logSpy).toHaveBeenCalledWith(
+                "Received Request at Get Sites By Status: /sites/status/active"
+            );
+        });
+
+        it("should return 500 when the service throws", async () => {
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "getSitesByStatusPaginated"
+            ).mockRejectedValueOnce(new Error("DB error"));
+            req = mockRequest({
+                url: "/sites/status/active",
+                params: { status: "active" },
+                query: {},
+            });
+
+            await controller.getSitesByStatus(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.json).toHaveBeenCalledWith({
+                error: "Failed to fetch site details",
             });
         });
     });
@@ -443,7 +677,7 @@ describe("DataController", () => {
             );
         });
 
-        it("should include the received auth ID in the error log", async () => {
+        it("should log an error when the auth ID is invalid", async () => {
             const logSpy = jest
                 .spyOn(logger, "error")
                 .mockImplementation(() => logger);
@@ -452,7 +686,7 @@ describe("DataController", () => {
             await controller.receiveUpdatedData(req, res);
 
             expect(logSpy).toHaveBeenCalledWith(
-                expect.stringContaining("bad-token")
+                expect.stringContaining("Invalid Auth ID received")
             );
         });
 

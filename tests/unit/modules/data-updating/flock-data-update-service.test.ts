@@ -2,6 +2,9 @@ import { FlockDataUpdateService } from "../../../../src/modules/data-updating/fl
 import { FlockCasesByStateService } from "../../../../src/modules/flock-cases-by-state/flock-cases-by-state.service";
 import { USSummaryService } from "../../../../src/modules/us-summary/us-summary.service";
 import { LastReportDateService } from "../../../../src/modules/last-report-date/last-report-date.service";
+import { SiteDetailsService } from "../../../../src/modules/site-details/site-details.service";
+import { HistoricalSummaryService } from "../../../../src/modules/historical-summary/historical-summary.service";
+import { StatusSummaryService } from "../../../../src/modules/status-summary/status-summary.service";
 import { logger } from "../../../../src/utils/winston-logger";
 import { FlockData } from "../../../../src/modules/data-updating/flock-data.interface";
 
@@ -19,6 +22,20 @@ const makeFlockData = (overrides: Partial<FlockData> = {}): FlockData => ({
             total_commercial_flocks_affected: 0,
         },
         period_summaries: [],
+    },
+    site_details: [],
+    historical_summary: {
+        total_birds_affected_all_time: 0,
+        total_sites_all_time: 0,
+        total_active_sites: 0,
+        total_released_sites: 0,
+        total_na_sites: 0,
+        total_birds_active: 0,
+    },
+    status_summary: {
+        sites_confirmed_last_30_days: 0,
+        sites_released_last_30_days: 0,
+        birds_affected_last_30_days: 0,
     },
     ...overrides,
 });
@@ -48,6 +65,18 @@ describe("FlockDataUpdateService", () => {
                 USSummaryService.prototype,
                 "upsertUSSummary"
             ).mockResolvedValue({} as any);
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "upsertSiteDetails"
+            ).mockResolvedValue(undefined);
+            jest.spyOn(
+                HistoricalSummaryService.prototype,
+                "upsertHistoricalSummary"
+            ).mockResolvedValue(undefined);
+            jest.spyOn(
+                StatusSummaryService.prototype,
+                "upsertStatusSummary"
+            ).mockResolvedValue(undefined);
             jest.spyOn(
                 LastReportDateService.prototype,
                 "updateLastReportDate"
@@ -144,6 +173,18 @@ describe("FlockDataUpdateService", () => {
                 "upsertUSSummary"
             ).mockResolvedValue({} as any);
             jest.spyOn(
+                SiteDetailsService.prototype,
+                "upsertSiteDetails"
+            ).mockResolvedValue(undefined);
+            jest.spyOn(
+                HistoricalSummaryService.prototype,
+                "upsertHistoricalSummary"
+            ).mockResolvedValue(undefined);
+            jest.spyOn(
+                StatusSummaryService.prototype,
+                "upsertStatusSummary"
+            ).mockResolvedValue(undefined);
+            jest.spyOn(
                 LastReportDateService.prototype,
                 "updateLastReportDate"
             ).mockResolvedValue(undefined);
@@ -206,6 +247,18 @@ describe("FlockDataUpdateService", () => {
                 "upsertUSSummary"
             ).mockRejectedValue(new Error("Summary DB error"));
             jest.spyOn(
+                SiteDetailsService.prototype,
+                "upsertSiteDetails"
+            ).mockResolvedValue(undefined);
+            jest.spyOn(
+                HistoricalSummaryService.prototype,
+                "upsertHistoricalSummary"
+            ).mockResolvedValue(undefined);
+            jest.spyOn(
+                StatusSummaryService.prototype,
+                "upsertStatusSummary"
+            ).mockResolvedValue(undefined);
+            jest.spyOn(
                 LastReportDateService.prototype,
                 "updateLastReportDate"
             ).mockResolvedValue(undefined);
@@ -245,6 +298,198 @@ describe("FlockDataUpdateService", () => {
         });
     });
 
+    // -- upsertSiteDetails failure -------------------------------------------
+
+    describe("applyUpdate - upsertSiteDetails fails", () => {
+        beforeEach(() => {
+            jest.spyOn(
+                FlockCasesByStateService.prototype,
+                "createOrUpdateStateData"
+            ).mockResolvedValue({} as any);
+            jest.spyOn(
+                USSummaryService.prototype,
+                "upsertUSSummary"
+            ).mockResolvedValue({} as any);
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "upsertSiteDetails"
+            ).mockRejectedValue(new Error("Site DB error"));
+            jest.spyOn(
+                HistoricalSummaryService.prototype,
+                "upsertHistoricalSummary"
+            ).mockResolvedValue(undefined);
+            jest.spyOn(
+                StatusSummaryService.prototype,
+                "upsertStatusSummary"
+            ).mockResolvedValue(undefined);
+            jest.spyOn(
+                LastReportDateService.prototype,
+                "updateLastReportDate"
+            ).mockResolvedValue(undefined);
+        });
+
+        it("should log an error when upsertSiteDetails fails", async () => {
+            const error = new Error("Site DB error");
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "upsertSiteDetails"
+            ).mockRejectedValue(error);
+            const logSpy = jest
+                .spyOn(logger, "error")
+                .mockImplementation(() => logger);
+
+            await service.applyUpdate(makeFlockData());
+
+            expect(logSpy).toHaveBeenCalledWith(
+                "Failed updating site details",
+                error
+            );
+        });
+
+        it("should call updateLastReportDate with false when upsertSiteDetails fails", async () => {
+            const spy = jest
+                .spyOn(LastReportDateService.prototype, "updateLastReportDate")
+                .mockResolvedValue(undefined);
+
+            await service.applyUpdate(makeFlockData());
+
+            expect(spy).toHaveBeenCalledWith(false);
+        });
+
+        it("should return false when upsertSiteDetails fails", async () => {
+            const result = await service.applyUpdate(makeFlockData());
+            expect(result).toBe(false);
+        });
+    });
+
+    // -- upsertHistoricalSummary failure --------------------------------------
+
+    describe("applyUpdate - upsertHistoricalSummary fails", () => {
+        beforeEach(() => {
+            jest.spyOn(
+                FlockCasesByStateService.prototype,
+                "createOrUpdateStateData"
+            ).mockResolvedValue({} as any);
+            jest.spyOn(
+                USSummaryService.prototype,
+                "upsertUSSummary"
+            ).mockResolvedValue({} as any);
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "upsertSiteDetails"
+            ).mockResolvedValue(undefined);
+            jest.spyOn(
+                HistoricalSummaryService.prototype,
+                "upsertHistoricalSummary"
+            ).mockRejectedValue(new Error("Historical DB error"));
+            jest.spyOn(
+                StatusSummaryService.prototype,
+                "upsertStatusSummary"
+            ).mockResolvedValue(undefined);
+            jest.spyOn(
+                LastReportDateService.prototype,
+                "updateLastReportDate"
+            ).mockResolvedValue(undefined);
+        });
+
+        it("should log an error when upsertHistoricalSummary fails", async () => {
+            const error = new Error("Historical DB error");
+            jest.spyOn(
+                HistoricalSummaryService.prototype,
+                "upsertHistoricalSummary"
+            ).mockRejectedValue(error);
+            const logSpy = jest
+                .spyOn(logger, "error")
+                .mockImplementation(() => logger);
+
+            await service.applyUpdate(makeFlockData());
+
+            expect(logSpy).toHaveBeenCalledWith(
+                "Failed updating historical summary",
+                error
+            );
+        });
+
+        it("should call updateLastReportDate with false when upsertHistoricalSummary fails", async () => {
+            const spy = jest
+                .spyOn(LastReportDateService.prototype, "updateLastReportDate")
+                .mockResolvedValue(undefined);
+
+            await service.applyUpdate(makeFlockData());
+
+            expect(spy).toHaveBeenCalledWith(false);
+        });
+
+        it("should return false when upsertHistoricalSummary fails", async () => {
+            const result = await service.applyUpdate(makeFlockData());
+            expect(result).toBe(false);
+        });
+    });
+
+    // -- upsertStatusSummary failure ------------------------------------------
+
+    describe("applyUpdate - upsertStatusSummary fails", () => {
+        beforeEach(() => {
+            jest.spyOn(
+                FlockCasesByStateService.prototype,
+                "createOrUpdateStateData"
+            ).mockResolvedValue({} as any);
+            jest.spyOn(
+                USSummaryService.prototype,
+                "upsertUSSummary"
+            ).mockResolvedValue({} as any);
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "upsertSiteDetails"
+            ).mockResolvedValue(undefined);
+            jest.spyOn(
+                HistoricalSummaryService.prototype,
+                "upsertHistoricalSummary"
+            ).mockResolvedValue(undefined);
+            jest.spyOn(
+                StatusSummaryService.prototype,
+                "upsertStatusSummary"
+            ).mockRejectedValue(new Error("Status DB error"));
+            jest.spyOn(
+                LastReportDateService.prototype,
+                "updateLastReportDate"
+            ).mockResolvedValue(undefined);
+        });
+
+        it("should log an error when upsertStatusSummary fails", async () => {
+            const error = new Error("Status DB error");
+            jest.spyOn(
+                StatusSummaryService.prototype,
+                "upsertStatusSummary"
+            ).mockRejectedValue(error);
+            const logSpy = jest
+                .spyOn(logger, "error")
+                .mockImplementation(() => logger);
+
+            await service.applyUpdate(makeFlockData());
+
+            expect(logSpy).toHaveBeenCalledWith(
+                "Failed updating status summary",
+                error
+            );
+        });
+
+        it("should call updateLastReportDate with false when upsertStatusSummary fails", async () => {
+            const spy = jest
+                .spyOn(LastReportDateService.prototype, "updateLastReportDate")
+                .mockResolvedValue(undefined);
+
+            await service.applyUpdate(makeFlockData());
+
+            expect(spy).toHaveBeenCalledWith(false);
+        });
+
+        it("should return false when upsertStatusSummary fails", async () => {
+            const result = await service.applyUpdate(makeFlockData());
+            expect(result).toBe(false);
+        });
+    });
+
     // -- both services fail ---------------------------------------------------
 
     describe("applyUpdate - both services fail", () => {
@@ -257,6 +502,18 @@ describe("FlockDataUpdateService", () => {
                 USSummaryService.prototype,
                 "upsertUSSummary"
             ).mockRejectedValue(new Error("Summary DB error"));
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "upsertSiteDetails"
+            ).mockResolvedValue(undefined);
+            jest.spyOn(
+                HistoricalSummaryService.prototype,
+                "upsertHistoricalSummary"
+            ).mockResolvedValue(undefined);
+            jest.spyOn(
+                StatusSummaryService.prototype,
+                "upsertStatusSummary"
+            ).mockResolvedValue(undefined);
             jest.spyOn(
                 LastReportDateService.prototype,
                 "updateLastReportDate"
@@ -304,7 +561,7 @@ describe("FlockDataUpdateService", () => {
     // -- call order -----------------------------------------------------------
 
     describe("applyUpdate - call order", () => {
-        it("should call services in order: flock cases, us summary, last report date", async () => {
+        it("should call updateLastReportDate only after all update services complete", async () => {
             const callOrder: string[] = [];
 
             jest.spyOn(
@@ -322,6 +579,24 @@ describe("FlockDataUpdateService", () => {
                 return {} as any;
             });
             jest.spyOn(
+                SiteDetailsService.prototype,
+                "upsertSiteDetails"
+            ).mockImplementation(async () => {
+                callOrder.push("upsertSiteDetails");
+            });
+            jest.spyOn(
+                HistoricalSummaryService.prototype,
+                "upsertHistoricalSummary"
+            ).mockImplementation(async () => {
+                callOrder.push("upsertHistoricalSummary");
+            });
+            jest.spyOn(
+                StatusSummaryService.prototype,
+                "upsertStatusSummary"
+            ).mockImplementation(async () => {
+                callOrder.push("upsertStatusSummary");
+            });
+            jest.spyOn(
                 LastReportDateService.prototype,
                 "updateLastReportDate"
             ).mockImplementation(async () => {
@@ -330,11 +605,20 @@ describe("FlockDataUpdateService", () => {
 
             await service.applyUpdate(makeFlockData());
 
-            expect(callOrder).toEqual([
-                "createOrUpdateStateData",
-                "upsertUSSummary",
-                "updateLastReportDate",
-            ]);
+            // The 5 update services run in parallel, so only verify
+            // updateLastReportDate is called last
+            expect(callOrder[callOrder.length - 1]).toBe(
+                "updateLastReportDate"
+            );
+            expect(callOrder.slice(0, 5)).toEqual(
+                expect.arrayContaining([
+                    "createOrUpdateStateData",
+                    "upsertUSSummary",
+                    "upsertSiteDetails",
+                    "upsertHistoricalSummary",
+                    "upsertStatusSummary",
+                ])
+            );
         });
     });
 });

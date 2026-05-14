@@ -1,8 +1,4 @@
-import {
-    AllTimeTotals,
-    PeriodSummary,
-    USSummaryStats,
-} from "./us-summary-stats.interface";
+import { USSummaryStats } from "./us-summary-stats.interface";
 import { USSummaryModel } from "./us-summary.model";
 
 class USSummaryService {
@@ -33,35 +29,18 @@ class USSummaryService {
     }
 
     /**
-     * Updates or inserts the all-time totals.
-     */
-    public async updateAllTimeTotals(allTimeTotals: AllTimeTotals) {
-        return USSummaryModel.updateAllTimeTotals(allTimeTotals);
-    }
-
-    /**
-     * Updates or inserts a rolling period summary.
-     */
-    public async upsertPeriodSummary(period: PeriodSummary) {
-        return USSummaryModel.upsertPeriodAtomic(period);
-    }
-
-    /**
-     * A helper to bulk-update both all-time totals and periods in one call.
-     * Useful for when your scraper finishes a full run.
+     * Upserts the entire US Summary document in a single atomic operation.
+     * Sets both all_time_totals and period_summaries together.
      */
     public async upsertUSSummary(usSummaryStats: USSummaryStats) {
         const { all_time_totals, period_summaries } = usSummaryStats;
 
-        // Update all-time
-        await this.updateAllTimeTotals(all_time_totals);
+        await USSummaryModel.getModel.findOneAndUpdate(
+            { key: "us-summary" },
+            { $set: { all_time_totals, period_summaries } },
+            { upsert: true, new: true }
+        );
 
-        // Update each period
-        for (const period of period_summaries) {
-            await this.upsertPeriodSummary(period);
-        }
-
-        // Return the unified doc for convenience
         return this.getUSSummary();
     }
 }

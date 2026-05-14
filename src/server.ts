@@ -13,6 +13,15 @@ const mongoDBConnection = process.env.MONGODB_URI;
 if (!mongoDBConnection) {
     throw new Error("MONGODB_URI is not defined in the environment variables!");
 }
+process.on("uncaughtException", (error) => {
+    logger.error(`Uncaught Exception: ${error}`);
+    process.exit(1);
+});
+
+process.on("unhandledRejection", (reason) => {
+    logger.error(`Unhandled Rejection: ${reason}`);
+});
+
 // Start the App
 const server = new App().app;
 // Start listening for requests

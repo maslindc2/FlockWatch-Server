@@ -107,127 +107,42 @@ describe("USSummaryService", () => {
         });
     });
 
-    // -- updateAllTimeTotals --------------------------------------------------
-
-    describe("updateAllTimeTotals", () => {
-        it("should delegate to USSummaryModel.updateAllTimeTotals", async () => {
-            const totals = makeAllTimeTotals();
-            const modelSpy = jest
-                .spyOn(USSummaryModel, "updateAllTimeTotals")
-                .mockResolvedValue({} as any);
-
-            await service.updateAllTimeTotals(totals);
-
-            expect(modelSpy).toHaveBeenCalledTimes(1);
-            expect(modelSpy).toHaveBeenCalledWith(totals);
-        });
-
-        it("should return the result from USSummaryModel.updateAllTimeTotals", async () => {
-            const expected = makeUSSummaryStats();
-            jest.spyOn(USSummaryModel, "updateAllTimeTotals").mockResolvedValue(
-                expected as any
-            );
-
-            const result =
-                await service.updateAllTimeTotals(makeAllTimeTotals());
-            expect(result).toEqual(expected);
-        });
-    });
-
-    // -- upsertPeriodSummary --------------------------------------------------
-
-    describe("upsertPeriodSummary", () => {
-        it("should delegate to USSummaryModel.upsertPeriodAtomic", async () => {
-            const period = makePeriod();
-            const modelSpy = jest
-                .spyOn(USSummaryModel, "upsertPeriodAtomic")
-                .mockResolvedValue({} as any);
-
-            await service.upsertPeriodSummary(period);
-
-            expect(modelSpy).toHaveBeenCalledTimes(1);
-            expect(modelSpy).toHaveBeenCalledWith(period);
-        });
-
-        it("should return the result from USSummaryModel.upsertPeriodAtomic", async () => {
-            const expected = makeUSSummaryStats();
-            jest.spyOn(USSummaryModel, "upsertPeriodAtomic").mockResolvedValue(
-                expected as any
-            );
-
-            const result = await service.upsertPeriodSummary(makePeriod());
-            expect(result).toEqual(expected);
-        });
-    });
-
     // -- upsertUSSummary ------------------------------------------------------
 
     describe("upsertUSSummary", () => {
-        it("should call updateAllTimeTotals once with all_time_totals", async () => {
+        it("should perform a single findOneAndUpdate with both all_time_totals and period_summaries", async () => {
             const stats = makeUSSummaryStats();
-            const updateSpy = jest
-                .spyOn(service, "updateAllTimeTotals")
-                .mockResolvedValue({} as any);
-            jest.spyOn(service, "upsertPeriodSummary").mockResolvedValue(
-                {} as any
-            );
-            mockFindOneChain(stats);
-
-            await service.upsertUSSummary(stats);
-
-            expect(updateSpy).toHaveBeenCalledTimes(1);
-            expect(updateSpy).toHaveBeenCalledWith(stats.all_time_totals);
-        });
-
-        it("should call upsertPeriodSummary once per period", async () => {
-            const periods = [
-                makePeriod({ period_name: "last_30_days" }),
-                makePeriod({ period_name: "last_60_days" }),
-            ];
-            const stats = makeUSSummaryStats({ period_summaries: periods });
-            jest.spyOn(service, "updateAllTimeTotals").mockResolvedValue(
-                {} as any
-            );
-            const periodSpy = jest
-                .spyOn(service, "upsertPeriodSummary")
+            const findOneAndUpdateSpy = jest
+                .spyOn(USSummaryModel.getModel, "findOneAndUpdate")
                 .mockResolvedValue({} as any);
             mockFindOneChain(stats);
 
             await service.upsertUSSummary(stats);
 
-            expect(periodSpy).toHaveBeenCalledTimes(2);
-            expect(periodSpy).toHaveBeenNthCalledWith(1, periods[0]);
-            expect(periodSpy).toHaveBeenNthCalledWith(2, periods[1]);
-        });
-
-        it("should not call upsertPeriodSummary when period_summaries is empty", async () => {
-            const stats = makeUSSummaryStats({ period_summaries: [] });
-            jest.spyOn(service, "updateAllTimeTotals").mockResolvedValue(
-                {} as any
+            expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(1);
+            expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
+                { key: "us-summary" },
+                {
+                    $set: {
+                        all_time_totals: stats.all_time_totals,
+                        period_summaries: stats.period_summaries,
+                    },
+                },
+                { upsert: true, new: true }
             );
-            const periodSpy = jest
-                .spyOn(service, "upsertPeriodSummary")
-                .mockResolvedValue({} as any);
-            mockFindOneChain(stats);
-
-            await service.upsertUSSummary(stats);
-
-            expect(periodSpy).not.toHaveBeenCalled();
         });
 
-        it("should call getUSSummary after all updates and return its result", async () => {
+        it("should call getUSSummary after updating and return its result", async () => {
             const stats = makeUSSummaryStats();
             const finalDoc = makeUSSummaryStats({
                 all_time_totals: makeAllTimeTotals({
                     total_states_affected: 99,
                 }),
             });
-            jest.spyOn(service, "updateAllTimeTotals").mockResolvedValue(
-                {} as any
-            );
-            jest.spyOn(service, "upsertPeriodSummary").mockResolvedValue(
-                {} as any
-            );
+            jest.spyOn(
+                USSummaryModel.getModel,
+                "findOneAndUpdate"
+            ).mockResolvedValue({} as any);
             const getSpy = jest
                 .spyOn(service, "getUSSummary")
                 .mockResolvedValue(finalDoc);
@@ -238,24 +153,17 @@ describe("USSummaryService", () => {
             expect(result).toEqual(finalDoc);
         });
 
-        it("should call getUSSummary after all period upserts, not before", async () => {
+        it("should call getUSSummary only after the findOneAndUpdate completes", async () => {
             const callOrder: string[] = [];
-            const stats = makeUSSummaryStats({
-                period_summaries: [makePeriod()],
-            });
+            const stats = makeUSSummaryStats();
 
-            jest.spyOn(service, "updateAllTimeTotals").mockImplementation(
-                async () => {
-                    callOrder.push("updateAllTimeTotals");
-                    return {} as any;
-                }
-            );
-            jest.spyOn(service, "upsertPeriodSummary").mockImplementation(
-                async () => {
-                    callOrder.push("upsertPeriodSummary");
-                    return {} as any;
-                }
-            );
+            jest.spyOn(
+                USSummaryModel.getModel,
+                "findOneAndUpdate"
+            ).mockImplementation(async () => {
+                callOrder.push("findOneAndUpdate");
+                return {} as any;
+            });
             jest.spyOn(service, "getUSSummary").mockImplementation(async () => {
                 callOrder.push("getUSSummary");
                 return makeUSSummaryStats();
@@ -263,11 +171,7 @@ describe("USSummaryService", () => {
 
             await service.upsertUSSummary(stats);
 
-            expect(callOrder).toEqual([
-                "updateAllTimeTotals",
-                "upsertPeriodSummary",
-                "getUSSummary",
-            ]);
+            expect(callOrder).toEqual(["findOneAndUpdate", "getUSSummary"]);
         });
     });
 });

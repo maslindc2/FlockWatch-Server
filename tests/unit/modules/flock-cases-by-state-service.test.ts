@@ -37,21 +37,21 @@ describe("FlockCasesByStateService", () => {
 
     describe("createOrUpdateStateData - input validation", () => {
         it("should skip entries with an invalid state_abbreviation", async () => {
-            const findOneAndUpdateSpy = jest
-                .spyOn(FlockCasesByStateModel.getModel, "findOneAndUpdate")
+            const bulkWriteSpy = jest
+                .spyOn(FlockCasesByStateModel.getModel, "bulkWrite")
                 .mockResolvedValue({} as any);
 
             await service.createOrUpdateStateData([
                 makeEntry({ state_abbreviation: "INVALID" }),
             ]);
 
-            expect(findOneAndUpdateSpy).not.toHaveBeenCalled();
+            expect(bulkWriteSpy).not.toHaveBeenCalled();
         });
 
         it("should log a warning when state_abbreviation is invalid", async () => {
             jest.spyOn(
                 FlockCasesByStateModel.getModel,
-                "findOneAndUpdate"
+                "bulkWrite"
             ).mockResolvedValue({} as any);
             const warnSpy = jest
                 .spyOn(logger, "warn")
@@ -67,44 +67,44 @@ describe("FlockCasesByStateService", () => {
         });
 
         it("should skip entries with an empty state_abbreviation", async () => {
-            const findOneAndUpdateSpy = jest
-                .spyOn(FlockCasesByStateModel.getModel, "findOneAndUpdate")
+            const bulkWriteSpy = jest
+                .spyOn(FlockCasesByStateModel.getModel, "bulkWrite")
                 .mockResolvedValue({} as any);
 
             await service.createOrUpdateStateData([
                 makeEntry({ state_abbreviation: "" }),
             ]);
 
-            expect(findOneAndUpdateSpy).not.toHaveBeenCalled();
+            expect(bulkWriteSpy).not.toHaveBeenCalled();
         });
 
         it("should skip entries where birds_affected is not a number", async () => {
-            const findOneAndUpdateSpy = jest
-                .spyOn(FlockCasesByStateModel.getModel, "findOneAndUpdate")
+            const bulkWriteSpy = jest
+                .spyOn(FlockCasesByStateModel.getModel, "bulkWrite")
                 .mockResolvedValue({} as any);
 
             await service.createOrUpdateStateData([
                 makeEntry({ birds_affected: NaN }),
             ]);
 
-            expect(findOneAndUpdateSpy).not.toHaveBeenCalled();
+            expect(bulkWriteSpy).not.toHaveBeenCalled();
         });
 
         it("should skip entries where latitude is Infinity", async () => {
-            const findOneAndUpdateSpy = jest
-                .spyOn(FlockCasesByStateModel.getModel, "findOneAndUpdate")
+            const bulkWriteSpy = jest
+                .spyOn(FlockCasesByStateModel.getModel, "bulkWrite")
                 .mockResolvedValue({} as any);
 
             await service.createOrUpdateStateData([
                 makeEntry({ latitude: Infinity }),
             ]);
 
-            expect(findOneAndUpdateSpy).not.toHaveBeenCalled();
+            expect(bulkWriteSpy).not.toHaveBeenCalled();
         });
 
         it("should process valid entries and skip invalid ones in the same array", async () => {
-            const findOneAndUpdateSpy = jest
-                .spyOn(FlockCasesByStateModel.getModel, "findOneAndUpdate")
+            const bulkWriteSpy = jest
+                .spyOn(FlockCasesByStateModel.getModel, "bulkWrite")
                 .mockResolvedValue({} as any);
 
             await service.createOrUpdateStateData([
@@ -113,12 +113,14 @@ describe("FlockCasesByStateService", () => {
                 makeEntry({ state_abbreviation: "WA" }),
             ]);
 
-            expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(2);
+            expect(bulkWriteSpy).toHaveBeenCalledTimes(1);
+            const operations = (bulkWriteSpy.mock.calls[0] as any)[0];
+            expect(operations).toHaveLength(2);
         });
 
         it("should accept all valid US state abbreviations", async () => {
-            const findOneAndUpdateSpy = jest
-                .spyOn(FlockCasesByStateModel.getModel, "findOneAndUpdate")
+            const bulkWriteSpy = jest
+                .spyOn(FlockCasesByStateModel.getModel, "bulkWrite")
                 .mockResolvedValue({} as any);
 
             await service.createOrUpdateStateData([
@@ -128,23 +130,72 @@ describe("FlockCasesByStateService", () => {
                 makeEntry({ state_abbreviation: "PR" }),
             ]);
 
-            expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(4);
+            expect(bulkWriteSpy).toHaveBeenCalledTimes(1);
+            const operations = (bulkWriteSpy.mock.calls[0] as any)[0];
+            expect(operations).toHaveLength(4);
+        });
+
+        it("should throw when state name is empty string", async () => {
+            jest.spyOn(
+                FlockCasesByStateModel.getModel,
+                "bulkWrite"
+            ).mockResolvedValue({} as any);
+
+            await expect(
+                service.createOrUpdateStateData([makeEntry({ state: "" })])
+            ).rejects.toThrow(
+                "Failed to update Model information due to state name"
+            );
+        });
+
+        it("should throw when state name is not in VALID_STATE_NAMES", async () => {
+            jest.spyOn(
+                FlockCasesByStateModel.getModel,
+                "bulkWrite"
+            ).mockResolvedValue({} as any);
+
+            await expect(
+                service.createOrUpdateStateData([
+                    makeEntry({ state: "Pensylvania" }),
+                ])
+            ).rejects.toThrow(
+                "Failed to update Model information due to state name"
+            );
+        });
+
+        it("should log an error when state name is invalid", async () => {
+            const errorSpy = jest
+                .spyOn(logger, "error")
+                .mockImplementation(() => logger);
+
+            jest.spyOn(
+                FlockCasesByStateModel.getModel,
+                "bulkWrite"
+            ).mockResolvedValue({} as any);
+
+            await expect(
+                service.createOrUpdateStateData([makeEntry({ state: "" })])
+            ).rejects.toThrow();
+
+            expect(errorSpy).toHaveBeenCalledWith(
+                expect.stringContaining("invalid state name")
+            );
         });
 
         it("should normalize state_abbreviation to uppercase before querying", async () => {
-            const findOneAndUpdateSpy = jest
-                .spyOn(FlockCasesByStateModel.getModel, "findOneAndUpdate")
+            const bulkWriteSpy = jest
+                .spyOn(FlockCasesByStateModel.getModel, "bulkWrite")
                 .mockResolvedValue({} as any);
 
             await service.createOrUpdateStateData([
                 makeEntry({ state_abbreviation: "pa" }),
             ]);
 
-            expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
-                { state_abbreviation: "PA" },
-                expect.any(Object),
-                expect.any(Object)
-            );
+            expect(bulkWriteSpy).toHaveBeenCalledTimes(1);
+            const operations = (bulkWriteSpy.mock.calls[0] as any)[0];
+            expect(operations[0].updateOne.filter).toEqual({
+                state_abbreviation: "PA",
+            });
         });
     });
 
@@ -152,34 +203,32 @@ describe("FlockCasesByStateService", () => {
 
     describe("createOrUpdateStateData - query shape", () => {
         it("should query by state_abbreviation not state name", async () => {
-            const findOneAndUpdateSpy = jest
-                .spyOn(FlockCasesByStateModel.getModel, "findOneAndUpdate")
+            const bulkWriteSpy = jest
+                .spyOn(FlockCasesByStateModel.getModel, "bulkWrite")
                 .mockResolvedValue({} as any);
 
             await service.createOrUpdateStateData([makeEntry()]);
 
-            const filter = (findOneAndUpdateSpy.mock.calls[0] as any)[0];
+            const operations = (bulkWriteSpy.mock.calls[0] as any)[0];
+            const filter = operations[0].updateOne.filter;
             expect(filter).toHaveProperty("state_abbreviation");
             expect(filter).not.toHaveProperty("state");
         });
 
-        it("should call findOneAndUpdate with upsert: true", async () => {
-            const findOneAndUpdateSpy = jest
-                .spyOn(FlockCasesByStateModel.getModel, "findOneAndUpdate")
+        it("should call bulkWrite with upsert: true in each operation", async () => {
+            const bulkWriteSpy = jest
+                .spyOn(FlockCasesByStateModel.getModel, "bulkWrite")
                 .mockResolvedValue({} as any);
 
             await service.createOrUpdateStateData([makeEntry()]);
 
-            expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
-                expect.any(Object),
-                expect.any(Object),
-                { upsert: true }
-            );
+            const operations = (bulkWriteSpy.mock.calls[0] as any)[0];
+            expect(operations[0].updateOne.upsert).toBe(true);
         });
 
-        it("should call findOneAndUpdate once per valid entry", async () => {
-            const findOneAndUpdateSpy = jest
-                .spyOn(FlockCasesByStateModel.getModel, "findOneAndUpdate")
+        it("should batch all valid entries into a single bulkWrite call", async () => {
+            const bulkWriteSpy = jest
+                .spyOn(FlockCasesByStateModel.getModel, "bulkWrite")
                 .mockResolvedValue({} as any);
 
             await service.createOrUpdateStateData([
@@ -188,27 +237,29 @@ describe("FlockCasesByStateService", () => {
                 makeEntry({ state_abbreviation: "CA" }),
             ]);
 
-            expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(3);
+            expect(bulkWriteSpy).toHaveBeenCalledTimes(1);
+            const operations = (bulkWriteSpy.mock.calls[0] as any)[0];
+            expect(operations).toHaveLength(3);
         });
 
-        it("should not call findOneAndUpdate when flockData is empty", async () => {
-            const findOneAndUpdateSpy = jest
-                .spyOn(FlockCasesByStateModel.getModel, "findOneAndUpdate")
+        it("should not call bulkWrite when flockData is empty", async () => {
+            const bulkWriteSpy = jest
+                .spyOn(FlockCasesByStateModel.getModel, "bulkWrite")
                 .mockResolvedValue({} as any);
 
             await service.createOrUpdateStateData([]);
 
-            expect(findOneAndUpdateSpy).not.toHaveBeenCalled();
+            expect(bulkWriteSpy).not.toHaveBeenCalled();
         });
     });
 
     // -- createOrUpdateStateData - error handling -----------------------------
 
     describe("createOrUpdateStateData - error handling", () => {
-        it("should log an error when findOneAndUpdate throws", async () => {
+        it("should log an error when bulkWrite throws", async () => {
             jest.spyOn(
                 FlockCasesByStateModel.getModel,
-                "findOneAndUpdate"
+                "bulkWrite"
             ).mockRejectedValueOnce(new Error("DB error"));
             const logSpy = jest
                 .spyOn(logger, "error")
@@ -225,10 +276,10 @@ describe("FlockCasesByStateService", () => {
             );
         });
 
-        it("should throw when findOneAndUpdate fails", async () => {
+        it("should throw when bulkWrite fails", async () => {
             jest.spyOn(
                 FlockCasesByStateModel.getModel,
-                "findOneAndUpdate"
+                "bulkWrite"
             ).mockRejectedValueOnce(new Error("DB error"));
 
             await expect(

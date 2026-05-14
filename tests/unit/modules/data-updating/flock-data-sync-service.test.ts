@@ -185,6 +185,24 @@ describe("FlockDataSyncService", () => {
             expect(getAuthSpy).toHaveBeenCalledTimes(1);
         });
 
+        it("should handle null modelInfo gracefully", async () => {
+            jest.spyOn(
+                LastReportDateService.prototype,
+                "getAuthID"
+            ).mockResolvedValueOnce(null as any);
+            const fetchSpy = jest
+                .spyOn(RequestDataService.prototype, "fetchLatestFlockData")
+                .mockResolvedValueOnce(null as any);
+            jest.spyOn(
+                LastReportDateService.prototype,
+                "updateLastReportDate"
+            ).mockResolvedValueOnce(undefined);
+
+            await service.syncIfOutdated();
+
+            expect(fetchSpy).toHaveBeenCalledWith(undefined);
+        });
+
         it("should call fetchLatestFlockData with the auth ID", async () => {
             jest.spyOn(
                 LastReportDateService.prototype,
