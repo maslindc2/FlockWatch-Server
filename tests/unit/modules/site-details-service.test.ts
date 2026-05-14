@@ -154,29 +154,207 @@ describe("SiteDetailsService", () => {
         });
     });
 
+    // -- getAllSiteDetailsPaginated -------------------------------------------
+
+    describe("getAllSiteDetailsPaginated", () => {
+        const mockPaginatedQuery = (
+            resolvedData: SiteDetails[],
+            totalCount: number
+        ) => {
+            const leanMock = jest.fn().mockResolvedValue(resolvedData);
+            const limitMock = jest.fn().mockReturnValue({ lean: leanMock });
+            const skipMock = jest.fn().mockReturnValue({ limit: limitMock });
+            const selectMock = jest.fn().mockReturnValue({ skip: skipMock });
+            jest.spyOn(SiteDetailsModel.getModel, "find").mockReturnValue({
+                select: selectMock,
+            } as any);
+            jest.spyOn(
+                SiteDetailsModel.getModel,
+                "countDocuments"
+            ).mockResolvedValue(totalCount);
+            return { selectMock, skipMock, limitMock, leanMock };
+        };
+
+        it("should return paginated results with correct structure", async () => {
+            const sites = [makeEntry(), makeEntry({ special_id: "Skagit 01" })];
+            mockPaginatedQuery(sites, 50);
+
+            const result = await service.getAllSiteDetailsPaginated(2, 10);
+
+            expect(result).toEqual({
+                data: sites,
+                total: 50,
+                page: 2,
+                limit: 10,
+                totalPages: 5,
+            });
+        });
+
+        it("should calculate skip based on page and limit", async () => {
+            mockPaginatedQuery([], 100);
+            const { skipMock } = mockPaginatedQuery([], 100);
+
+            await service.getAllSiteDetailsPaginated(3, 25);
+
+            expect(skipMock).toHaveBeenCalledWith(50);
+        });
+
+        it("should apply limit correctly", async () => {
+            const { limitMock } = mockPaginatedQuery([], 100);
+
+            await service.getAllSiteDetailsPaginated(1, 50);
+
+            expect(limitMock).toHaveBeenCalledWith(50);
+        });
+
+        it("should hide _id and __v fields", async () => {
+            const { selectMock } = mockPaginatedQuery([], 0);
+
+            await service.getAllSiteDetailsPaginated(1, 100);
+
+            expect(selectMock).toHaveBeenCalledWith("-_id -__v");
+        });
+
+        it("should use default page=1 and limit=100 when not specified", async () => {
+            const { skipMock, limitMock } = mockPaginatedQuery([], 0);
+
+            await service.getAllSiteDetailsPaginated();
+
+            expect(skipMock).toHaveBeenCalledWith(0);
+            expect(limitMock).toHaveBeenCalledWith(100);
+        });
+
+        it("should return page 1 with default values when only limit is provided", async () => {
+            const { skipMock } = mockPaginatedQuery([], 50);
+
+            await service.getAllSiteDetailsPaginated(undefined, 20);
+
+            expect(skipMock).toHaveBeenCalledWith(0);
+        });
+
+        it("should return totalPages of 0 when total is 0", async () => {
+            mockPaginatedQuery([], 0);
+
+            const result = await service.getAllSiteDetailsPaginated(1, 100);
+
+            expect(result.totalPages).toBe(0);
+        });
+
+        it("should run find and countDocuments concurrently", async () => {
+            const findSpy = jest
+                .spyOn(SiteDetailsModel.getModel, "find")
+                .mockReturnValue({
+                    select: () => ({
+                        skip: () => ({
+                            limit: () => ({
+                                lean: jest.fn().mockResolvedValue([]),
+                            }),
+                        }),
+                    }),
+                } as any);
+            jest.spyOn(
+                SiteDetailsModel.getModel,
+                "countDocuments"
+            ).mockResolvedValue(0);
+
+            await service.getAllSiteDetailsPaginated(1, 100);
+
+            expect(findSpy).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    // -- getSitesByStatusPaginated ---------------------------------------------
+
+    describe("getSitesByStatusPaginated", () => {
+        const mockPaginatedQuery = (
+            resolvedData: SiteDetails[],
+            totalCount: number
+        ) => {
+            const leanMock = jest.fn().mockResolvedValue(resolvedData);
+            const limitMock = jest.fn().mockReturnValue({ lean: leanMock });
+            const skipMock = jest.fn().mockReturnValue({ limit: limitMock });
+            const selectMock = jest.fn().mockReturnValue({ skip: skipMock });
+            jest.spyOn(SiteDetailsModel.getModel, "find").mockReturnValue({
+                select: selectMock,
+            } as any);
+            jest.spyOn(
+                SiteDetailsModel.getModel,
+                "countDocuments"
+            ).mockResolvedValue(totalCount);
+            return { selectMock, skipMock, limitMock, leanMock };
+        };
+
+        it("should filter by status", async () => {
+            mockPaginatedQuery([], 0);
+
+            await service.getSitesByStatusPaginated("released", 1, 10);
+
+            expect(SiteDetailsModel.getModel.find).toHaveBeenCalledWith({
+                status: "released",
+            });
+        });
+
+        it("should normalize status to lowercase", async () => {
+            mockPaginatedQuery([], 0);
+
+            await service.getSitesByStatusPaginated("ACTIVE", 1, 10);
+
+            expect(SiteDetailsModel.getModel.find).toHaveBeenCalledWith({
+                status: "active",
+            });
+        });
+
+        it("should return paginated results with correct structure", async () => {
+            const sites = [makeEntry()];
+            mockPaginatedQuery(sites, 30);
+
+            const result = await service.getSitesByStatusPaginated(
+                "active",
+                3,
+                10
+            );
+
+            expect(result).toEqual({
+                data: sites,
+                total: 30,
+                page: 3,
+                limit: 10,
+                totalPages: 3,
+            });
+        });
+
+        it("should hide _id and __v fields", async () => {
+            const { selectMock } = mockPaginatedQuery([], 0);
+
+            await service.getSitesByStatusPaginated("active", 1, 100);
+
+            expect(selectMock).toHaveBeenCalledWith("-_id -__v");
+        });
+    });
+
     // -- upsertSiteDetails - validation ---------------------------------------
 
     describe("upsertSiteDetails - validation", () => {
         it("should skip entries with an empty special_id", async () => {
-            const findOneAndUpdateSpy = jest
-                .spyOn(SiteDetailsModel.getModel, "findOneAndUpdate")
+            const bulkWriteSpy = jest
+                .spyOn(SiteDetailsModel.getModel, "bulkWrite")
                 .mockResolvedValue({} as any);
 
             await service.upsertSiteDetails([makeEntry({ special_id: "" })]);
 
-            expect(findOneAndUpdateSpy).not.toHaveBeenCalled();
+            expect(bulkWriteSpy).not.toHaveBeenCalled();
         });
 
         it("should skip entries with a non-string special_id", async () => {
-            const findOneAndUpdateSpy = jest
-                .spyOn(SiteDetailsModel.getModel, "findOneAndUpdate")
+            const bulkWriteSpy = jest
+                .spyOn(SiteDetailsModel.getModel, "bulkWrite")
                 .mockResolvedValue({} as any);
 
             await service.upsertSiteDetails([
                 makeEntry({ special_id: undefined as any }),
             ]);
 
-            expect(findOneAndUpdateSpy).not.toHaveBeenCalled();
+            expect(bulkWriteSpy).not.toHaveBeenCalled();
         });
 
         it("should log a warning when special_id is invalid", async () => {
@@ -186,7 +364,7 @@ describe("SiteDetailsService", () => {
 
             jest.spyOn(
                 SiteDetailsModel.getModel,
-                "findOneAndUpdate"
+                "bulkWrite"
             ).mockResolvedValue({} as any);
 
             await service.upsertSiteDetails([makeEntry({ special_id: "" })]);
@@ -197,27 +375,27 @@ describe("SiteDetailsService", () => {
         });
 
         it("should skip entries with non-finite birds_affected", async () => {
-            const findOneAndUpdateSpy = jest
-                .spyOn(SiteDetailsModel.getModel, "findOneAndUpdate")
+            const bulkWriteSpy = jest
+                .spyOn(SiteDetailsModel.getModel, "bulkWrite")
                 .mockResolvedValue({} as any);
 
             await service.upsertSiteDetails([
                 makeEntry({ birds_affected: NaN }),
             ]);
 
-            expect(findOneAndUpdateSpy).not.toHaveBeenCalled();
+            expect(bulkWriteSpy).not.toHaveBeenCalled();
         });
 
         it("should skip entries with Infinity birds_affected", async () => {
-            const findOneAndUpdateSpy = jest
-                .spyOn(SiteDetailsModel.getModel, "findOneAndUpdate")
+            const bulkWriteSpy = jest
+                .spyOn(SiteDetailsModel.getModel, "bulkWrite")
                 .mockResolvedValue({} as any);
 
             await service.upsertSiteDetails([
                 makeEntry({ birds_affected: Infinity }),
             ]);
 
-            expect(findOneAndUpdateSpy).not.toHaveBeenCalled();
+            expect(bulkWriteSpy).not.toHaveBeenCalled();
         });
 
         it("should log a warning when birds_affected is invalid", async () => {
@@ -227,7 +405,7 @@ describe("SiteDetailsService", () => {
 
             jest.spyOn(
                 SiteDetailsModel.getModel,
-                "findOneAndUpdate"
+                "bulkWrite"
             ).mockResolvedValue({} as any);
 
             await service.upsertSiteDetails([
@@ -240,25 +418,25 @@ describe("SiteDetailsService", () => {
         });
 
         it("should skip entries with an invalid status", async () => {
-            const findOneAndUpdateSpy = jest
-                .spyOn(SiteDetailsModel.getModel, "findOneAndUpdate")
+            const bulkWriteSpy = jest
+                .spyOn(SiteDetailsModel.getModel, "bulkWrite")
                 .mockResolvedValue({} as any);
 
             await service.upsertSiteDetails([
                 makeEntry({ status: "invalid_status" }),
             ]);
 
-            expect(findOneAndUpdateSpy).not.toHaveBeenCalled();
+            expect(bulkWriteSpy).not.toHaveBeenCalled();
         });
 
         it("should skip entries with an empty status", async () => {
-            const findOneAndUpdateSpy = jest
-                .spyOn(SiteDetailsModel.getModel, "findOneAndUpdate")
+            const bulkWriteSpy = jest
+                .spyOn(SiteDetailsModel.getModel, "bulkWrite")
                 .mockResolvedValue({} as any);
 
             await service.upsertSiteDetails([makeEntry({ status: "" })]);
 
-            expect(findOneAndUpdateSpy).not.toHaveBeenCalled();
+            expect(bulkWriteSpy).not.toHaveBeenCalled();
         });
 
         it("should log a warning when status is invalid", async () => {
@@ -268,7 +446,7 @@ describe("SiteDetailsService", () => {
 
             jest.spyOn(
                 SiteDetailsModel.getModel,
-                "findOneAndUpdate"
+                "bulkWrite"
             ).mockResolvedValue({} as any);
 
             await service.upsertSiteDetails([makeEntry({ status: "bogus" })]);
@@ -279,18 +457,18 @@ describe("SiteDetailsService", () => {
         });
 
         it("should accept status with different casing", async () => {
-            const findOneAndUpdateSpy = jest
-                .spyOn(SiteDetailsModel.getModel, "findOneAndUpdate")
+            const bulkWriteSpy = jest
+                .spyOn(SiteDetailsModel.getModel, "bulkWrite")
                 .mockResolvedValue({} as any);
 
             await service.upsertSiteDetails([makeEntry({ status: "ACTIVE" })]);
 
-            expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(1);
+            expect(bulkWriteSpy).toHaveBeenCalledTimes(1);
         });
 
         it("should process valid entries and skip invalid ones in the same array", async () => {
-            const findOneAndUpdateSpy = jest
-                .spyOn(SiteDetailsModel.getModel, "findOneAndUpdate")
+            const bulkWriteSpy = jest
+                .spyOn(SiteDetailsModel.getModel, "bulkWrite")
                 .mockResolvedValue({} as any);
 
             await service.upsertSiteDetails([
@@ -299,7 +477,9 @@ describe("SiteDetailsService", () => {
                 makeEntry({ special_id: "Site 2" }),
             ]);
 
-            expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(2);
+            expect(bulkWriteSpy).toHaveBeenCalledTimes(1);
+            const operations = (bulkWriteSpy.mock.calls[0] as any)[0];
+            expect(operations).toHaveLength(2);
         });
     });
 
@@ -307,57 +487,53 @@ describe("SiteDetailsService", () => {
 
     describe("upsertSiteDetails - query shape", () => {
         it("should query by special_id", async () => {
-            const findOneAndUpdateSpy = jest
-                .spyOn(SiteDetailsModel.getModel, "findOneAndUpdate")
+            const bulkWriteSpy = jest
+                .spyOn(SiteDetailsModel.getModel, "bulkWrite")
                 .mockResolvedValue({} as any);
 
             await service.upsertSiteDetails([makeEntry()]);
 
-            expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
-                { special_id: "Elkhart 28" },
-                expect.any(Object),
-                expect.any(Object)
-            );
+            const operations = (bulkWriteSpy.mock.calls[0] as any)[0];
+            expect(operations[0].updateOne.filter).toEqual({
+                special_id: "Elkhart 28",
+            });
         });
 
-        it("should call findOneAndUpdate with upsert: true", async () => {
-            const findOneAndUpdateSpy = jest
-                .spyOn(SiteDetailsModel.getModel, "findOneAndUpdate")
+        it("should call bulkWrite with upsert: true in each operation", async () => {
+            const bulkWriteSpy = jest
+                .spyOn(SiteDetailsModel.getModel, "bulkWrite")
                 .mockResolvedValue({} as any);
 
             await service.upsertSiteDetails([makeEntry()]);
 
-            expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
-                expect.any(Object),
-                expect.any(Object),
-                { upsert: true }
-            );
+            const operations = (bulkWriteSpy.mock.calls[0] as any)[0];
+            expect(operations[0].updateOne.upsert).toBe(true);
         });
 
         it("should store status in lowercase", async () => {
-            const findOneAndUpdateSpy = jest
-                .spyOn(SiteDetailsModel.getModel, "findOneAndUpdate")
+            const bulkWriteSpy = jest
+                .spyOn(SiteDetailsModel.getModel, "bulkWrite")
                 .mockResolvedValue({} as any);
 
             await service.upsertSiteDetails([makeEntry({ status: "ACTIVE" })]);
 
-            const update = (findOneAndUpdateSpy.mock.calls[0] as any)[1];
-            expect(update.$set.status).toBe("active");
+            const operations = (bulkWriteSpy.mock.calls[0] as any)[0];
+            expect(operations[0].updateOne.update.$set.status).toBe("active");
         });
 
-        it("should not call findOneAndUpdate when siteData is empty", async () => {
-            const findOneAndUpdateSpy = jest
-                .spyOn(SiteDetailsModel.getModel, "findOneAndUpdate")
+        it("should not call bulkWrite when siteData is empty", async () => {
+            const bulkWriteSpy = jest
+                .spyOn(SiteDetailsModel.getModel, "bulkWrite")
                 .mockResolvedValue({} as any);
 
             await service.upsertSiteDetails([]);
 
-            expect(findOneAndUpdateSpy).not.toHaveBeenCalled();
+            expect(bulkWriteSpy).not.toHaveBeenCalled();
         });
 
-        it("should call findOneAndUpdate once per valid entry", async () => {
-            const findOneAndUpdateSpy = jest
-                .spyOn(SiteDetailsModel.getModel, "findOneAndUpdate")
+        it("should batch all valid entries into a single bulkWrite call", async () => {
+            const bulkWriteSpy = jest
+                .spyOn(SiteDetailsModel.getModel, "bulkWrite")
                 .mockResolvedValue({} as any);
 
             await service.upsertSiteDetails([
@@ -366,17 +542,19 @@ describe("SiteDetailsService", () => {
                 makeEntry({ special_id: "Site 3" }),
             ]);
 
-            expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(3);
+            expect(bulkWriteSpy).toHaveBeenCalledTimes(1);
+            const operations = (bulkWriteSpy.mock.calls[0] as any)[0];
+            expect(operations).toHaveLength(3);
         });
     });
 
     // -- upsertSiteDetails - error handling -----------------------------------
 
     describe("upsertSiteDetails - error handling", () => {
-        it("should log an error when findOneAndUpdate throws", async () => {
+        it("should log an error when bulkWrite throws", async () => {
             jest.spyOn(
                 SiteDetailsModel.getModel,
-                "findOneAndUpdate"
+                "bulkWrite"
             ).mockRejectedValueOnce(new Error("DB error"));
             const logSpy = jest
                 .spyOn(logger, "error")
@@ -391,10 +569,10 @@ describe("SiteDetailsService", () => {
             );
         });
 
-        it("should throw when findOneAndUpdate fails", async () => {
+        it("should throw when bulkWrite fails", async () => {
             jest.spyOn(
                 SiteDetailsModel.getModel,
-                "findOneAndUpdate"
+                "bulkWrite"
             ).mockRejectedValueOnce(new Error("DB error"));
 
             await expect(

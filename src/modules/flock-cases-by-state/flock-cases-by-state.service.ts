@@ -180,6 +180,8 @@ class FlockCasesByStateService {
 
     public async createOrUpdateStateData(flockData: FlockCasesByState[]) {
         try {
+            const operations = [];
+
             for (const entry of flockData) {
                 if (!this.isValidFlockEntry(entry)) {
                     continue;
@@ -197,8 +199,6 @@ class FlockCasesByStateService {
                     );
                 }
 
-                // Use state_abbreviation as the unique key -- it is validated
-                // against a whitelist above and is never raw user input
                 const sanitizedEntry: FlockCasesByState = {
                     state_abbreviation: entry.state_abbreviation.toUpperCase(),
                     state: entry.state,
@@ -211,13 +211,22 @@ class FlockCasesByStateService {
                     last_reported_detection: entry.last_reported_detection,
                 };
 
-                await FlockCasesByStateModel.getModel.findOneAndUpdate(
-                    {
-                        state_abbreviation: sanitizedEntry.state_abbreviation,
+                operations.push({
+                    updateOne: {
+                        filter: {
+                            state_abbreviation:
+                                sanitizedEntry.state_abbreviation,
+                        },
+                        update: { $set: sanitizedEntry },
+                        upsert: true,
                     },
-                    { $set: sanitizedEntry },
-                    { upsert: true }
-                );
+                });
+            }
+
+            if (operations.length > 0) {
+                await FlockCasesByStateModel.getModel.bulkWrite(operations, {
+                    ordered: false,
+                });
             }
         } catch (error) {
             logger.error(

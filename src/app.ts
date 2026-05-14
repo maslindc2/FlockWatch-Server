@@ -1,5 +1,6 @@
 import express, { Application, Request, Response, NextFunction } from "express";
 import helmet from "helmet";
+import compression from "compression";
 import serverRoutes from "./routes/server.routes";
 import { logger } from "./utils/winston-logger";
 import { LastReportDateService } from "./modules/last-report-date/last-report-date.service";
@@ -12,8 +13,6 @@ class App {
     public app: Application;
     // Stores our last report date service used for syncing the db
     private lastReportDateService: LastReportDateService;
-
-    private metadata: any;
 
     /**
      * Setting up the App instance
@@ -32,6 +31,8 @@ class App {
     private middleware(): void {
         // Security headers
         this.app.use(helmet());
+        // Compress all responses (gzip/brotli)
+        this.app.use(compression());
         // Accepting json
         this.app.use(express.json({ limit: "1mb" }));
         this.app.use(express.urlencoded({ extended: false, limit: "1mb" }));
@@ -102,9 +103,6 @@ class App {
             // Initialize the DB which will check if we starting from a fresh DB instance or not
             await this.lastReportDateService.initializeLastReportDate();
 
-            this.metadata =
-                await this.lastReportDateService.getLastScrapedDate();
-
             // If we are having the server keep track of updating the information set this variable to true
             if (
                 process.env.AUTO_UPDATE &&
@@ -117,9 +115,6 @@ class App {
                 );
                 // Call sync data to check if we are out of date and if so request new data from flock watch scraping
                 await this.syncData();
-                // Update the metadata to the latest scrape date after syncing
-                this.metadata =
-                    await this.lastReportDateService.getLastScrapedDate();
             } else {
                 logger.info(
                     "Auto Update Data is Disabled, /data/data-update route is enabled, scraper will send new info to this route"
@@ -144,12 +139,15 @@ class App {
         next: NextFunction
     ) => {
         const originalData = res.json.bind(res);
-        res.json = (body) => {
-            if (typeof body === "object" && body !== null) {
-                body.metadata = this.metadata;
-            }
-            return originalData(body);
-        };
+        res.json = ((body: any) => {
+            return (async () => {
+                if (typeof body === "object" && body !== null) {
+                    body.metadata =
+                        await this.lastReportDateService.getLastScrapedDate();
+                }
+                return originalData(body);
+            })();
+        }) as any;
         next();
     };
 

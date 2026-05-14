@@ -561,7 +561,7 @@ describe("FlockDataUpdateService", () => {
     // -- call order -----------------------------------------------------------
 
     describe("applyUpdate - call order", () => {
-        it("should call services in the correct order", async () => {
+        it("should call updateLastReportDate only after all update services complete", async () => {
             const callOrder: string[] = [];
 
             jest.spyOn(
@@ -605,14 +605,18 @@ describe("FlockDataUpdateService", () => {
 
             await service.applyUpdate(makeFlockData());
 
-            expect(callOrder).toEqual([
-                "createOrUpdateStateData",
-                "upsertUSSummary",
-                "upsertSiteDetails",
-                "upsertHistoricalSummary",
-                "upsertStatusSummary",
-                "updateLastReportDate",
-            ]);
+            // The 5 update services run in parallel, so only verify
+            // updateLastReportDate is called last
+            expect(callOrder[callOrder.length - 1]).toBe("updateLastReportDate");
+            expect(callOrder.slice(0, 5)).toEqual(
+                expect.arrayContaining([
+                    "createOrUpdateStateData",
+                    "upsertUSSummary",
+                    "upsertSiteDetails",
+                    "upsertHistoricalSummary",
+                    "upsertStatusSummary",
+                ])
+            );
         });
     });
 });

@@ -27,7 +27,6 @@ describe("FlockCasesByStateService Integration", () => {
     });
 
     it("should create a state data entry when createOrUpdateStateData is called with an array containing state data", async () => {
-        // First define the object that we want to store using the data type we are using
         const flockData: FlockCasesByState[] = [
             {
                 state_abbreviation: "PA",
@@ -41,49 +40,16 @@ describe("FlockCasesByStateService Integration", () => {
                 last_reported_detection: new Date(Date.UTC(2025, 2 - 1, 5)),
             },
         ];
-        const findOneAndUpdateSpy = jest.spyOn(
-            FlockCasesByStateModel.getModel,
-            "findOneAndUpdate"
-        );
 
-        // Call the create or update state data in our service and pass our flock data array
         await flockCasesByStateService.createOrUpdateStateData(flockData);
 
-        // Now get query the database and get all the entries in the database should be only 1 entry
         const queryFromDB = await flockCasesByStateService.getAllFlockCases();
 
-        // Expect that the findOneAndUpdate function was called with the correct parameters
-        // The service now uses $set with a sanitized entry
-        const expectedSanitizedEntry = {
-            state_abbreviation: flockData[0].state_abbreviation.toUpperCase(),
-            state: flockData[0].state,
-            backyard_flocks: flockData[0].backyard_flocks,
-            commercial_flocks: flockData[0].commercial_flocks,
-            birds_affected: flockData[0].birds_affected,
-            total_flocks: flockData[0].total_flocks,
-            latitude: flockData[0].latitude,
-            longitude: flockData[0].longitude,
-            last_reported_detection: flockData[0].last_reported_detection,
-        };
-
-        expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
-            {
-                state_abbreviation:
-                    flockData[0].state_abbreviation.toUpperCase(),
-            },
-            { $set: expectedSanitizedEntry },
-            { upsert: true }
-        );
-
-        // We should only get 1 state entry back from the database
         expect(queryFromDB.length).toBe(1);
 
-        // Since we use Mongoose we need to strip the proxied object portion from our result
-        // This is done by Stringify and then parsing.
         const stripProxiedObject = (obj: FlockCasesByState[]) =>
             JSON.parse(JSON.stringify(obj));
 
-        // Now our state data from our DB should equal our flockData that we made earlier
         expect(stripProxiedObject(queryFromDB)).toEqual(
             stripProxiedObject(flockData)
         );

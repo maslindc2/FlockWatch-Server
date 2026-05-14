@@ -122,17 +122,26 @@ class DataController {
     }
 
     /**
-     * Get all site details
-     * @param req Clients request that we received
+     * Get all site details with pagination
+     * @param req Clients request that we received (supports ?page and ?limit query params)
      * @param res Response that we will use to send back data retrieved from MongoDB
      */
     public async getAllSites(req: Request, res: Response) {
         try {
-            // Retrieve all Sites (farms) that have been affected by Avian Influenza from the database
-            const sites = await this.siteDetailsService.getAllSiteDetails();
+            const page = parseInt(req.query.page as string, 10) || 1;
+            const limit = Math.min(
+                parseInt(req.query.limit as string, 10) || 100,
+                500
+            );
+
+            const result =
+                await this.siteDetailsService.getAllSiteDetailsPaginated(
+                    page,
+                    limit
+                );
+
             logger.http(`Received Request at Get All Sites: ${req.url}`);
-            // Send the retrieved site details back to the client that requested it
-            res.json({ data: sites });
+            res.json(result);
         } catch (error) {
             logger.error("Error fetching site details:", error);
             res.status(500).json({ error: "Failed to fetch site details" });
@@ -165,8 +174,8 @@ class DataController {
     }
 
     /**
-     * Get site details by status (active, released, na)
-     * @param req Clients request that we received with the status parameter
+     * Get site details by status (active, released, na) with pagination
+     * @param req Clients request that we received with the status parameter (supports ?page and ?limit query params)
      * @param res Response that we will use to send back data retrieved from MongoDB
      */
     public async getSitesByStatus(req: Request, res: Response) {
@@ -179,10 +188,21 @@ class DataController {
                 });
                 return;
             }
-            const sites =
-                await this.siteDetailsService.getSitesByStatus(status);
+            const page = parseInt(req.query.page as string, 10) || 1;
+            const limit = Math.min(
+                parseInt(req.query.limit as string, 10) || 100,
+                500
+            );
+
+            const result =
+                await this.siteDetailsService.getSitesByStatusPaginated(
+                    status,
+                    page,
+                    limit
+                );
+
             logger.http(`Received Request at Get Sites By Status: ${req.url}`);
-            res.json({ data: sites });
+            res.json(result);
         } catch (error) {
             logger.error(`Error fetching sites by status ${status}:`, error);
             res.status(500).json({ error: "Failed to fetch site details" });

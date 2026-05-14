@@ -2,12 +2,45 @@ import { SiteDetails } from "./site-details.interface";
 import { SiteDetailsModel } from "./site-details.model";
 import { logger } from "../../utils/winston-logger";
 
+interface PaginatedResult<T> {
+    data: T[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+}
+
 class SiteDetailsService {
     public async getAllSiteDetails() {
         return SiteDetailsModel.getModel
             .find({})
             .select("-_id -__v")
             .lean<SiteDetails[]>();
+    }
+
+    public async getAllSiteDetailsPaginated(
+        page: number = 1,
+        limit: number = 100
+    ): Promise<PaginatedResult<SiteDetails>> {
+        const skip = (page - 1) * limit;
+
+        const [data, total] = await Promise.all([
+            SiteDetailsModel.getModel
+                .find({})
+                .select("-_id -__v")
+                .skip(skip)
+                .limit(limit)
+                .lean<SiteDetails[]>(),
+            SiteDetailsModel.getModel.countDocuments({}),
+        ]);
+
+        return {
+            data,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
     }
 
     public async getSiteDetailById(specialId: string) {
@@ -22,6 +55,33 @@ class SiteDetailsService {
             .find({ status })
             .select("-_id -__v")
             .lean<SiteDetails[]>();
+    }
+
+    public async getSitesByStatusPaginated(
+        status: string,
+        page: number = 1,
+        limit: number = 100
+    ): Promise<PaginatedResult<SiteDetails>> {
+        const skip = (page - 1) * limit;
+        const filter = { status: status.toLowerCase() };
+
+        const [data, total] = await Promise.all([
+            SiteDetailsModel.getModel
+                .find(filter)
+                .select("-_id -__v")
+                .skip(skip)
+                .limit(limit)
+                .lean<SiteDetails[]>(),
+            SiteDetailsModel.getModel.countDocuments(filter),
+        ]);
+
+        return {
+            data,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
     }
 
     private isValidSiteEntry(entry: SiteDetails): boolean {
@@ -63,6 +123,8 @@ class SiteDetailsService {
 
     public async upsertSiteDetails(siteData: SiteDetails[]) {
         try {
+            const operations = [];
+
             for (const entry of siteData) {
                 if (!this.isValidSiteEntry(entry)) {
                     continue;
@@ -78,11 +140,19 @@ class SiteDetailsService {
                     birds_affected: entry.birds_affected,
                 };
 
-                await SiteDetailsModel.getModel.findOneAndUpdate(
-                    { special_id: sanitizedEntry.special_id },
-                    { $set: sanitizedEntry },
-                    { upsert: true }
-                );
+                operations.push({
+                    updateOne: {
+                        filter: { special_id: sanitizedEntry.special_id },
+                        update: { $set: sanitizedEntry },
+                        upsert: true,
+                    },
+                });
+            }
+
+            if (operations.length > 0) {
+                await SiteDetailsModel.getModel.bulkWrite(operations, {
+                    ordered: false,
+                });
             }
         } catch (error) {
             logger.error(`Failed to update site details: ${error}`);
