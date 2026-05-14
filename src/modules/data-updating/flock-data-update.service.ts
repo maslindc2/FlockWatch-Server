@@ -36,7 +36,9 @@ class FlockDataUpdateService {
             this.flockCasesByStateService
                 .createOrUpdateStateData(data.flock_cases_by_state)
                 .then(() => {
-                    logger.info("Finished updating state data in the database!");
+                    logger.info(
+                        "Finished updating state data in the database!"
+                    );
                     return true;
                 })
                 .catch((error) => {

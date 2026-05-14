@@ -139,9 +139,10 @@ describe("USSummaryService", () => {
                     total_states_affected: 99,
                 }),
             });
-            jest.spyOn(USSummaryModel.getModel, "findOneAndUpdate").mockResolvedValue(
-                {} as any
-            );
+            jest.spyOn(
+                USSummaryModel.getModel,
+                "findOneAndUpdate"
+            ).mockResolvedValue({} as any);
             const getSpy = jest
                 .spyOn(service, "getUSSummary")
                 .mockResolvedValue(finalDoc);
@@ -156,12 +157,13 @@ describe("USSummaryService", () => {
             const callOrder: string[] = [];
             const stats = makeUSSummaryStats();
 
-            jest.spyOn(USSummaryModel.getModel, "findOneAndUpdate").mockImplementation(
-                async () => {
-                    callOrder.push("findOneAndUpdate");
-                    return {} as any;
-                }
-            );
+            jest.spyOn(
+                USSummaryModel.getModel,
+                "findOneAndUpdate"
+            ).mockImplementation(async () => {
+                callOrder.push("findOneAndUpdate");
+                return {} as any;
+            });
             jest.spyOn(service, "getUSSummary").mockImplementation(async () => {
                 callOrder.push("getUSSummary");
                 return makeUSSummaryStats();
@@ -169,10 +171,7 @@ describe("USSummaryService", () => {
 
             await service.upsertUSSummary(stats);
 
-            expect(callOrder).toEqual([
-                "findOneAndUpdate",
-                "getUSSummary",
-            ]);
+            expect(callOrder).toEqual(["findOneAndUpdate", "getUSSummary"]);
         });
     });
 });

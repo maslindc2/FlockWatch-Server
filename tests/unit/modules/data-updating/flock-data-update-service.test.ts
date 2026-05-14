@@ -607,7 +607,9 @@ describe("FlockDataUpdateService", () => {
 
             // The 5 update services run in parallel, so only verify
             // updateLastReportDate is called last
-            expect(callOrder[callOrder.length - 1]).toBe("updateLastReportDate");
+            expect(callOrder[callOrder.length - 1]).toBe(
+                "updateLastReportDate"
+            );
             expect(callOrder.slice(0, 5)).toEqual(
                 expect.arrayContaining([
                     "createOrUpdateStateData",
