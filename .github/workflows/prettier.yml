@@ -7,18 +7,38 @@ on:
     branches:
       - main
 
-permissions: write-all
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
 jobs:
   prettier:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
-          # Make sure the actual branch is checked out when running on pull requests
-          ref: ${{ github.head_ref }}
-      - name: Prettify code
-        uses: creyD/prettier_action@v4.3
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - uses: actions/setup-node@v4
         with:
-          # This part is also where you can pass other options, for example:
-          prettier_options: '--write --write --tab-width 4 --semi --trailing-comma es5 --bracket-spacing **/*.{js,ts,json}'
+          node-version: ${{ secrets.NODE_VERSION }}
+          cache: "npm"
+
+      - run: npm ci
+
+      - run: npx prettier --write .
+
+      - name: Commit formatted files
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if git diff --staged --quiet; then
+            echo "No formatting changes to commit"
+          else
+            git commit -m 'style: format code with Prettier [skip ci]'
+            git push
+          fi
