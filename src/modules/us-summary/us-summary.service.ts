@@ -38,7 +38,7 @@ class USSummaryService {
         await USSummaryModel.getModel.findOneAndUpdate(
             { key: "us-summary" },
             { $set: { all_time_totals, period_summaries } },
-            { upsert: true, new: true }
+            { upsert: true }
         );
 
         return this.getUSSummary();

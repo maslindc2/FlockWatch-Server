@@ -129,7 +129,7 @@ class FlockCasesByStateService {
             .lean();
     }
 
-    public async getStateFlockCase(requestedState: String) {
+    public async getStateFlockCase(requestedState: string) {
         return await FlockCasesByStateModel.getModel
             .findOne({ state_abbreviation: requestedState })
             .select("-_id -__v")
