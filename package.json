@@ -26,14 +26,14 @@
     "homepage": "https://github.com/maslindc2/FlockWatch-Scraping#readme",
     "dependencies": {
         "compression": "^1.8.1",
-        "connect-mongo": "^5.1.0",
-        "cors": "^2.8.5",
+        "connect-mongo": "^6.0.0",
+        "cors": "^2.8.6",
         "dotenv": "^17.4.2",
-        "express": "^4.22.1",
+        "express": "^5.2.1",
         "express-rate-limit": "^8.5.1",
         "helmet": "^8.1.0",
-        "mongoose": "^8.10.0",
-        "winston": "^3.17.0"
+        "mongoose": "^8.23.1",
+        "winston": "^3.19.0"
     },
     "devDependencies": {
         "@eslint/js": "^9.23.0",
@@ -46,11 +46,12 @@
         "eslint": "^9.23.0",
         "globals": "^17.6.0",
         "jest": "^30.4.2",
+        "jest-util": "^30.4.1",
         "mongodb-memory-server": "^11.1.0",
         "nodemon": "^3.1.14",
         "prettier": "^3.5.0",
         "supertest": "^7.0.0",
-        "ts-jest": "^29.2.5",
+        "ts-jest": "^29.4.9",
         "ts-node": "^10.9.2",
         "typescript": "^5.7.3",
         "typescript-eslint": "^8.59.3"
