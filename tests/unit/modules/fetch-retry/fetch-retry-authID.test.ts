@@ -1,5 +1,4 @@
 import { FetchRetryAuthID } from "../../../../src/modules/fetch-retry/fetch-retry-authID";
-import { logger } from "../../../../src/utils/winston-logger";
 
 // ---- Helpers ----------------------------------------------------------------
 

@@ -19,7 +19,7 @@ class USSummaryService {
      * @returns An object with all_time_totals and period_summaries, or null.
      */
     public async getFormattedUSSummary() {
-        const summary: any = await USSummaryModel.getModel
+        const summary = await USSummaryModel.getModel
             .findOne({ key: "us-summary" })
             .select("-_id -__v")
             .lean<USSummaryStats>();

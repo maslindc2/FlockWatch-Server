@@ -1,7 +1,6 @@
 import { LastReportDateService } from "../../../src/modules/last-report-date/last-report-date.service";
 import { LastReportDate } from "../../../src/modules/last-report-date/last-report-date.interface";
 import { LastReportDateModel } from "../../../src/modules/last-report-date/last-report-date.model";
-import * as Mongoose from "mongoose";
 import dotenv from "dotenv";
 
 import { connect, disconnect, clearCollections } from "../setup/mongodb-setup";

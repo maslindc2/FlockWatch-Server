@@ -59,7 +59,7 @@ class FlockDataSyncService {
         const modelInfo = await this.lastReportDateService.getAuthID();
 
         const data = await this.requestDataService.fetchLatestFlockData(
-            modelInfo?.auth_id!
+            modelInfo?.auth_id as string
         );
         if (!data) {
             logger.error("Data is empty!");

@@ -319,7 +319,7 @@ class DataController {
                 return;
             }
             res.sendStatus(200);
-        } catch (error) {
+        } catch {
             res.sendStatus(500);
         }
     }

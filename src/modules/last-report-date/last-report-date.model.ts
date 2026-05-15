@@ -20,7 +20,6 @@ class LastReportDateModel {
         "last-report-date",
         this.schema
     );
-    static findOne: any;
 }
 
 export { LastReportDateModel };

@@ -88,7 +88,7 @@ class App {
         // Set the root url to return the default message
         this.app.get(
             "/",
-            (req: Request, res: Response, next: NextFunction): void => {
+            (req: Request, res: Response, _next: NextFunction): void => {
                 res.json({ message: "Nothing here but us Chickens" });
             }
         );
@@ -153,15 +153,15 @@ class App {
         next: NextFunction
     ) => {
         const originalData = res.json.bind(res);
-        res.json = ((body: any) => {
+        res.json = ((body: unknown) => {
             return (async () => {
                 if (typeof body === "object" && body !== null) {
-                    body.metadata =
+                    (body as Record<string, unknown>).metadata =
                         await this.lastReportDateService.getLastScrapedDate();
                 }
                 return originalData(body);
             })();
-        }) as any;
+        }) as unknown as typeof res.json;
         next();
     };
 

@@ -2,7 +2,6 @@ import { logger } from "../../utils/winston-logger";
 import { FetchRetryAuthID } from "../fetch-retry/fetch-retry-authID";
 import { FlockCasesByState } from "../flock-cases-by-state/flock-cases-by-state.interface";
 import {
-    AllTimeTotals,
     PeriodSummary,
     USSummaryStats,
 } from "../us-summary/us-summary-stats.interface";

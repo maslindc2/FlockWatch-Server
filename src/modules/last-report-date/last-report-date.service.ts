@@ -58,7 +58,7 @@ class LastReportDateService {
      * On a failed update, only refreshes the auth_id.
      * @param isSuccessfulUpdate Whether the preceding data update succeeded.
      */
-    public async updateLastReportDate(isSuccessfulUpdate: Boolean) {
+    public async updateLastReportDate(isSuccessfulUpdate: boolean) {
         // Model object contains today's timestamp, and the newly created authID
         let modelObj;
         if (isSuccessfulUpdate) {

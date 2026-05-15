@@ -7,10 +7,6 @@ import {
 
 // ---- Helpers ----------------------------------------------------------------
 
-function getFieldType(field: any): any {
-    return typeof field === "function" ? field : field.type;
-}
-
 const makePeriod = (overrides: Partial<PeriodSummary> = {}): PeriodSummary => ({
     period_name: RollingPeriods[0],
     total_birds_affected: 100,
