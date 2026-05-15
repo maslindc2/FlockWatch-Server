@@ -2,7 +2,6 @@ import { logger } from "../../utils/winston-logger";
 import { FetchRetryAuthID } from "../fetch-retry/fetch-retry-authID";
 import { FlockCasesByState } from "../flock-cases-by-state/flock-cases-by-state.interface";
 import {
-    AllTimeTotals,
     PeriodSummary,
     USSummaryStats,
 } from "../us-summary/us-summary-stats.interface";
@@ -10,7 +9,7 @@ import { FlockData } from "./flock-data.interface";
 import { BuildUSSummary } from "./build-us-summary.service";
 import { SiteDetails } from "../site-details/site-details.interface";
 
-interface ScraperData {
+export interface ScraperData {
     flock_cases_by_state: FlockCasesByState[];
     period_summaries: PeriodSummary[];
     site_details: SiteDetails[];

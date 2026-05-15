@@ -13,8 +13,13 @@ class USSummaryService {
             .lean<USSummaryStats>();
     }
 
+    /**
+     * Retrieve and format the US summary with period summaries converted
+     * to a record keyed by period_name for easier client-side consumption.
+     * @returns An object with all_time_totals and period_summaries, or null.
+     */
     public async getFormattedUSSummary() {
-        const summary: any = await USSummaryModel.getModel
+        const summary = await USSummaryModel.getModel
             .findOne({ key: "us-summary" })
             .select("-_id -__v")
             .lean<USSummaryStats>();
@@ -38,7 +43,7 @@ class USSummaryService {
         await USSummaryModel.getModel.findOneAndUpdate(
             { key: "us-summary" },
             { $set: { all_time_totals, period_summaries } },
-            { upsert: true, new: true }
+            { upsert: true }
         );
 
         return this.getUSSummary();

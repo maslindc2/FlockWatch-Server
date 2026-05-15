@@ -1,7 +1,5 @@
-import * as Mongoose from "mongoose";
 import dotenv from "dotenv";
 import { USSummaryService } from "../../../src/modules/us-summary/us-summary.service";
-import { USSummaryModel } from "../../../src/modules/us-summary/us-summary.model";
 import { USSummaryStats } from "../../../src/modules/us-summary/us-summary-stats.interface";
 
 import { connect, disconnect, clearCollections } from "../setup/mongodb-setup";

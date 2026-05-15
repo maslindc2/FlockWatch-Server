@@ -2,11 +2,11 @@ import { logger } from "../../utils/winston-logger";
 
 class FetchRetry {
     /**
-     *
-     * @param URL This the URL we are making the fetch operation to
-     * @param options This our fetch request options includes headers, body, and
-     * @param timeoutMs How long to wait in Milliseconds before retrying operation
-     * @returns The Post Promise
+     * Execute a fetch operation with an abort timeout.
+     * @param URL The URL to fetch.
+     * @param options Fetch request options (headers, method, body).
+     * @param timeoutMs Timeout in milliseconds before aborting the request.
+     * @returns The fetch Response if completed within the timeout.
      */
     private async fetchWithTimeout(
         URL: string,
@@ -27,13 +27,12 @@ class FetchRetry {
 
     /**
      * Responsible for Retrying our fetch operation if we encounter any network issues with our initial fetch operation
-     * @param URL This the URL we are making the fetch operation to
-     * @param retries Number of times to retry the operation
-     * @param timeoutMs How long to wait in Milliseconds before retrying operation
-     * @param baseDelay Base network delay in Milliseconds (attempts to account for network delay to slow servers)
-     * @param authID Auth ID we are sending in our fetch operation
-     * @param fetchOptions This is contains the fetch configuration (method, headers, and body)
-     * @returns The Post Promise
+     * @param URL The URL we are making the fetch operation to.
+     * @param retries Number of times to retry the operation.
+     * @param timeoutMs How long to wait in milliseconds before retrying.
+     * @param baseDelay Base network delay in milliseconds (accounts for slow servers).
+     * @param options Fetch request configuration (method, headers, body).
+     * @returns The fetch Response on success.
      */
     private async fetchWithRetry(
         URL: string,
@@ -46,11 +45,13 @@ class FetchRetry {
             new Promise((resolve) => setTimeout(resolve, ms));
         try {
             return await this.fetchWithTimeout(URL, options, timeoutMs);
-        } catch (error: any) {
+        } catch (error: unknown) {
             if (retries <= 0) throw error;
 
+            const message =
+                error instanceof Error ? error.message : String(error);
             logger.error(
-                `Network error contacting Server, retries left ${retries}: ${error.message}`
+                `Network error contacting Server, retries left ${retries}: ${message}`
             );
 
             const attemptNumber = retries;
@@ -68,6 +69,11 @@ class FetchRetry {
             );
         }
     }
+    /**
+     * Build the default headers for fetch requests.
+     * Subclasses can override to add authentication headers.
+     * @returns A record of header key-value pairs.
+     */
     protected buildHeaders(): Record<string, string> {
         return {
             "Content-Type": "application/json",
@@ -85,7 +91,7 @@ class FetchRetry {
      */
     public async postRetry(
         URL: string,
-        body: any,
+        body: unknown,
         retries: number,
         timeoutMs: number,
         baseDelay: number

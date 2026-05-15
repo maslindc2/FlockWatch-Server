@@ -2,7 +2,14 @@ import { StatusSummary } from "./status-summary.interface";
 import { StatusSummaryModel } from "./status-summary.model";
 import { logger } from "../../utils/winston-logger";
 
+/**
+ * Service for retrieving and upserting the 30-day rolling status summary document.
+ */
 class StatusSummaryService {
+    /**
+     * Retrieve the status summary (hides internal Mongoose fields and the key).
+     * @returns The status summary data, or null if not found.
+     */
     public async getStatusSummary() {
         return StatusSummaryModel.getModel
             .findOne({ key: "status-summary" })
@@ -10,6 +17,10 @@ class StatusSummaryService {
             .lean<Omit<StatusSummary, "key"> | null>();
     }
 
+    /**
+     * Upsert the status summary document. Creates the document if it does not exist.
+     * @param data 30-day status summary data (without the key field).
+     */
     public async upsertStatusSummary(data: Omit<StatusSummary, "key">) {
         try {
             const sanitizedEntry = {

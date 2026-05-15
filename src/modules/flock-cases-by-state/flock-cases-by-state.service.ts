@@ -121,7 +121,15 @@ const VALID_STATE_NAMES = new Set([
     "Northern Mariana Islands",
 ]);
 
+/**
+ * Service for reading and writing flock case data per US state/territory.
+ * Handles validation, retrieval, and upsert operations.
+ */
 class FlockCasesByStateService {
+    /**
+     * Retrieve avian influenza case data for all states and territories.
+     * @returns Array of FlockCasesByState documents (excluding internal Mongoose fields).
+     */
     public async getAllFlockCases() {
         return await FlockCasesByStateModel.getModel
             .find({})
@@ -129,7 +137,12 @@ class FlockCasesByStateService {
             .lean();
     }
 
-    public async getStateFlockCase(requestedState: String) {
+    /**
+     * Retrieve flock case data for a single state by its two-letter abbreviation.
+     * @param requestedState Two-letter US state abbreviation (case-insensitive in query).
+     * @returns The matching state document, or null if not found.
+     */
+    public async getStateFlockCase(requestedState: string) {
         return await FlockCasesByStateModel.getModel
             .findOne({ state_abbreviation: requestedState })
             .select("-_id -__v")
@@ -178,6 +191,11 @@ class FlockCasesByStateService {
         return true;
     }
 
+    /**
+     * Upsert flock case data for multiple states in a single bulkWrite operation.
+     * Invalid entries are skipped and logged; invalid state names cause the entire operation to throw.
+     * @param flockData Array of state flock case data to persist.
+     */
     public async createOrUpdateStateData(flockData: FlockCasesByState[]) {
         try {
             const operations = [];

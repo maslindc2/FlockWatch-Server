@@ -7,10 +7,6 @@ import {
 
 // ---- Helpers ----------------------------------------------------------------
 
-function getFieldType(field: any): any {
-    return typeof field === "function" ? field : field.type;
-}
-
 const makePeriod = (overrides: Partial<PeriodSummary> = {}): PeriodSummary => ({
     period_name: RollingPeriods[0],
     total_birds_affected: 100,
@@ -169,17 +165,10 @@ describe("USSummaryModel.upsertPeriodAtomic - validation", () => {
         await USSummaryModel.upsertPeriodAtomic(periodWithExtraFields);
 
         // Verify the sanitized period (without extra fields) was passed to DB
-        expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
-            expect.any(Object),
-            {
-                $set: {
-                    "period_summaries.$": expect.not.objectContaining({
-                        malicious_field: "injected",
-                    }),
-                },
-            },
-            expect.any(Object)
-        );
+        const [, update] = findOneAndUpdateSpy.mock.calls[0];
+        const updateStr = JSON.stringify(update);
+        expect(updateStr).not.toContain("malicious_field");
+        expect(updateStr).not.toContain("polluted");
     });
 });
 
@@ -220,7 +209,7 @@ describe("USSummaryModel.updateAllTimeTotals", () => {
         expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
             expect.any(Object),
             expect.any(Object),
-            { upsert: true, new: true }
+            { upsert: true, returnDocument: "after" }
         );
     });
 
@@ -245,12 +234,9 @@ describe("USSummaryModel.upsertPeriodAtomic - DB calls", () => {
         await USSummaryModel.upsertPeriodAtomic(period);
 
         expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
-            {
-                key: "us-summary",
-                "period_summaries.period_name": period.period_name,
-            },
-            { $set: { "period_summaries.$": period } },
-            { upsert: false, new: true }
+            { key: "us-summary" },
+            expect.any(Array),
+            { upsert: true, returnDocument: "after" }
         );
     });
 
@@ -258,19 +244,15 @@ describe("USSummaryModel.upsertPeriodAtomic - DB calls", () => {
         const period = makePeriod();
         findOneAndUpdateSpy = jest
             .spyOn(USSummaryModel.getModel, "findOneAndUpdate")
-            // First call (update existing) returns null -- period not found
-            .mockResolvedValueOnce(null as any)
-            // Second call (push new) returns the doc
-            .mockResolvedValueOnce({ key: "us-summary" } as any);
+            .mockResolvedValue({ key: "us-summary" } as any);
 
         await USSummaryModel.upsertPeriodAtomic(period);
 
-        expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(2);
-        expect(findOneAndUpdateSpy).toHaveBeenNthCalledWith(
-            2,
+        expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(1);
+        expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
             { key: "us-summary" },
-            { $push: { period_summaries: period } },
-            { upsert: true, new: true }
+            expect.any(Array),
+            { upsert: true, returnDocument: "after" }
         );
     });
 
@@ -279,8 +261,7 @@ describe("USSummaryModel.upsertPeriodAtomic - DB calls", () => {
         const expected = { key: "us-summary", period_summaries: [period] };
         findOneAndUpdateSpy = jest
             .spyOn(USSummaryModel.getModel, "findOneAndUpdate")
-            .mockResolvedValueOnce(null as any)
-            .mockResolvedValueOnce(expected as any);
+            .mockResolvedValue(expected as any);
 
         const result = await USSummaryModel.upsertPeriodAtomic(period);
         expect(result).toEqual(expected);

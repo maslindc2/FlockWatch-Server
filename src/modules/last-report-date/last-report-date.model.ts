@@ -15,11 +15,11 @@ class LastReportDateModel {
         { collection: "last-report-date" }
     );
 
+    /** The Mongoose model instance for the last-report-date collection. */
     public static getModel = Mongoose.model<LastReportDate>(
         "last-report-date",
         this.schema
     );
-    static findOne: any;
 }
 
 export { LastReportDateModel };

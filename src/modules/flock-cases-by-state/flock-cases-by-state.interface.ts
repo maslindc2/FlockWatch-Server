@@ -1,3 +1,7 @@
+/**
+ * Represents avian influenza case data for a single US state or territory.
+ * Maps to a row in the "Map Comparisons.csv" source data (excluding State Label and Color columns).
+ */
 interface FlockCasesByState {
     state_abbreviation: string;
     state: string;

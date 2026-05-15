@@ -8,8 +8,9 @@ import {
 class BuildUSSummary {
     /**
      * Assemble the US Summary Stats by summing the total birds affected, flocks affected, backyard flocks, and commercial flocks
-     * @param jsonFromScraper Array containing all US State's Avian Influenza data
-     * @returns JS Object containing the US Summary Stats of type USSummaryStats
+     * @param flock_cases_by_state Array containing all US State's Avian Influenza data.
+     * @param period_summaries Array of period summary objects to include.
+     * @returns US Summary Stats object with all-time totals and period summaries.
      */
     public createUSSummaryData(
         flock_cases_by_state: FlockCasesByState[],

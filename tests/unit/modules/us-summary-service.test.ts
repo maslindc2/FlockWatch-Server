@@ -128,7 +128,7 @@ describe("USSummaryService", () => {
                         period_summaries: stats.period_summaries,
                     },
                 },
-                { upsert: true, new: true }
+                { upsert: true }
             );
         });
 

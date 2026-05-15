@@ -255,6 +255,13 @@ class DataController {
         }
     }
 
+    /**
+     * Receive updated data pushed from the scraping service.
+     * Validates the Bearer auth_id, assembles a FlockData payload, and applies it.
+     * Returns 403 if the auth_id does not match, 500 on processing errors.
+     * @param req Request containing flock data in the body and auth in the Authorization header.
+     * @param res Response used to convey success (200), forbidden (403), or error (500).
+     */
     public async receiveUpdatedData(req: Request, res: Response) {
         try {
             // Extract the auth header
@@ -312,7 +319,7 @@ class DataController {
                 return;
             }
             res.sendStatus(200);
-        } catch (error) {
+        } catch {
             res.sendStatus(500);
         }
     }

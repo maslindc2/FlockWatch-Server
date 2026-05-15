@@ -1,6 +1,10 @@
 import * as Mongoose from "mongoose";
 import { SiteDetailsDocument } from "./site-details-document.interface";
 
+/**
+ * Mongoose model for site details. Each document represents a premises
+ * with avian influenza, tracking its status, location, and impact.
+ */
 class SiteDetailsModel {
     private static schema = new Mongoose.Schema<SiteDetailsDocument>(
         {
@@ -15,6 +19,7 @@ class SiteDetailsModel {
         { collection: "site-details" }
     );
 
+    /** The Mongoose model instance for the site-details collection. */
     public static getModel = Mongoose.model<SiteDetailsDocument>(
         "site-details",
         SiteDetailsModel.schema

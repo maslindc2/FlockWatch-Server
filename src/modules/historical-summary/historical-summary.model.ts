@@ -1,6 +1,10 @@
 import * as Mongoose from "mongoose";
 import { HistoricalSummaryDocument } from "./historical-summary-document.interface";
 
+/**
+ * Mongoose model for the historical summary document storing all-time
+ * aggregated statistics about avian influenza impact.
+ */
 class HistoricalSummaryModel {
     private static schema = new Mongoose.Schema<HistoricalSummaryDocument>(
         {
@@ -20,6 +24,7 @@ class HistoricalSummaryModel {
         { collection: "historical-summary" }
     );
 
+    /** The Mongoose model instance for the historical-summary collection. */
     public static getModel = Mongoose.model<HistoricalSummaryDocument>(
         "historical-summary",
         HistoricalSummaryModel.schema

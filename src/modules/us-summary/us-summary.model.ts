@@ -73,20 +73,29 @@ class USSummaryModel {
         );
     }
 
+    /**
+     * Atomically upsert the all-time totals portion of the US Summary document.
+     * @param all_time_totals The all-time totals data to persist.
+     */
     public static async updateAllTimeTotals(all_time_totals: AllTimeTotals) {
         return this.getModel.findOneAndUpdate(
             { key: "us-summary" },
             { $set: { all_time_totals } },
-            { upsert: true, new: true }
+            { upsert: true, returnDocument: "after" }
         );
     }
 
+    /**
+     * Atomically upsert a single period summary entry into the period_summaries array.
+     * If a period with the same period_name already exists it is replaced; otherwise appended.
+     * @param period The period summary to upsert.
+     * @throws If the period_name is not a valid RollingPeriodName.
+     */
     public static async upsertPeriodAtomic(period: PeriodSummary) {
         if (!RollingPeriods.includes(period.period_name as RollingPeriodName)) {
             throw new Error(`Invalid period_name: ${period.period_name}`);
         }
 
-        // Sanitize the period object to prevent injection attacks
         const sanitizedPeriod: PeriodSummary = {
             period_name: period.period_name,
             total_birds_affected: period.total_birds_affected,
@@ -97,26 +106,53 @@ class USSummaryModel {
                 period.total_commercial_flocks_affected,
         };
 
-        return this.getModel
-            .findOneAndUpdate(
+        return this.getModel.findOneAndUpdate(
+            { key: "us-summary" },
+            [
                 {
-                    key: "us-summary",
-                    "period_summaries.period_name": sanitizedPeriod.period_name,
+                    $set: {
+                        period_summaries: {
+                            $cond: {
+                                // If a period with this name already exists in the array...
+                                if: {
+                                    $in: [
+                                        sanitizedPeriod.period_name,
+                                        "$period_summaries.period_name",
+                                    ],
+                                },
+                                // ...replace it in-place
+                                then: {
+                                    $map: {
+                                        input: "$period_summaries",
+                                        as: "p",
+                                        in: {
+                                            $cond: {
+                                                if: {
+                                                    $eq: [
+                                                        "$$p.period_name",
+                                                        sanitizedPeriod.period_name,
+                                                    ],
+                                                },
+                                                then: sanitizedPeriod,
+                                                else: "$$p",
+                                            },
+                                        },
+                                    },
+                                },
+                                // ...otherwise append it
+                                else: {
+                                    $concatArrays: [
+                                        "$period_summaries",
+                                        [sanitizedPeriod],
+                                    ],
+                                },
+                            },
+                        },
+                    },
                 },
-                { $set: { "period_summaries.$": sanitizedPeriod } }, // update existing period
-                { upsert: false, new: true }
-            )
-            .then(async (doc) => {
-                // If no existing period found, push it
-                if (!doc) {
-                    return this.getModel.findOneAndUpdate(
-                        { key: "us-summary" },
-                        { $push: { period_summaries: sanitizedPeriod } },
-                        { upsert: true, new: true }
-                    );
-                }
-                return doc;
-            });
+            ],
+            { upsert: true, returnDocument: "after" }
+        );
     }
 }
 

@@ -3,21 +3,25 @@ import { LastReportDateService } from "../last-report-date/last-report-date.serv
 import { FlockDataUpdateService } from "./flock-data-update.service";
 import { RequestDataService } from "./request-data.service";
 
+/**
+ * Coordinates checking whether the database is outdated and, if so,
+ * fetches fresh data from the scraping service and applies updates.
+ */
 class FlockDataSyncService {
-    // Stores our Last Report Date Service instance
     private lastReportDateService: LastReportDateService;
     private requestDataService: RequestDataService;
     private updateService: FlockDataUpdateService;
 
-    // Create our last report date service
     constructor() {
         this.lastReportDateService = new LastReportDateService();
         this.requestDataService = new RequestDataService();
         this.updateService = new FlockDataUpdateService();
     }
 
-    // Sync if we are out of date, we will check the last scraped date and see if we are out of date or not
-    // If we are we will request new data and process it accordingly, if not just log that we are up to date (only visible on log level silly)
+    /**
+     * Check the last scraped date and, if more than 24 hours old, request
+     * and apply fresh data from the scraping service.
+     */
     public async syncIfOutdated(): Promise<void> {
         const lastReportDateQuery =
             await this.lastReportDateService.getLastScrapedDate();
@@ -35,7 +39,11 @@ class FlockDataSyncService {
         }
     }
 
-    // Compare the last report date to our current time if it's a difference of 24 hours then update
+    /**
+     * Determine whether the given date string is older than 24 hours from now.
+     * @param lastDate ISO date string of the last scrape.
+     * @returns true if more than 24 hours have elapsed.
+     */
     private isOutdated(lastDate: string): boolean {
         const now = new Date();
         const last = new Date(lastDate);
@@ -43,12 +51,15 @@ class FlockDataSyncService {
         return diffInMs >= 24 * 60 * 60 * 1000; // 24 hours
     }
 
-    // Request new data from Flock Watch Scraping
+    /**
+     * Fetch the latest flock data from the scraping service using the stored auth ID
+     * and apply the update to the database.
+     */
     private async requestAndApplyData() {
         const modelInfo = await this.lastReportDateService.getAuthID();
 
         const data = await this.requestDataService.fetchLatestFlockData(
-            modelInfo?.auth_id!
+            modelInfo?.auth_id as string
         );
         if (!data) {
             logger.error("Data is empty!");

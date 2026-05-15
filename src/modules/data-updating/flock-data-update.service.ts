@@ -14,6 +14,10 @@ interface FlockDataPayload {
     period_summaries: PeriodSummary[];
 }
 
+/**
+ * Orchestrates updating all database collections with the latest flock data
+ * received from either the scraping service or the data-update endpoint.
+ */
 class FlockDataUpdateService {
     private flockCasesByStateService: FlockCasesByStateService;
     private usSummaryService: USSummaryService;
@@ -31,6 +35,13 @@ class FlockDataUpdateService {
         this.statusSummaryService = new StatusSummaryService();
     }
 
+    /**
+     * Apply all incoming flock data to the database in parallel upsert operations.
+     * Each collection (flock cases, US summary, site details, historical summary, status summary)
+     * is updated concurrently. The last report date is refreshed only if all operations succeed.
+     * @param data The complete FlockData payload to persist.
+     * @returns true if all updates were successful, false otherwise.
+     */
     public async applyUpdate(data: FlockData): Promise<boolean> {
         const results = await Promise.all([
             this.flockCasesByStateService

@@ -2,7 +2,10 @@ import { SiteDetails } from "./site-details.interface";
 import { SiteDetailsModel } from "./site-details.model";
 import { logger } from "../../utils/winston-logger";
 
-interface PaginatedResult<T> {
+/**
+ * Generic wrapper for paginated query results.
+ */
+export interface PaginatedResult<T> {
     data: T[];
     total: number;
     page: number;
@@ -10,7 +13,16 @@ interface PaginatedResult<T> {
     totalPages: number;
 }
 
+/**
+ * Service for querying and upserting site detail records.
+ * Supports paginated retrieval, filtering by status, single-site lookup by special ID,
+ * and bulk upsert with validation.
+ */
 class SiteDetailsService {
+    /**
+     * Retrieve all site details without pagination.
+     * @returns Array of all SiteDetails documents.
+     */
     public async getAllSiteDetails() {
         return SiteDetailsModel.getModel
             .find({})
@@ -18,6 +30,12 @@ class SiteDetailsService {
             .lean<SiteDetails[]>();
     }
 
+    /**
+     * Retrieve site details with pagination.
+     * @param page Page number (1-indexed, defaults to 1).
+     * @param limit Items per page (defaults to 100, max 500).
+     * @returns PaginatedResult with data, total count, and pagination metadata.
+     */
     public async getAllSiteDetailsPaginated(
         page: number = 1,
         limit: number = 100
@@ -43,6 +61,11 @@ class SiteDetailsService {
         };
     }
 
+    /**
+     * Retrieve a single site detail by its unique special identifier.
+     * @param specialId The site's special identifier (e.g. "Elkhart 28").
+     * @returns The matching SiteDetails document, or null if not found.
+     */
     public async getSiteDetailById(specialId: string) {
         return SiteDetailsModel.getModel
             .findOne({ special_id: specialId })
@@ -50,6 +73,11 @@ class SiteDetailsService {
             .lean<SiteDetails | null>();
     }
 
+    /**
+     * Retrieve all site details matching a given status.
+     * @param status Status to filter by ("active", "released", or "na").
+     * @returns Array of matching SiteDetails documents.
+     */
     public async getSitesByStatus(status: string) {
         return SiteDetailsModel.getModel
             .find({ status })
@@ -57,6 +85,13 @@ class SiteDetailsService {
             .lean<SiteDetails[]>();
     }
 
+    /**
+     * Retrieve site details filtered by status with pagination.
+     * @param status Status to filter by ("active", "released", or "na").
+     * @param page Page number (1-indexed, defaults to 1).
+     * @param limit Items per page (defaults to 100, max 500).
+     * @returns PaginatedResult with data, total count, and pagination metadata.
+     */
     public async getSitesByStatusPaginated(
         status: string,
         page: number = 1,
@@ -84,6 +119,12 @@ class SiteDetailsService {
         };
     }
 
+    /**
+     * Validate a single site entry before writing it to the database.
+     * Checks special_id, birds_affected, and status fields.
+     * @param entry The site entry to validate.
+     * @returns true if the entry passes all validation checks.
+     */
     private isValidSiteEntry(entry: SiteDetails): boolean {
         if (
             !entry.special_id ||
@@ -121,6 +162,11 @@ class SiteDetailsService {
         return true;
     }
 
+    /**
+     * Upsert an array of site details using a bulkWrite operation.
+     * Invalid entries are skipped and logged.
+     * @param siteData Array of site details to persist.
+     */
     public async upsertSiteDetails(siteData: SiteDetails[]) {
         try {
             const operations = [];

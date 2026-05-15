@@ -8,10 +8,14 @@ import cors from "cors";
 import { FlockDataSyncService } from "./modules/data-updating/flock-data-sync.service";
 import { DatabaseService } from "./modules/database/database.service";
 
+/**
+ * Main application class that configures Express middleware, CORS, routes,
+ * and handles server lifecycle including database connection and data syncing.
+ */
 class App {
-    // Stores the express app instance
+    /** The underlying Express application instance. */
     public app: Application;
-    // Stores our last report date service used for syncing the db
+    /** Service for tracking the last time data was synced from the scraper. */
     private lastReportDateService: LastReportDateService;
 
     /**
@@ -27,7 +31,10 @@ class App {
         this.serverStart();
     }
 
-    // Define the middleware that we will be using
+    /**
+     * Register all Express middleware: security headers, compression, JSON parsing,
+     * CORS policies (development vs production), routes, and 404 handler.
+     */
     private middleware(): void {
         // Security headers
         this.app.use(helmet());
@@ -81,7 +88,7 @@ class App {
         // Set the root url to return the default message
         this.app.get(
             "/",
-            (req: Request, res: Response, next: NextFunction): void => {
+            (req: Request, res: Response, _next: NextFunction): void => {
                 res.json({ message: "Nothing here but us Chickens" });
             }
         );
@@ -94,7 +101,10 @@ class App {
         });
     }
 
-    // Start the server instance be connecting to the DB and check if we are out of date
+    /**
+     * Connect to MongoDB, initialize the last report date, optionally sync data
+     * from the scraping service if AUTO_UPDATE is enabled, then mark the server as ready.
+     */
     private async serverStart(): Promise<void> {
         try {
             // Connect to MongoDB
@@ -133,24 +143,33 @@ class App {
         }
     }
 
+    /**
+     * Middleware that attaches the last scraped date metadata to every JSON response
+     * under the `/data` routes.
+     */
     private attachMetadata = (
         req: Request,
         res: Response,
         next: NextFunction
     ) => {
         const originalData = res.json.bind(res);
-        res.json = ((body: any) => {
+        res.json = ((body: unknown) => {
             return (async () => {
                 if (typeof body === "object" && body !== null) {
-                    body.metadata =
+                    (body as Record<string, unknown>).metadata =
                         await this.lastReportDateService.getLastScrapedDate();
                 }
                 return originalData(body);
             })();
-        }) as any;
+        }) as unknown as typeof res.json;
         next();
     };
 
+    /**
+     * Check whether the stored data is outdated and, if so, request fresh data
+     * from the scraping service. Errors are logged but do not prevent the server
+     * from starting so it can continue serving stale data.
+     */
     private async syncData(): Promise<void> {
         // Try to get data if we can't or fail to process it log it as an error
         // Allows us to still serve data that we have in our DB if the scraping system is down
