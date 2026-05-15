@@ -1,6 +1,10 @@
 import * as Mongoose from "mongoose";
 import { StatusSummaryDocument } from "./status-summary-document.interface";
 
+/**
+ * Mongoose model for the status summary document storing 30-day rolling
+ * statistics about confirmed sites, released sites, and birds affected.
+ */
 class StatusSummaryModel {
     private static schema = new Mongoose.Schema<StatusSummaryDocument>(
         {
@@ -17,6 +21,7 @@ class StatusSummaryModel {
         { collection: "status-summary" }
     );
 
+    /** The Mongoose model instance for the status-summary collection. */
     public static getModel = Mongoose.model<StatusSummaryDocument>(
         "status-summary",
         StatusSummaryModel.schema

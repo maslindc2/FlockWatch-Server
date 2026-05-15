@@ -1,3 +1,6 @@
+/**
+ * All-time historical summary of avian influenza impact across all sites.
+ */
 interface HistoricalSummary {
     key: string;
     total_birds_affected_all_time: number;

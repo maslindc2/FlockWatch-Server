@@ -4,7 +4,10 @@ import { SiteDetails } from "../site-details/site-details.interface";
 import { HistoricalSummary } from "../historical-summary/historical-summary.interface";
 import { StatusSummary } from "../status-summary/status-summary.interface";
 
-// This is the data type for object that we get from our scraping service and use to update our database with the latest avian influenza information
+/**
+ * The top-level data payload received from the scraping service.
+ * Contains all avian influenza information used to update the database.
+ */
 interface FlockData {
     flock_cases_by_state: FlockCasesByState[];
     us_summary_stats: USSummaryStats;

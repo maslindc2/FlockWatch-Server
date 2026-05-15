@@ -1,0 +1,13 @@
+{
+    "entryPoints": ["src"],
+    "entryPointStrategy": "expand",
+    "out": "docs",
+    "tsconfig": "tsconfig.json",
+    "includeVersion": true,
+    "excludeExternals": true,
+    "excludePrivate": false,
+    "excludeProtected": false,
+    "sort": ["source-order"],
+    "categorizeByGroup": true,
+    "skipErrorChecking": true
+}

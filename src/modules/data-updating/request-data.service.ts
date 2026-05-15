@@ -10,7 +10,7 @@ import { FlockData } from "./flock-data.interface";
 import { BuildUSSummary } from "./build-us-summary.service";
 import { SiteDetails } from "../site-details/site-details.interface";
 
-interface ScraperData {
+export interface ScraperData {
     flock_cases_by_state: FlockCasesByState[];
     period_summaries: PeriodSummary[];
     site_details: SiteDetails[];

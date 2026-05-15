@@ -10,7 +10,8 @@
         "nodemon": "nodemon ./src/server.ts",
         "build": "tsc",
         "dev": "npm run build && node ./dist/server.js",
-        "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\""
+        "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
+        "docs": "typedoc"
     },
     "repository": {
         "type": "git",
@@ -55,6 +56,7 @@
         "supertest": "^7.2.2",
         "ts-jest": "^29.4.9",
         "ts-node": "^10.9.2",
+        "typedoc": "^0.28.19",
         "typescript": "^6.0.3",
         "typescript-eslint": "^8.59.3"
     }

@@ -2,7 +2,14 @@ import { HistoricalSummary } from "./historical-summary.interface";
 import { HistoricalSummaryModel } from "./historical-summary.model";
 import { logger } from "../../utils/winston-logger";
 
+/**
+ * Service for retrieving and upserting the all-time historical summary document.
+ */
 class HistoricalSummaryService {
+    /**
+     * Retrieve the historical summary (hides internal Mongoose fields and the key).
+     * @returns The historical summary data, or null if not found.
+     */
     public async getHistoricalSummary() {
         return HistoricalSummaryModel.getModel
             .findOne({ key: "historical-summary" })
@@ -10,6 +17,10 @@ class HistoricalSummaryService {
             .lean<Omit<HistoricalSummary, "key"> | null>();
     }
 
+    /**
+     * Upsert the historical summary document. Creates the document if it does not exist.
+     * @param data Historical summary data (without the key field).
+     */
     public async upsertHistoricalSummary(data: Omit<HistoricalSummary, "key">) {
         try {
             const sanitizedEntry = {

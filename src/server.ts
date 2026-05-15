@@ -2,17 +2,22 @@ import * as dotenv from "dotenv";
 import { App } from "./app";
 import { logger } from "./utils/winston-logger";
 
-// Load env variables
+/** Load environment variables from .env file. */
 dotenv.config();
 
-// Assign the port number for the service, you can modify the PORT using the env otherwise it defaults to 5050
-const PORT: number = Number(process.env.PORT) || 5050;
-// Store the mongoDBConnection from env file
+/**
+ * The port the Express server will listen on.
+ * Configurable via the PORT environment variable; defaults to 8080.
+ */
+const PORT: number = Number(process.env.PORT) || 8080;
+
+/** MongoDB connection string from environment variables. */
 const mongoDBConnection = process.env.MONGODB_URI;
-// If it's not defined throw an error
+
 if (!mongoDBConnection) {
     throw new Error("MONGODB_URI is not defined in the environment variables!");
 }
+
 process.on("uncaughtException", (error) => {
     logger.error(`Uncaught Exception: ${error}`);
     process.exit(1);
@@ -22,7 +27,6 @@ process.on("unhandledRejection", (reason) => {
     logger.error(`Unhandled Rejection: ${reason}`);
 });
 
-// Start the App
+/** Bootstrap the application and start listening for incoming requests. */
 const server = new App().app;
-// Start listening for requests
 server.listen(PORT, () => logger.info(`Starting server on port: ${PORT}`));

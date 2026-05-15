@@ -21,6 +21,7 @@ class FlockCasesByStateModel {
         { collection: "flock-cases-by-state" }
     );
 
+    /** The Mongoose model instance for flock-cases-by-state collection. */
     public static getModel = Mongoose.model<FlockCasesByStateDocument>(
         "flock-cases-by-state",
         FlockCasesByStateModel.schema

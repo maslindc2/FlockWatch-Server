@@ -73,6 +73,10 @@ class USSummaryModel {
         );
     }
 
+    /**
+     * Atomically upsert the all-time totals portion of the US Summary document.
+     * @param all_time_totals The all-time totals data to persist.
+     */
     public static async updateAllTimeTotals(all_time_totals: AllTimeTotals) {
         return this.getModel.findOneAndUpdate(
             { key: "us-summary" },
@@ -81,6 +85,12 @@ class USSummaryModel {
         );
     }
 
+    /**
+     * Atomically upsert a single period summary entry into the period_summaries array.
+     * If a period with the same period_name already exists it is replaced; otherwise appended.
+     * @param period The period summary to upsert.
+     * @throws If the period_name is not a valid RollingPeriodName.
+     */
     public static async upsertPeriodAtomic(period: PeriodSummary) {
         if (!RollingPeriods.includes(period.period_name as RollingPeriodName)) {
             throw new Error(`Invalid period_name: ${period.period_name}`);

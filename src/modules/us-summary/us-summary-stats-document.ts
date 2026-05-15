@@ -1,5 +1,8 @@
 import Mongoose from "mongoose";
 import { USSummaryStats } from "./us-summary-stats.interface";
-// Since we already define the IUSSummaryStats we can reuse it to make our document interface
+
+/**
+ * Mongoose document interface for USSummaryStats, combining the base interface with Mongoose.Document methods.
+ */
 interface USSummaryStatsDocument extends USSummaryStats, Mongoose.Document {}
 export type { USSummaryStatsDocument };

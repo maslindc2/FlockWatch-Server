@@ -136,5 +136,13 @@ createDB/
 data/
 # stryker temp files
 .stryker-tmp
+
+# TypeDoc generated documentation
+/docs
 #testing-reports/
 mutation/
+# CodeNomad
+/.codenomad/
+
+#vscode settings
+/.vscode/
