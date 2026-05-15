@@ -48,7 +48,8 @@ class FetchRetry {
         } catch (error: unknown) {
             if (retries <= 0) throw error;
 
-            const message = error instanceof Error ? error.message : String(error);
+            const message =
+                error instanceof Error ? error.message : String(error);
             logger.error(
                 `Network error contacting Server, retries left ${retries}: ${message}`
             );

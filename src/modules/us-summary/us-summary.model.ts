@@ -81,7 +81,7 @@ class USSummaryModel {
         return this.getModel.findOneAndUpdate(
             { key: "us-summary" },
             { $set: { all_time_totals } },
-            { upsert: true, returnDocument: 'after' }
+            { upsert: true, returnDocument: "after" }
         );
     }
 
@@ -100,8 +100,10 @@ class USSummaryModel {
             period_name: period.period_name,
             total_birds_affected: period.total_birds_affected,
             total_flocks_affected: period.total_flocks_affected,
-            total_backyard_flocks_affected: period.total_backyard_flocks_affected,
-            total_commercial_flocks_affected: period.total_commercial_flocks_affected,
+            total_backyard_flocks_affected:
+                period.total_backyard_flocks_affected,
+            total_commercial_flocks_affected:
+                period.total_commercial_flocks_affected,
         };
 
         return this.getModel.findOneAndUpdate(
