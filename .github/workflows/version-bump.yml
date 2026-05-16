@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   version-bump:
@@ -30,8 +31,23 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: Delete existing tag if present
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          TAG="v$VERSION"
+          git tag -d "$TAG" 2>/dev/null || true
+          git push origin ":refs/tags/$TAG" 2>/dev/null || true
+
       - name: Bump version and create tag
         run: npx commit-and-tag-version --no-verify
 
-      - name: Push changes and tags
-        run: git push --follow-tags
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: chore/version-bump
+          delete-branch: true
+          title: "chore: version bump [skip ci]"
+          body: "Automated version bump from commit-and-tag-version."
+          commit-message: "chore: version bump [skip ci]"
+          labels: automated
