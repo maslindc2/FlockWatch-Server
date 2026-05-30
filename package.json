@@ -58,10 +58,6 @@
         "ts-node": "^10.9.2",
         "typedoc": "^0.28.19",
         "typescript": "^6.0.3",
-        "typescript-eslint": "^8.59.4"
-    },
-    "allowScripts": {
-        "mongodb-memory-server@11.1.0": true,
-        "unrs-resolver@1.11.1": true
+        "typescript-eslint": "^8.60.0"
     }
 }
