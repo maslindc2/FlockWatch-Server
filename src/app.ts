@@ -63,10 +63,7 @@ class App {
                 cors({
                     origin: (origin, callback) => {
                         //Allowed origins array which houses each domain
-                        const allowedOrigins = [
-                            process.env.FRONTEND_DOMAIN,
-                            process.env.SCRAPER_DOMAIN,
-                        ];
+                        const allowedOrigins = [process.env.FRONTEND_DOMAIN, process.env.SCRAPER_DOMAIN];
                         if (allowedOrigins.includes(origin)) {
                             callback(null, true);
                             return;

@@ -62,6 +62,7 @@ class FlockDataSyncService {
             return;
         }
 
+        
         const data = await this.requestDataService.fetchLatestFlockData(
             modelInfo?.auth_id as string
         );
