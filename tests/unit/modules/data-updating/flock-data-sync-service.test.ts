@@ -190,8 +190,10 @@ describe("FlockDataSyncService", () => {
                 LastReportDateService.prototype,
                 "getAuthID"
             ).mockResolvedValueOnce(null as any);
-            const fetchSpy = jest
-                .spyOn(RequestDataService.prototype, "fetchLatestFlockData");
+            const fetchSpy = jest.spyOn(
+                RequestDataService.prototype,
+                "fetchLatestFlockData"
+            );
             const logSpy = jest
                 .spyOn(logger, "error")
                 .mockImplementation(() => logger);
