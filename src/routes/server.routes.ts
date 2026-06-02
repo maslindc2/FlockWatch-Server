@@ -56,7 +56,7 @@ router.get("/status-summary", async (req: Request, res: Response) => {
  */
 const dataUpdateLimiter = rateLimit({
     windowMs: 60 * 1000,
-    max: 5,
+    max: 1,
     message: { error: "Too many requests, please try again later" },
     standardHeaders: true,
     legacyHeaders: false,

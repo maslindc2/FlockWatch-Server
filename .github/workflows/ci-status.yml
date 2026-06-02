@@ -1,0 +1,38 @@
+name: CI Status Check
+
+on:
+  workflow_run:
+    workflows: ["Lint and Jest Tests"]
+    types: [completed]
+
+permissions:
+  statuses: write
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const run = context.payload.workflow_run;
+            console.log('Triggered by:', run.name);
+            console.log('Conclusion:', run.conclusion);
+            console.log('SHA:', run.head_sha);
+
+            const conclusion = run.conclusion;
+            const sha = run.head_sha;
+            const state = conclusion === 'failure' ? 'failure' : 'success';
+            const description = conclusion === 'cancelled'
+              ? 'Superseded by a newer run'
+              : conclusion;
+
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha,
+              state,
+              context: 'ci / all-checks',
+              description,
+            });

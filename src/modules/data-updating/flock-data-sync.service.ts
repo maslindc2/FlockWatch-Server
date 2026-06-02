@@ -57,10 +57,15 @@ class FlockDataSyncService {
      */
     private async requestAndApplyData() {
         const modelInfo = await this.lastReportDateService.getAuthID();
+        if (!modelInfo || !modelInfo.auth_id) {
+            logger.error("No auth ID found for requesting data!");
+            return;
+        }
 
         const data = await this.requestDataService.fetchLatestFlockData(
             modelInfo?.auth_id as string
         );
+
         if (!data) {
             logger.error("Data is empty!");
             await this.lastReportDateService.updateLastReportDate(false);

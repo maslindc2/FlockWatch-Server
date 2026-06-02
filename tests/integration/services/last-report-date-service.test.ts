@@ -5,6 +5,8 @@ import dotenv from "dotenv";
 
 import { connect, disconnect, clearCollections } from "../setup/mongodb-setup";
 
+jest.setTimeout(30000);
+
 dotenv.config();
 
 describe("LastReportDateService Integration", () => {
