@@ -191,16 +191,17 @@ describe("FlockDataSyncService", () => {
                 "getAuthID"
             ).mockResolvedValueOnce(null as any);
             const fetchSpy = jest
-                .spyOn(RequestDataService.prototype, "fetchLatestFlockData")
-                .mockResolvedValueOnce(null as any);
-            jest.spyOn(
-                LastReportDateService.prototype,
-                "updateLastReportDate"
-            ).mockResolvedValueOnce(undefined);
+                .spyOn(RequestDataService.prototype, "fetchLatestFlockData");
+            const logSpy = jest
+                .spyOn(logger, "error")
+                .mockImplementation(() => logger);
 
             await service.syncIfOutdated();
 
-            expect(fetchSpy).toHaveBeenCalledWith(undefined);
+            expect(logSpy).toHaveBeenCalledWith(
+                "No auth ID found for requesting data!"
+            );
+            expect(fetchSpy).not.toHaveBeenCalled();
         });
 
         it("should call fetchLatestFlockData with the auth ID", async () => {

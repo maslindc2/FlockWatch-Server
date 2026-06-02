@@ -278,6 +278,7 @@ class DataController {
             if (
                 !receivedAuthID ||
                 !expectedAuthID ||
+                receivedAuthID.length !== expectedAuthID.length ||
                 !timingSafeEqual(
                     Buffer.from(receivedAuthID),
                     Buffer.from(expectedAuthID)

@@ -599,6 +599,20 @@ describe("DataController", () => {
                 body: {
                     flock_cases_by_state: [],
                     period_summaries: [],
+                    site_details: [],
+                    historical_summary: {
+                        total_birds_affected_all_time: 0,
+                        total_sites_all_time: 0,
+                        total_active_sites: 0,
+                        total_released_sites: 0,
+                        total_na_sites: 0,
+                        total_birds_active: 0,
+                    },
+                    status_summary: {
+                        sites_confirmed_last_30_days: 0,
+                        sites_released_last_30_days: 0,
+                        birds_affected_last_30_days: 0,
+                    },
                     ...body,
                 },
                 ip: "127.0.0.1",
@@ -639,7 +653,19 @@ describe("DataController", () => {
         });
 
         it("should pass flock_cases_by_state and us_summary_stats to applyUpdate", async () => {
-            const flockData = [{ state: "PA" }];
+            const flockData = [
+                {
+                    state_abbreviation: "PA",
+                    state: "Pennsylvania",
+                    backyard_flocks: 2344370,
+                    commercial_flocks: 7,
+                    birds_affected: 7,
+                    total_flocks: 390728,
+                    latitude: 40.99773861,
+                    longitude: -76.19300025,
+                    last_reported_detection: new Date("2025-02-05"),
+                },
+            ];
             const applyUpdateSpy = jest
                 .spyOn(FlockDataUpdateService.prototype, "applyUpdate")
                 .mockResolvedValue({} as any);

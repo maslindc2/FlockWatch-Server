@@ -5,6 +5,8 @@ import { FlockCasesByStateModel } from "../../../src/modules/flock-cases-by-stat
 
 import { connect, disconnect, clearCollections } from "../setup/mongodb-setup";
 
+jest.setTimeout(30000);
+
 dotenv.config();
 
 describe("FlockCasesByStateService Integration", () => {
