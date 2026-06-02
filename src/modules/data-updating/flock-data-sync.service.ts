@@ -61,7 +61,7 @@ class FlockDataSyncService {
             logger.error("No auth ID found for requesting data!");
             return;
         }
-        
+
         const data = await this.requestDataService.fetchLatestFlockData(
             modelInfo?.auth_id as string
         );
