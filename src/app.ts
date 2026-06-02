@@ -62,13 +62,8 @@ class App {
                 "/data",
                 cors({
                     origin: (origin, callback) => {
-                        // Allow requests that don't have an origin
-                        if (!origin) {
-                            callback(null, true);
-                            return;
-                        }
                         //Allowed origins array which houses each domain
-                        const allowedOrigins = [process.env.FRONTEND_DOMAIN];
+                        const allowedOrigins = [process.env.FRONTEND_DOMAIN, process.env.SCRAPER_DOMAIN];
                         if (allowedOrigins.includes(origin)) {
                             callback(null, true);
                             return;

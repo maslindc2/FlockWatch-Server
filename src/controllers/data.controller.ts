@@ -9,8 +9,9 @@ import { StatusSummaryService } from "../modules/status-summary/status-summary.s
 import { FlockDataUpdateService } from "../modules/data-updating/flock-data-update.service";
 import { BuildUSSummary } from "../modules/data-updating/build-us-summary.service";
 import { FlockData } from "../modules/data-updating/flock-data.interface";
-import { FlockCasesByState } from "../modules/flock-cases-by-state/flock-cases-by-state.interface";
-import { PeriodSummary } from "../modules/us-summary/us-summary-stats.interface";
+import { timingSafeEqual } from "crypto";
+import { FlockDataSchema } from "../validation/flock-data.schema";
+import { ZodError } from "zod";
 
 class DataController {
     // Define the service instances that the data controller will use
@@ -264,62 +265,72 @@ class DataController {
      */
     public async receiveUpdatedData(req: Request, res: Response) {
         try {
-            // Extract the auth header
+            // 1. Extract and verify the Bearer token (unchanged from before,
+            //    but now uses timingSafeEqual -- shown here for completeness).
             const authHeader = req.headers.authorization;
-            // Slice out the auth ID that was sent
             const receivedAuthID = authHeader?.startsWith("Bearer ")
                 ? authHeader.slice(7).trim()
                 : null;
-            // Get the object containing the auth ID from the database
+
             const authIDObj = await this.lastReportDateService.getAuthID();
-            // Get the expected auth ID
             const expectedAuthID = authIDObj?.auth_id;
-            // Check if the received auth ID is equal to the expected auth ID
-            if (receivedAuthID === expectedAuthID) {
-                // Create our build us summary service
-                const buildUSSummary = new BuildUSSummary();
-                // Create our Flock Watch Update Service
-                const fwUpdateService = new FlockDataUpdateService();
-                // Get the array containing all the states' infection information
-                const flock_cases_by_state: FlockCasesByState[] =
-                    req.body.flock_cases_by_state;
-                // Get the period summaries
-                const period_summaries: PeriodSummary[] =
-                    req.body.period_summaries;
-                // Use the flock cases by state and period summaries to create the us summary stats
-                // Contains: All Time Totals and Last 30 Day infections
-                const us_summary_stats = buildUSSummary.createUSSummaryData(
-                    flock_cases_by_state,
-                    period_summaries
-                );
-                // Assemble the object we will use for updating the database
-                const dataForDB: FlockData = {
-                    flock_cases_by_state: flock_cases_by_state,
-                    us_summary_stats: us_summary_stats,
-                    site_details: req.body.site_details || [],
-                    historical_summary: req.body.historical_summary || {
-                        total_birds_affected_all_time: 0,
-                        total_sites_all_time: 0,
-                        total_active_sites: 0,
-                        total_released_sites: 0,
-                        total_na_sites: 0,
-                        total_birds_active: 0,
-                    },
-                    status_summary: req.body.status_summary || {
-                        sites_confirmed_last_30_days: 0,
-                        sites_released_last_30_days: 0,
-                        birds_affected_last_30_days: 0,
-                    },
-                };
-                // Update the database using the new data we received from the scraper system
-                await fwUpdateService.applyUpdate(dataForDB);
-            } else {
-                logger.error(`Invalid Auth ID received!`);
+
+            if (
+                !receivedAuthID ||
+                !expectedAuthID ||
+                !timingSafeEqual(
+                    Buffer.from(receivedAuthID),
+                    Buffer.from(expectedAuthID)
+                )
+            ) {
+                logger.error("Invalid Auth ID received!");
                 res.sendStatus(403);
                 return;
             }
+
+            // 2. Validate and parse the request body against the Zod schema.
+            //    .parse() throws a ZodError on failure; the catch block below
+            //    returns 400 with structured error details.
+            const parsed = FlockDataSchema.parse(req.body);
+
+            // 3. Build the US summary from the validated, typed data.
+            const buildUSSummary = new BuildUSSummary();
+            const us_summary_stats = buildUSSummary.createUSSummaryData(
+                parsed.flock_cases_by_state,
+                parsed.period_summaries
+            );
+
+            // 4. Assemble and persist.
+            const dataForDB: FlockData = {
+                flock_cases_by_state: parsed.flock_cases_by_state,
+                us_summary_stats,
+                site_details: parsed.site_details,
+                historical_summary: parsed.historical_summary,
+                status_summary: parsed.status_summary,
+            };
+
+            const fwUpdateService = new FlockDataUpdateService();
+            await fwUpdateService.applyUpdate(dataForDB);
+
             res.sendStatus(200);
-        } catch {
+        } catch (error) {
+            if (error instanceof ZodError) {
+                // Return the first validation failure to the caller.
+                // Do NOT log the full req.body -- it may contain large payloads.
+                logger.warn(
+                    `receiveUpdatedData: schema validation failed — ${error.issues.length} issue(s)`
+                );
+                res.status(400).json({
+                    error: "Invalid request body",
+                    details: error.issues.map((issue) => ({
+                        path: issue.path.join("."),
+                        message: issue.message,
+                    })),
+                });
+                return;
+            }
+
+            logger.error(`receiveUpdatedData unexpected error: ${error}`);
             res.sendStatus(500);
         }
     }
