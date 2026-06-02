@@ -62,7 +62,7 @@
         "typescript-eslint": "^8.60.0"
     },
     "allowScripts": {
-        "mongodb-memory-server@11.1.0": true,
-        "unrs-resolver@1.11.1": true
+        "mongodb-memory-server@11.2.0": true,
+        "unrs-resolver@1.12.2": true
     }
 }
