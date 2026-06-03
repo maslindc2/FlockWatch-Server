@@ -1,3 +1,31 @@
+/**
+ * Entry point for the FlockWatch server. Bootstraps the Express app, connects
+ * to MongoDB, and begins accepting HTTP requests.
+ *
+ * ---
+ *
+ * **Initialization sequence:**
+ * 1. Load environment variables from `.env` file via `dotenv`
+ * 2. Read `PORT` (default: `8080`) and `MONGODB_URI` (required)
+ * 3. Register process-level error handlers:
+ *    - `uncaughtException` — Logs and exits with code 1
+ *    - `unhandledRejection` — Logs the rejection reason
+ * 4. Instantiate {@link App} and start listening
+ *
+ * ---
+ *
+ * **Required environment variables:**
+ * - `MONGODB_URI` — MongoDB connection string
+ *
+ * **Optional environment variables:**
+ * - `PORT` — Server port (default: `8080`)
+ * - `NODE_ENV` — Environment mode (`"development"` for permissive CORS)
+ * - `AUTO_UPDATE` — `"true"` enables periodic data sync from the scraper
+ * - `FRONTEND_DOMAIN` — Allowed CORS origin in production
+ * - `SCRAPER_DOMAIN` — Allowed CORS origin for the scraper in production
+ *
+ * @module server
+ */
 import * as dotenv from "dotenv";
 import { App } from "./app";
 import { logger } from "./utils/winston-logger";
