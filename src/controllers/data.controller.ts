@@ -274,6 +274,46 @@ class DataController {
     }
 
     /**
+     * Get aggregated site summaries grouped by production type, with an optional
+     * query parameter to filter by a specific production type.
+     * @param req Clients request that we received (supports ?production_type query param)
+     * @param res Response that we will use to send back data retrieved from MongoDB
+     */
+    public async getProductionTypeSummary(req: Request, res: Response) {
+        try {
+            const productionType = req.query.production_type as
+                | string
+                | undefined;
+
+            if (
+                productionType !== undefined &&
+                productionType.trim().length === 0
+            ) {
+                res.status(400).json({ error: "Invalid production type" });
+                return;
+            }
+
+            const result =
+                await this.siteDetailsService.getProductionTypeSummary(
+                    productionType || undefined
+                );
+
+            logger.http(
+                `Received Request at Get Production Type Summary: ${req.url}`
+            );
+            res.json({ data: result });
+        } catch (error) {
+            logger.error(
+                "Error fetching production type summary:",
+                error
+            );
+            res.status(500).json({
+                error: "Failed to fetch production type summary",
+            });
+        }
+    }
+
+    /**
      * Get the historical summary
      * @param req Clients request that we received
      * @param res Response that we will use to send back data retrieved from MongoDB

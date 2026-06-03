@@ -708,6 +708,130 @@ describe("DataController", () => {
         });
     });
 
+    // -- getProductionTypeSummary ---------------------------------------------
+
+    describe("getProductionTypeSummary", () => {
+        const summaryData = [
+            {
+                production_type: "Commercial Broiler Breeder",
+                total_sites: 10,
+                total_birds_affected: 50000,
+                by_status: { active: 2, released: 7, na: 1 },
+            },
+        ];
+
+        it("should call getProductionTypeSummary on the service with production_type query param", async () => {
+            const serviceSpy = jest
+                .spyOn(
+                    SiteDetailsService.prototype,
+                    "getProductionTypeSummary"
+                )
+                .mockResolvedValueOnce(summaryData);
+            req = mockRequest({
+                url: "/sites/summary",
+                query: {
+                    production_type: "Commercial Broiler Breeder",
+                },
+            });
+
+            await controller.getProductionTypeSummary(req, res);
+
+            expect(serviceSpy).toHaveBeenCalledWith(
+                "Commercial Broiler Breeder"
+            );
+        });
+
+        it("should call getProductionTypeSummary on the service without a filter when query param is absent", async () => {
+            const serviceSpy = jest
+                .spyOn(
+                    SiteDetailsService.prototype,
+                    "getProductionTypeSummary"
+                )
+                .mockResolvedValueOnce(summaryData);
+            req = mockRequest({
+                url: "/sites/summary",
+                query: {},
+            });
+
+            await controller.getProductionTypeSummary(req, res);
+
+            expect(serviceSpy).toHaveBeenCalledWith(undefined);
+        });
+
+        it("should return 400 for empty production_type query param", async () => {
+            req = mockRequest({
+                url: "/sites/summary",
+                query: { production_type: "   " },
+            });
+
+            await controller.getProductionTypeSummary(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({
+                error: "Invalid production type",
+            });
+        });
+
+        it("should respond with the data wrapped in an object", async () => {
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "getProductionTypeSummary"
+            ).mockResolvedValueOnce(summaryData);
+            req = mockRequest({
+                url: "/sites/summary",
+                query: {
+                    production_type: "Commercial Broiler Breeder",
+                },
+            });
+
+            await controller.getProductionTypeSummary(req, res);
+
+            expect(res.json).toHaveBeenCalledWith({
+                data: summaryData,
+            });
+        });
+
+        it("should log the request url", async () => {
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "getProductionTypeSummary"
+            ).mockResolvedValueOnce(summaryData);
+            const logSpy = jest
+                .spyOn(logger, "http")
+                .mockImplementation(() => logger);
+            req = mockRequest({
+                url: "/sites/summary?production_type=Commercial%20Broiler%20Breeder",
+                query: {
+                    production_type: "Commercial Broiler Breeder",
+                },
+            });
+
+            await controller.getProductionTypeSummary(req, res);
+
+            expect(logSpy).toHaveBeenCalledWith(
+                "Received Request at Get Production Type Summary: /sites/summary?production_type=Commercial%20Broiler%20Breeder"
+            );
+        });
+
+        it("should return 500 when the service throws", async () => {
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "getProductionTypeSummary"
+            ).mockRejectedValueOnce(new Error("DB error"));
+            req = mockRequest({
+                url: "/sites/summary",
+                query: {},
+            });
+
+            await controller.getProductionTypeSummary(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.json).toHaveBeenCalledWith({
+                error: "Failed to fetch production type summary",
+            });
+        });
+    });
+
     // -- getUSSummary ---------------------------------------------------------
 
     describe("getUSSummary", () => {

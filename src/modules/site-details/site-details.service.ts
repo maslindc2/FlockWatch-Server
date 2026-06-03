@@ -1,4 +1,4 @@
-import { SiteDetails } from "./site-details.interface";
+import { SiteDetails, ProductionTypeSummary } from "./site-details.interface";
 import { SiteDetailsModel } from "./site-details.model";
 import { logger } from "../../utils/winston-logger";
 
@@ -180,6 +180,89 @@ class SiteDetailsService {
             .distinct("production_type")
             .exec();
         return types.sort();
+    }
+
+    /**
+     * Retrieve aggregated summaries grouped by production_type, with an optional
+     * case-insensitive filter for a specific production type. Uses MongoDB aggregation
+     * to compute total site counts, total birds affected, and a per-status breakdown
+     * in a single round trip.
+     * @param productionType Optional production type to filter by. When omitted,
+     *                       summaries for all production types are returned.
+     * @returns Array of ProductionTypeSummary objects sorted alphabetically by production_type.
+     */
+    public async getProductionTypeSummary(
+        productionType?: string
+    ): Promise<ProductionTypeSummary[]> {
+        const pipeline: any[] = [];
+
+        if (productionType) {
+            pipeline.push({
+                $match: {
+                    production_type: {
+                        $regex: new RegExp(
+                            `^${this.escapeRegex(productionType)}$`,
+                            "i"
+                        ),
+                    },
+                },
+            });
+        }
+
+        pipeline.push(
+            {
+                $group: {
+                    _id: "$production_type",
+                    total_sites: { $sum: 1 },
+                    total_birds_affected: { $sum: "$birds_affected" },
+                    active_sites: {
+                        $sum: {
+                            $cond: [
+                                { $eq: ["$status", "active"] },
+                                1,
+                                0,
+                            ],
+                        },
+                    },
+                    released_sites: {
+                        $sum: {
+                            $cond: [
+                                { $eq: ["$status", "released"] },
+                                1,
+                                0,
+                            ],
+                        },
+                    },
+                    na_sites: {
+                        $sum: {
+                            $cond: [
+                                { $eq: ["$status", "na"] },
+                                1,
+                                0,
+                            ],
+                        },
+                    },
+                },
+            },
+            {
+                $project: {
+                    _id: 0,
+                    production_type: "$_id",
+                    total_sites: 1,
+                    total_birds_affected: 1,
+                    by_status: {
+                        active: "$active_sites",
+                        released: "$released_sites",
+                        na: "$na_sites",
+                    },
+                },
+            },
+            { $sort: { production_type: 1 } }
+        );
+
+        return SiteDetailsModel.getModel
+            .aggregate<ProductionTypeSummary>(pipeline)
+            .exec();
     }
 
     /**

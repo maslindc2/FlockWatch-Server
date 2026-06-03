@@ -12,4 +12,20 @@ interface SiteDetails {
     status: string;
     birds_affected: number;
 }
-export type { SiteDetails };
+
+/**
+ * Aggregated summary of site details grouped by production type.
+ * Contains total counts, total birds affected, and a breakdown by status.
+ */
+interface ProductionTypeSummary {
+    production_type: string;
+    total_sites: number;
+    total_birds_affected: number;
+    by_status: {
+        active: number;
+        released: number;
+        na: number;
+    };
+}
+
+export type { SiteDetails, ProductionTypeSummary };

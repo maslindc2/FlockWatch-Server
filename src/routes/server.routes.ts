@@ -142,6 +142,24 @@
  *
  * ---
  *
+ * **GET `/sites/summary`**
+ *
+ * Retrieve aggregated site summaries grouped by production type. Each entry
+ * includes total sites, total birds affected, and a breakdown by status
+ * (active / released / na).
+ *
+ * Query params:
+ * - `?production_type` — Optional. If provided (e.g. `"Commercial Turkey Meat Bird"`),
+ *   only summaries matching that production type are returned. Case-insensitive.
+ *   URL-encode spaces as `%20`.
+ *
+ * Response: `{ data: ProductionTypeSummary[] }`
+ *
+ * Error:
+ * - `400` — Invalid (empty) production type query parameter
+ *
+ * ---
+ *
  * **GET `/historical-summary`**
  *
  * Retrieve the all-time historical summary of avian influenza statistics.
@@ -245,6 +263,10 @@ router.get(
 
 router.get("/sites/production-types", async (req: Request, res: Response) => {
     dataController.getProductionTypes(req, res);
+});
+
+router.get("/sites/summary", async (req: Request, res: Response) => {
+    dataController.getProductionTypeSummary(req, res);
 });
 
 router.get("/sites/:specialId", async (req: Request, res: Response) => {

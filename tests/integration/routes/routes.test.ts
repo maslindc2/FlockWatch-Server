@@ -386,4 +386,143 @@ describe("Routes integration tests", () => {
             expect(res.body.metadata).toBeDefined();
         });
     });
+
+    // -- GET /data/sites/summary -----------------------------------------------
+
+    describe("GET /data/sites/summary", () => {
+        const siteDetails: SiteDetails[] = [
+            {
+                special_id: "Site 1",
+                county: "County A",
+                state: "State A",
+                production_type: "Commercial Broiler Breeder",
+                confirmed_diagnosis_date: new Date("2024-01-01"),
+                status: "active",
+                birds_affected: 100,
+            },
+            {
+                special_id: "Site 2",
+                county: "County B",
+                state: "State B",
+                production_type: "Commercial Broiler Breeder",
+                confirmed_diagnosis_date: new Date("2024-02-01"),
+                status: "released",
+                birds_affected: 200,
+            },
+            {
+                special_id: "Site 3",
+                county: "County C",
+                state: "State C",
+                production_type: "Commercial Broiler Breeder",
+                confirmed_diagnosis_date: new Date("2024-03-01"),
+                status: "released",
+                birds_affected: 150,
+            },
+            {
+                special_id: "Site 4",
+                county: "County D",
+                state: "State D",
+                production_type: "Backyard Flock",
+                confirmed_diagnosis_date: new Date("2024-04-01"),
+                status: "na",
+                birds_affected: 10,
+            },
+        ];
+
+        beforeEach(async () => {
+            const siteDetailsService = new SiteDetailsService();
+            await siteDetailsService.upsertSiteDetails(siteDetails);
+        });
+
+        it("should return aggregated summaries for all production types", async () => {
+            const res = await request(new App().app)
+                .get("/data/sites/summary")
+                .expect("Content-Type", /json/)
+                .expect(200);
+
+            expect(res.body.data).toHaveLength(2);
+
+            const broilerSummary = res.body.data.find(
+                (s: any) =>
+                    s.production_type === "Commercial Broiler Breeder"
+            );
+            expect(broilerSummary).toEqual({
+                production_type: "Commercial Broiler Breeder",
+                total_sites: 3,
+                total_birds_affected: 450,
+                by_status: { active: 1, released: 2, na: 0 },
+            });
+
+            const backyardSummary = res.body.data.find(
+                (s: any) => s.production_type === "Backyard Flock"
+            );
+            expect(backyardSummary).toEqual({
+                production_type: "Backyard Flock",
+                total_sites: 1,
+                total_birds_affected: 10,
+                by_status: { active: 0, released: 0, na: 1 },
+            });
+        });
+
+        it("should return summaries sorted alphabetically by production_type", async () => {
+            const res = await request(new App().app)
+                .get("/data/sites/summary")
+                .expect(200);
+
+            const types = res.body.data.map(
+                (s: any) => s.production_type
+            );
+            expect(types).toEqual([
+                "Backyard Flock",
+                "Commercial Broiler Breeder",
+            ]);
+        });
+
+        it("should filter by production_type query param", async () => {
+            const res = await request(new App().app)
+                .get(
+                    "/data/sites/summary?production_type=Backyard%20Flock"
+                )
+                .expect(200);
+
+            expect(res.body.data).toHaveLength(1);
+            expect(res.body.data[0]).toEqual({
+                production_type: "Backyard Flock",
+                total_sites: 1,
+                total_birds_affected: 10,
+                by_status: { active: 0, released: 0, na: 1 },
+            });
+        });
+
+        it("should be case-insensitive when filtering by production_type", async () => {
+            const res = await request(new App().app)
+                .get(
+                    "/data/sites/summary?production_type=BACKYARD%20FLOCK"
+                )
+                .expect(200);
+
+            expect(res.body.data).toHaveLength(1);
+            expect(res.body.data[0].production_type).toBe(
+                "Backyard Flock"
+            );
+        });
+
+        it("should return empty array for non-existent production type", async () => {
+            const res = await request(new App().app)
+                .get(
+                    "/data/sites/summary?production_type=Nonexistent%20Type"
+                )
+                .expect(200);
+
+            expect(res.body.data).toEqual([]);
+        });
+
+        it("should include metadata in the response", async () => {
+            const res = await request(new App().app)
+                .get("/data/sites/summary")
+                .expect(200);
+
+            expect(res.body.metadata).toBeDefined();
+        });
+    });
 });

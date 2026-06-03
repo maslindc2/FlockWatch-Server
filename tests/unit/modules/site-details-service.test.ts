@@ -1,6 +1,9 @@
 import { SiteDetailsService } from "../../../src/modules/site-details/site-details.service";
 import { SiteDetailsModel } from "../../../src/modules/site-details/site-details.model";
-import { SiteDetails } from "../../../src/modules/site-details/site-details.interface";
+import {
+    SiteDetails,
+    ProductionTypeSummary,
+} from "../../../src/modules/site-details/site-details.interface";
 import { logger } from "../../../src/utils/winston-logger";
 
 // ---- Factories --------------------------------------------------------------
@@ -513,6 +516,145 @@ describe("SiteDetailsService", () => {
             mockDistinct([]);
 
             const result = await service.getDistinctProductionTypes();
+
+            expect(result).toEqual([]);
+        });
+    });
+
+    // -- getProductionTypeSummary ----------------------------------------------
+
+    describe("getProductionTypeSummary", () => {
+        const mockAggregate = (resolvedValue: ProductionTypeSummary[]) => {
+            const execMock = jest.fn().mockResolvedValue(resolvedValue);
+            jest.spyOn(
+                SiteDetailsModel.getModel,
+                "aggregate"
+            ).mockReturnValue({ exec: execMock } as any);
+            return execMock;
+        };
+
+        it("should include a $match stage when productionType is provided", async () => {
+            mockAggregate([]);
+
+            await service.getProductionTypeSummary(
+                "Commercial Broiler Breeder"
+            );
+
+            const pipeline = (
+                SiteDetailsModel.getModel.aggregate as jest.Mock
+            ).mock.calls[0][0];
+            expect(pipeline[0]).toHaveProperty("$match");
+            expect(pipeline[0].$match.production_type.$regex).toBeInstanceOf(
+                RegExp
+            );
+        });
+
+        it("should omit the $match stage when productionType is not provided", async () => {
+            mockAggregate([]);
+
+            await service.getProductionTypeSummary();
+
+            const pipeline = (
+                SiteDetailsModel.getModel.aggregate as jest.Mock
+            ).mock.calls[0][0];
+            expect(pipeline[0]).not.toHaveProperty("$match");
+        });
+
+        it("should use case-insensitive regex filter when productionType is provided", async () => {
+            mockAggregate([]);
+
+            await service.getProductionTypeSummary(
+                "Commercial Broiler Breeder"
+            );
+
+            const pipeline = (
+                SiteDetailsModel.getModel.aggregate as jest.Mock
+            ).mock.calls[0][0];
+            const regex: RegExp =
+                pipeline[0].$match.production_type.$regex;
+            expect(regex.flags).toBe("i");
+            expect(regex.test("Commercial Broiler Breeder")).toBe(true);
+            expect(regex.test("commercial broiler breeder")).toBe(true);
+        });
+
+        it("should escape special regex characters in production type filter", async () => {
+            mockAggregate([]);
+
+            await service.getProductionTypeSummary("Table Eggs (Layer)");
+
+            const pipeline = (
+                SiteDetailsModel.getModel.aggregate as jest.Mock
+            ).mock.calls[0][0];
+            const regex: RegExp =
+                pipeline[0].$match.production_type.$regex;
+            expect(regex.test("Table Eggs (Layer)")).toBe(true);
+            expect(regex.test("Table Eggs Layer")).toBe(false);
+        });
+
+        it("should include $group stage with status $cond expressions", async () => {
+            mockAggregate([]);
+
+            await service.getProductionTypeSummary();
+
+            const pipeline = (
+                SiteDetailsModel.getModel.aggregate as jest.Mock
+            ).mock.calls[0][0];
+            expect(pipeline).toHaveLength(3);
+            expect(pipeline[0].$group).toBeDefined();
+            expect(
+                pipeline[0].$group.active_sites.$sum.$cond
+            ).toBeDefined();
+            expect(
+                pipeline[0].$group.released_sites.$sum.$cond
+            ).toBeDefined();
+            expect(
+                pipeline[0].$group.na_sites.$sum.$cond
+            ).toBeDefined();
+            expect(
+                pipeline[0].$group.active_sites.$sum.$cond
+            ).toEqual([{ $eq: ["$status", "active"] }, 1, 0]);
+        });
+
+        it("should include $project and $sort stages", async () => {
+            mockAggregate([]);
+
+            await service.getProductionTypeSummary();
+
+            const pipeline = (
+                SiteDetailsModel.getModel.aggregate as jest.Mock
+            ).mock.calls[0][0];
+            expect(pipeline[1].$project).toBeDefined();
+            expect(pipeline[2].$sort).toBeDefined();
+        });
+
+        it("should return the aggregated result from the service", async () => {
+            const expected: ProductionTypeSummary[] = [
+                {
+                    production_type: "Commercial Broiler Breeder",
+                    total_sites: 10,
+                    total_birds_affected: 50000,
+                    by_status: { active: 2, released: 7, na: 1 },
+                },
+                {
+                    production_type: "Commercial Table Eggs",
+                    total_sites: 5,
+                    total_birds_affected: 100000,
+                    by_status: { active: 1, released: 3, na: 1 },
+                },
+            ];
+            mockAggregate(expected);
+
+            const result = await service.getProductionTypeSummary();
+
+            expect(result).toEqual(expected);
+        });
+
+        it("should return an empty array when no sites match the production type", async () => {
+            mockAggregate([]);
+
+            const result = await service.getProductionTypeSummary(
+                "Nonexistent Type"
+            );
 
             expect(result).toEqual([]);
         });
