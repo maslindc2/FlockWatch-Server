@@ -99,7 +99,7 @@ describe("DataController", () => {
 
             expect(res.status).toHaveBeenCalledWith(500);
             expect(res.json).toHaveBeenCalledWith({
-                error: "Failed to fetch last report date",
+                error: "Failed to fetch flock cases",
             });
         });
 
@@ -154,6 +154,24 @@ describe("DataController", () => {
             await controller.getStateFlockCase(req, res);
 
             expect(res.json).toHaveBeenCalledWith({ data: fakeData });
+        });
+
+        it("should return 404 when the service returns null", async () => {
+            jest.spyOn(
+                FlockCasesByStateService.prototype,
+                "getStateFlockCase"
+            ).mockResolvedValueOnce(null);
+            req = mockRequest({
+                url: "/flock-cases/XX",
+                params: { stateAbbreviation: "XX" },
+            });
+
+            await controller.getStateFlockCase(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith({
+                message: "State not found",
+            });
         });
 
         it("should log the request url", async () => {
@@ -332,6 +350,24 @@ describe("DataController", () => {
             req = mockRequest({
                 url: "/sites/status/active",
                 params: { status: "active" },
+                query: {},
+            });
+
+            await controller.getSitesByStatus(req, res);
+
+            expect(serviceSpy).toHaveBeenCalledWith("active", 1, 100);
+        });
+
+        it("should lowercase the status before passing to the service", async () => {
+            const serviceSpy = jest
+                .spyOn(
+                    SiteDetailsService.prototype,
+                    "getSitesByStatusPaginated"
+                )
+                .mockResolvedValueOnce(paginatedResult);
+            req = mockRequest({
+                url: "/sites/status/ACTIVE",
+                params: { status: "ACTIVE" },
                 query: {},
             });
 
