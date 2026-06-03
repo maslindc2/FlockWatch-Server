@@ -29,18 +29,33 @@ CommonJS modules (`"type": "commonjs"` in package.json).
 - **Models:** Mongoose models follow the pattern: private `static schema`, public `static getModel`.
 - **Testing:** Jest with `ts-jest`. Unit tests co-located in `tests/unit/`, integration in `tests/integration/`.
 
+## Entry Points
+
+| File | Purpose |
+|---|---|
+| `src/server.ts` | Starts HTTP server, listens on `PORT` |
+| `src/app.ts` | Express app setup (middleware, CORS, routes, lifecycle) |
+
 ## Module Structure
 
 ```
 src/
-  config/             — Constants (rolling periods)
-  controllers/        — Express route handlers
-  routes/             — Express router definitions
-  utils/              — Logger
+  app.ts                — Express app configuration
+  server.ts             — HTTP server entry point
+  config/
+    rolling-periods.ts  — Rolling period constants
+  controllers/
+    data.controller.ts  — Express route handlers
+  routes/
+    server.routes.ts    — Express router definitions
+  utils/
+    winston-logger.ts   — Winston logger setup
+  validation/
+    flock-data.schema.ts — Zod schemas for data validation
   modules/
-    database/         — MongoDB connection
-    data-updating/    — Sync, request, apply data from scraping service
-    fetch-retry/      — HTTP fetch with retry + auth
+    database/             — MongoDB connection
+    data-updating/        — Sync, request, apply data from scraping service
+    fetch-retry/          — HTTP fetch with retry + auth
     flock-cases-by-state/ — Per-state case data
     historical-summary/   — All-time summary
     last-report-date/     — Scrape timestamp + auth_id
