@@ -46,7 +46,7 @@ class DataController {
             res.json({ data: allFlockCases });
         } catch (error) {
             logger.error("Error fetching Flock Cases By State date:", error);
-            res.status(500).json({ error: "Failed to fetch last report date" });
+            res.status(500).json({ error: "Failed to fetch flock cases" });
         }
     }
     /**
@@ -55,7 +55,7 @@ class DataController {
      * @param res Response that we will use to send the requested state's document retrieved from MongoDB
      */
     public async getStateFlockCase(req: Request, res: Response) {
-        const requestedState = req.params.stateAbbreviation;
+        const requestedState = req.params.stateAbbreviation as string;
         try {
             if (!requestedState || !/^[A-Za-z]{2}$/.test(requestedState)) {
                 res.status(400).json({
@@ -67,6 +67,9 @@ class DataController {
                 await this.flockCasesByStateService.getStateFlockCase(
                     requestedState
                 );
+            if (!stateFlockCases) {
+                return res.status(404).json({ message: "State not found" });
+            }
             logger.http(
                 `Received Request at Get a State's Flock Case: ${req.url}`
             );
@@ -155,7 +158,7 @@ class DataController {
      * @param res Response that we will use to send back data retrieved from MongoDB
      */
     public async getSiteById(req: Request, res: Response) {
-        const specialId = req.params.specialId;
+        const specialId = req.params.specialId as string;
         try {
             if (!specialId || specialId.trim().length === 0) {
                 res.status(400).json({ error: "Invalid special ID" });
@@ -180,7 +183,7 @@ class DataController {
      * @param res Response that we will use to send back data retrieved from MongoDB
      */
     public async getSitesByStatus(req: Request, res: Response) {
-        const status = req.params.status;
+        const status = req.params.status as string;
         try {
             const validStatuses = ["active", "released", "na"];
             if (!status || !validStatuses.includes(status.toLowerCase())) {
@@ -197,7 +200,7 @@ class DataController {
 
             const result =
                 await this.siteDetailsService.getSitesByStatusPaginated(
-                    status,
+                    status.toLowerCase(),
                     page,
                     limit
                 );
@@ -273,7 +276,12 @@ class DataController {
                 : null;
 
             const authIDObj = await this.lastReportDateService.getAuthID();
-            const expectedAuthID = authIDObj?.auth_id;
+            if (!authIDObj) {
+                logger.error("No auth ID found in database");
+                res.sendStatus(500);
+                return;
+            }
+            const expectedAuthID = authIDObj.auth_id;
 
             if (
                 !receivedAuthID ||
