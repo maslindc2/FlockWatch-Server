@@ -67,8 +67,8 @@ const StatusTransitionSummarySchema = z.object({
  */
 export const FlockDataSchema = z
     .object({
-        flock_cases_by_state: z.array(FlockCasesByStateSchema).max(50),
-        period_summaries: z.array(Last30DaysSchema).max(1),
+        flock_cases_by_state: z.array(FlockCasesByStateSchema).max(53),
+        period_summaries: z.array(Last30DaysSchema).max(4),
         site_details: z.array(SiteDetailsSchema).max(3_000),
         historical_summary: HistoricalSummarySchema,
         status_summary: StatusTransitionSummarySchema,
