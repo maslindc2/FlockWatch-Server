@@ -472,6 +472,242 @@ describe("DataController", () => {
         });
     });
 
+    // -- getSitesByProductionType ---------------------------------------------
+
+    describe("getSitesByProductionType", () => {
+        const paginatedResult = {
+            data: [],
+            total: 0,
+            page: 1,
+            limit: 100,
+            totalPages: 0,
+        };
+
+        it("should call getSitesByProductionTypePaginated with productionType and default params", async () => {
+            const serviceSpy = jest
+                .spyOn(
+                    SiteDetailsService.prototype,
+                    "getSitesByProductionTypePaginated"
+                )
+                .mockResolvedValueOnce(paginatedResult);
+            req = mockRequest({
+                url: "/sites/production-type/Commercial%20Broiler%20Breeder",
+                params: { productionType: "Commercial Broiler Breeder" },
+                query: {},
+            });
+
+            await controller.getSitesByProductionType(req, res);
+
+            expect(serviceSpy).toHaveBeenCalledWith(
+                "Commercial Broiler Breeder",
+                1,
+                100
+            );
+        });
+
+        it("should pass page and limit from query params", async () => {
+            const serviceSpy = jest
+                .spyOn(
+                    SiteDetailsService.prototype,
+                    "getSitesByProductionTypePaginated"
+                )
+                .mockResolvedValueOnce(paginatedResult);
+            req = mockRequest({
+                url: "/sites/production-type/Table%20Eggs",
+                params: { productionType: "Table Eggs" },
+                query: { page: "3", limit: "25" },
+            });
+
+            await controller.getSitesByProductionType(req, res);
+
+            expect(serviceSpy).toHaveBeenCalledWith("Table Eggs", 3, 25);
+        });
+
+        it("should cap limit at 500", async () => {
+            const serviceSpy = jest
+                .spyOn(
+                    SiteDetailsService.prototype,
+                    "getSitesByProductionTypePaginated"
+                )
+                .mockResolvedValueOnce(paginatedResult);
+            req = mockRequest({
+                url: "/sites/production-type/Test",
+                params: { productionType: "Test" },
+                query: { limit: "9999" },
+            });
+
+            await controller.getSitesByProductionType(req, res);
+
+            expect(serviceSpy).toHaveBeenCalledWith("Test", 1, 500);
+        });
+
+        it("should return 400 for empty production type", async () => {
+            req = mockRequest({
+                url: "/sites/production-type/",
+                params: { productionType: "" },
+            });
+
+            await controller.getSitesByProductionType(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({
+                error: "Invalid production type",
+            });
+        });
+
+        it("should return 400 for whitespace-only production type", async () => {
+            req = mockRequest({
+                url: "/sites/production-type/%20%20",
+                params: { productionType: "   " },
+            });
+
+            await controller.getSitesByProductionType(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({
+                error: "Invalid production type",
+            });
+        });
+
+        it("should respond with the paginated result", async () => {
+            const result = {
+                data: [
+                    {
+                        special_id: "Elkhart 28",
+                        production_type: "Commercial",
+                        birds_affected: 100,
+                    },
+                ],
+                total: 1,
+                page: 1,
+                limit: 100,
+                totalPages: 1,
+            };
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "getSitesByProductionTypePaginated"
+            ).mockResolvedValueOnce(result as any);
+            req = mockRequest({
+                url: "/sites/production-type/Commercial",
+                params: { productionType: "Commercial" },
+                query: {},
+            });
+
+            await controller.getSitesByProductionType(req, res);
+
+            expect(res.json).toHaveBeenCalledWith(result);
+        });
+
+        it("should log the request url", async () => {
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "getSitesByProductionTypePaginated"
+            ).mockResolvedValueOnce(paginatedResult);
+            const logSpy = jest
+                .spyOn(logger, "http")
+                .mockImplementation(() => logger);
+            req = mockRequest({
+                url: "/sites/production-type/Commercial",
+                params: { productionType: "Commercial" },
+                query: {},
+            });
+
+            await controller.getSitesByProductionType(req, res);
+
+            expect(logSpy).toHaveBeenCalledWith(
+                "Received Request at Get Sites By Production Type: /sites/production-type/Commercial"
+            );
+        });
+
+        it("should return 500 when the service throws", async () => {
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "getSitesByProductionTypePaginated"
+            ).mockRejectedValueOnce(new Error("DB error"));
+            req = mockRequest({
+                url: "/sites/production-type/Commercial",
+                params: { productionType: "Commercial" },
+                query: {},
+            });
+
+            await controller.getSitesByProductionType(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.json).toHaveBeenCalledWith({
+                error: "Failed to fetch site details",
+            });
+        });
+    });
+
+    // -- getProductionTypes ----------------------------------------------------
+
+    describe("getProductionTypes", () => {
+        it("should call getDistinctProductionTypes on the service", async () => {
+            const serviceSpy = jest
+                .spyOn(
+                    SiteDetailsService.prototype,
+                    "getDistinctProductionTypes"
+                )
+                .mockResolvedValueOnce([]);
+            req = mockRequest({ url: "/sites/production-types" });
+
+            await controller.getProductionTypes(req, res);
+
+            expect(serviceSpy).toHaveBeenCalledTimes(1);
+        });
+
+        it("should respond with the data from the service", async () => {
+            const productionTypes = [
+                "Backyard Flock",
+                "Commercial Broiler Breeder",
+                "Commercial Table Eggs",
+            ];
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "getDistinctProductionTypes"
+            ).mockResolvedValueOnce(productionTypes);
+            req = mockRequest({ url: "/sites/production-types" });
+
+            await controller.getProductionTypes(req, res);
+
+            expect(res.json).toHaveBeenCalledWith({
+                data: productionTypes,
+            });
+        });
+
+        it("should log the request url", async () => {
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "getDistinctProductionTypes"
+            ).mockResolvedValueOnce([]);
+            const logSpy = jest
+                .spyOn(logger, "http")
+                .mockImplementation(() => logger);
+            req = mockRequest({ url: "/sites/production-types" });
+
+            await controller.getProductionTypes(req, res);
+
+            expect(logSpy).toHaveBeenCalledWith(
+                "Received Request at Get Production Types: /sites/production-types"
+            );
+        });
+
+        it("should return 500 when the service throws", async () => {
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "getDistinctProductionTypes"
+            ).mockRejectedValueOnce(new Error("DB error"));
+            req = mockRequest({ url: "/sites/production-types" });
+
+            await controller.getProductionTypes(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.json).toHaveBeenCalledWith({
+                error: "Failed to fetch production types",
+            });
+        });
+    });
+
     // -- getUSSummary ---------------------------------------------------------
 
     describe("getUSSummary", () => {

@@ -214,6 +214,66 @@ class DataController {
     }
 
     /**
+     * Get site details by production type with case-insensitive matching and pagination
+     * @param req Clients request that we received with the production type parameter (supports ?page and ?limit query params)
+     * @param res Response that we will use to send back data retrieved from MongoDB
+     */
+    public async getSitesByProductionType(req: Request, res: Response) {
+        const productionType = req.params.productionType as string;
+        try {
+            if (!productionType || productionType.trim().length === 0) {
+                res.status(400).json({ error: "Invalid production type" });
+                return;
+            }
+            const page = parseInt(req.query.page as string, 10) || 1;
+            const limit = Math.min(
+                parseInt(req.query.limit as string, 10) || 100,
+                500
+            );
+
+            const result =
+                await this.siteDetailsService.getSitesByProductionTypePaginated(
+                    productionType,
+                    page,
+                    limit
+                );
+
+            logger.http(
+                `Received Request at Get Sites By Production Type: ${req.url}`
+            );
+            res.json(result);
+        } catch (error) {
+            logger.error(
+                `Error fetching sites by production type ${productionType}:`,
+                error
+            );
+            res.status(500).json({ error: "Failed to fetch site details" });
+        }
+    }
+
+    /**
+     * Get all distinct production type values
+     * @param req Clients request that we received
+     * @param res Response that we will use to send back data retrieved from MongoDB
+     */
+    public async getProductionTypes(req: Request, res: Response) {
+        try {
+            const productionTypes =
+                await this.siteDetailsService.getDistinctProductionTypes();
+
+            logger.http(
+                `Received Request at Get Production Types: ${req.url}`
+            );
+            res.json({ data: productionTypes });
+        } catch (error) {
+            logger.error("Error fetching production types:", error);
+            res.status(500).json({
+                error: "Failed to fetch production types",
+            });
+        }
+    }
+
+    /**
      * Get the historical summary
      * @param req Clients request that we received
      * @param res Response that we will use to send back data retrieved from MongoDB

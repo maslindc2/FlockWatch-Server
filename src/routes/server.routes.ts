@@ -102,6 +102,32 @@
  *
  * ---
  *
+ * **GET `/sites/production-type/:productionType`**
+ *
+ * Retrieve site details filtered by production type with case-insensitive
+ * matching, with optional pagination.
+ *
+ * - `:productionType` — The production type to search for (e.g. `"Commercial Broiler Breeder"`).
+ *   Must be non-empty. URL-encode spaces as `%20`.
+ *
+ * Query params: `?page`, `?limit` (same defaults and limits as GET `/sites`)
+ *
+ * Response: Paginated result (same structure as GET `/sites`)
+ *
+ * Error:
+ * - `400` — Invalid (empty) production type
+ *
+ * ---
+ *
+ * **GET `/sites/production-types`**
+ *
+ * Retrieve all distinct production type values found in the collection,
+ * sorted alphabetically.
+ *
+ * Response: `{ data: string[] }`
+ *
+ * ---
+ *
  * **GET `/sites/:specialId`**
  *
  * Retrieve a single site detail by its unique special identifier.
@@ -208,6 +234,17 @@ router.get("/sites", async (req: Request, res: Response) => {
 
 router.get("/sites/status/:status", async (req: Request, res: Response) => {
     dataController.getSitesByStatus(req, res);
+});
+
+router.get(
+    "/sites/production-type/:productionType",
+    async (req: Request, res: Response) => {
+        dataController.getSitesByProductionType(req, res);
+    }
+);
+
+router.get("/sites/production-types", async (req: Request, res: Response) => {
+    dataController.getProductionTypes(req, res);
 });
 
 router.get("/sites/:specialId", async (req: Request, res: Response) => {

@@ -332,6 +332,192 @@ describe("SiteDetailsService", () => {
         });
     });
 
+    // -- getSitesByProductionTypePaginated --------------------------------------
+
+    describe("getSitesByProductionTypePaginated", () => {
+        const mockPaginatedQuery = (
+            resolvedData: SiteDetails[],
+            totalCount: number
+        ) => {
+            const leanMock = jest.fn().mockResolvedValue(resolvedData);
+            const limitMock = jest.fn().mockReturnValue({ lean: leanMock });
+            const skipMock = jest.fn().mockReturnValue({ limit: limitMock });
+            const selectMock = jest.fn().mockReturnValue({ skip: skipMock });
+            jest.spyOn(SiteDetailsModel.getModel, "find").mockReturnValue({
+                select: selectMock,
+            } as any);
+            jest.spyOn(
+                SiteDetailsModel.getModel,
+                "countDocuments"
+            ).mockResolvedValue(totalCount);
+            return { selectMock, skipMock, limitMock, leanMock };
+        };
+
+        it("should use case-insensitive regex filter for production_type", async () => {
+            mockPaginatedQuery([], 0);
+
+            await service.getSitesByProductionTypePaginated(
+                "Commercial Broiler Breeder",
+                1,
+                10
+            );
+
+            expect(
+                SiteDetailsModel.getModel.find
+            ).toHaveBeenCalledWith({
+                production_type: {
+                    $regex: expect.any(RegExp),
+                },
+            });
+            const filter = (
+                SiteDetailsModel.getModel.find as jest.Mock
+            ).mock.calls[0][0];
+            expect(filter.production_type.$regex.flags).toBe("i");
+            expect(
+                filter.production_type.$regex.test(
+                    "Commercial Broiler Breeder"
+                )
+            ).toBe(true);
+            expect(
+                filter.production_type.$regex.test(
+                    "commercial broiler breeder"
+                )
+            ).toBe(true);
+        });
+
+        it("should escape special regex characters in production type", async () => {
+            mockPaginatedQuery([], 0);
+
+            await service.getSitesByProductionTypePaginated(
+                "Table Eggs (Layer)",
+                1,
+                10
+            );
+
+            const filter = (
+                SiteDetailsModel.getModel.find as jest.Mock
+            ).mock.calls[0][0];
+            expect(
+                filter.production_type.$regex.test("Table Eggs (Layer)")
+            ).toBe(true);
+            expect(
+                filter.production_type.$regex.test("Table Eggs Layer")
+            ).toBe(false);
+        });
+
+        it("should return paginated results with correct structure", async () => {
+            const sites = [
+                makeEntry({
+                    special_id: "Elkhart 28",
+                    production_type: "Commercial",
+                }),
+                makeEntry({
+                    special_id: "Skagit 01",
+                    production_type: "Commercial",
+                }),
+            ];
+            mockPaginatedQuery(sites, 50);
+
+            const result =
+                await service.getSitesByProductionTypePaginated(
+                    "Commercial",
+                    2,
+                    10
+                );
+
+            expect(result).toEqual({
+                data: sites,
+                total: 50,
+                page: 2,
+                limit: 10,
+                totalPages: 5,
+            });
+        });
+
+        it("should return empty data when no sites match", async () => {
+            mockPaginatedQuery([], 0);
+
+            const result =
+                await service.getSitesByProductionTypePaginated(
+                    "Nonexistent Type",
+                    1,
+                    100
+                );
+
+            expect(result.data).toEqual([]);
+            expect(result.total).toBe(0);
+            expect(result.totalPages).toBe(0);
+        });
+
+        it("should hide _id and __v fields", async () => {
+            const { selectMock } = mockPaginatedQuery([], 0);
+
+            await service.getSitesByProductionTypePaginated(
+                "Test",
+                1,
+                100
+            );
+
+            expect(selectMock).toHaveBeenCalledWith("-_id -__v");
+        });
+
+        it("should use default page=1 and limit=100 when not specified", async () => {
+            const { skipMock, limitMock } = mockPaginatedQuery([], 0);
+
+            await service.getSitesByProductionTypePaginated("Test");
+
+            expect(skipMock).toHaveBeenCalledWith(0);
+            expect(limitMock).toHaveBeenCalledWith(100);
+        });
+    });
+
+    // -- getDistinctProductionTypes --------------------------------------------
+
+    describe("getDistinctProductionTypes", () => {
+        const mockDistinct = (resolvedValue: string[]) => {
+            const execMock = jest.fn().mockResolvedValue(resolvedValue);
+            jest.spyOn(
+                SiteDetailsModel.getModel,
+                "distinct"
+            ).mockReturnValue({ exec: execMock } as any);
+            return execMock;
+        };
+
+        it("should call distinct on production_type field", async () => {
+            mockDistinct([]);
+
+            await service.getDistinctProductionTypes();
+
+            expect(
+                SiteDetailsModel.getModel.distinct
+            ).toHaveBeenCalledWith("production_type");
+        });
+
+        it("should return distinct production types sorted alphabetically", async () => {
+            mockDistinct([
+                "Commercial Table Eggs",
+                "Backyard Flock",
+                "Commercial Broiler Breeder",
+            ]);
+
+            const result = await service.getDistinctProductionTypes();
+
+            expect(result).toEqual([
+                "Backyard Flock",
+                "Commercial Broiler Breeder",
+                "Commercial Table Eggs",
+            ]);
+        });
+
+        it("should return an empty array when no sites exist", async () => {
+            mockDistinct([]);
+
+            const result = await service.getDistinctProductionTypes();
+
+            expect(result).toEqual([]);
+        });
+    });
+
     // -- upsertSiteDetails - validation ---------------------------------------
 
     describe("upsertSiteDetails - validation", () => {

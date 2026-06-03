@@ -6,6 +6,8 @@ import { logger } from "../../../src/utils/winston-logger";
 import { USSummaryStats } from "../../../src/modules/us-summary/us-summary-stats.interface";
 import { FlockCasesByStateService } from "../../../src/modules/flock-cases-by-state/flock-cases-by-state.service";
 import { USSummaryService } from "../../../src/modules/us-summary/us-summary.service";
+import { SiteDetailsService } from "../../../src/modules/site-details/site-details.service";
+import { SiteDetails } from "../../../src/modules/site-details/site-details.interface";
 import { connect, disconnect, clearCollections } from "../setup/mongodb-setup";
 
 dotenv.config();
@@ -214,6 +216,174 @@ describe("Routes integration tests", () => {
                 "Received Request at US Summary /us-summary"
             );
             loggerSpy.mockClear();
+        });
+    });
+
+    // -- GET /data/sites/production-type/:productionType -----------------------
+
+    describe("GET /data/sites/production-type/:productionType", () => {
+        const siteDetails: SiteDetails[] = [
+            {
+                special_id: "Site 1",
+                county: "County A",
+                state: "State A",
+                production_type: "Commercial Broiler Breeder",
+                confirmed_diagnosis_date: new Date("2024-01-01"),
+                status: "active",
+                birds_affected: 100,
+            },
+            {
+                special_id: "Site 2",
+                county: "County B",
+                state: "State B",
+                production_type: "Commercial Table Eggs",
+                confirmed_diagnosis_date: new Date("2024-02-01"),
+                status: "released",
+                birds_affected: 200,
+            },
+            {
+                special_id: "Site 3",
+                county: "County C",
+                state: "State C",
+                production_type: "Commercial Broiler Breeder",
+                confirmed_diagnosis_date: new Date("2024-03-01"),
+                status: "active",
+                birds_affected: 150,
+            },
+            {
+                special_id: "Site 4",
+                county: "County D",
+                state: "State D",
+                production_type: "Backyard Flock",
+                confirmed_diagnosis_date: new Date("2024-04-01"),
+                status: "na",
+                birds_affected: 10,
+            },
+        ];
+
+        beforeEach(async () => {
+            const siteDetailsService = new SiteDetailsService();
+            await siteDetailsService.upsertSiteDetails(siteDetails);
+        });
+
+        it("should return sites matching the production type", async () => {
+            const res = await request(new App().app)
+                .get(
+                    "/data/sites/production-type/Commercial%20Broiler%20Breeder"
+                )
+                .expect("Content-Type", /json/)
+                .expect(200);
+
+            expect(res.body.data).toHaveLength(2);
+            expect(res.body.data[0].production_type).toBe(
+                "Commercial Broiler Breeder"
+            );
+            expect(res.body.data[1].production_type).toBe(
+                "Commercial Broiler Breeder"
+            );
+        });
+
+        it("should be case-insensitive", async () => {
+            const res = await request(new App().app)
+                .get(
+                    "/data/sites/production-type/COMMERCIAL%20BROILER%20BREEDER"
+                )
+                .expect(200);
+
+            expect(res.body.data).toHaveLength(2);
+        });
+
+        it("should return empty data for non-existent production type", async () => {
+            const res = await request(new App().app)
+                .get("/data/sites/production-type/Nonexistent%20Type")
+                .expect(200);
+
+            expect(res.body.data).toEqual([]);
+            expect(res.body.total).toBe(0);
+        });
+
+        it("should support pagination via query params", async () => {
+            const res = await request(new App().app)
+                .get(
+                    "/data/sites/production-type/Commercial%20Broiler%20Breeder?page=1&limit=1"
+                )
+                .expect(200);
+
+            expect(res.body.data).toHaveLength(1);
+            expect(res.body.total).toBe(2);
+            expect(res.body.page).toBe(1);
+            expect(res.body.limit).toBe(1);
+            expect(res.body.totalPages).toBe(2);
+        });
+
+        it("should include metadata in the response", async () => {
+            const res = await request(new App().app)
+                .get(
+                    "/data/sites/production-type/Commercial%20Broiler%20Breeder"
+                )
+                .expect(200);
+
+            expect(res.body.metadata).toBeDefined();
+        });
+    });
+
+    // -- GET /data/sites/production-types --------------------------------------
+
+    describe("GET /data/sites/production-types", () => {
+        const siteDetails: SiteDetails[] = [
+            {
+                special_id: "Site 1",
+                county: "County A",
+                state: "State A",
+                production_type: "Commercial Broiler Breeder",
+                confirmed_diagnosis_date: new Date("2024-01-01"),
+                status: "active",
+                birds_affected: 100,
+            },
+            {
+                special_id: "Site 2",
+                county: "County B",
+                state: "State B",
+                production_type: "Commercial Table Eggs",
+                confirmed_diagnosis_date: new Date("2024-02-01"),
+                status: "released",
+                birds_affected: 200,
+            },
+            {
+                special_id: "Site 3",
+                county: "County C",
+                state: "State C",
+                production_type: "Backyard Flock",
+                confirmed_diagnosis_date: new Date("2024-03-01"),
+                status: "active",
+                birds_affected: 10,
+            },
+        ];
+
+        beforeEach(async () => {
+            const siteDetailsService = new SiteDetailsService();
+            await siteDetailsService.upsertSiteDetails(siteDetails);
+        });
+
+        it("should return all distinct production types sorted alphabetically", async () => {
+            const res = await request(new App().app)
+                .get("/data/sites/production-types")
+                .expect("Content-Type", /json/)
+                .expect(200);
+
+            expect(res.body.data).toEqual([
+                "Backyard Flock",
+                "Commercial Broiler Breeder",
+                "Commercial Table Eggs",
+            ]);
+        });
+
+        it("should include metadata in the response", async () => {
+            const res = await request(new App().app)
+                .get("/data/sites/production-types")
+                .expect(200);
+
+            expect(res.body.metadata).toBeDefined();
         });
     });
 });
