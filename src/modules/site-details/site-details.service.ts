@@ -1,6 +1,7 @@
 import { SiteDetails, ProductionTypeSummary } from "./site-details.interface";
 import { SiteDetailsModel } from "./site-details.model";
 import { logger } from "../../utils/winston-logger";
+import { PipelineStage } from "mongoose";
 
 /**
  * Generic wrapper for paginated query results.
@@ -194,7 +195,7 @@ class SiteDetailsService {
     public async getProductionTypeSummary(
         productionType?: string
     ): Promise<ProductionTypeSummary[]> {
-        const pipeline: any[] = [];
+        const pipeline: PipelineStage[] = [];
 
         if (productionType) {
             pipeline.push({
