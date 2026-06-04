@@ -26,12 +26,12 @@
  *
  * @module server
  */
-import * as dotenv from "dotenv";
+import * as dotenvx from "@dotenvx/dotenvx";
 import { App } from "./app";
 import { logger } from "./utils/winston-logger";
 
 /** Load environment variables from .env file. */
-dotenv.config();
+dotenvx.config();
 
 /**
  * The port the Express server will listen on.
