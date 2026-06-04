@@ -525,4 +525,130 @@ describe("Routes integration tests", () => {
             expect(res.body.metadata).toBeDefined();
         });
     });
+
+    // -- GET /data/sites/timeline ----------------------------------------------
+
+    describe("GET /data/sites/timeline", () => {
+        const siteDetails: SiteDetails[] = [
+            {
+                special_id: "Site 1",
+                county: "County A",
+                state: "State A",
+                production_type: "Commercial",
+                confirmed_diagnosis_date: new Date("2024-11-01"),
+                status: "active",
+                birds_affected: 100000,
+            },
+            {
+                special_id: "Site 2",
+                county: "County B",
+                state: "State B",
+                production_type: "Backyard",
+                confirmed_diagnosis_date: new Date("2024-11-15"),
+                status: "active",
+                birds_affected: 240000,
+            },
+            {
+                special_id: "Site 3",
+                county: "County C",
+                state: "State C",
+                production_type: "Commercial",
+                confirmed_diagnosis_date: new Date("2024-12-01"),
+                status: "released",
+                birds_affected: 4800000,
+            },
+            {
+                special_id: "Site 4",
+                county: "County D",
+                state: "State D",
+                production_type: "Commercial",
+                confirmed_diagnosis_date: new Date("2024-12-20"),
+                status: "active",
+                birds_affected: 2000000,
+            },
+            {
+                special_id: "Site 5",
+                county: "County E",
+                state: "State E",
+                production_type: "Backyard",
+                confirmed_diagnosis_date: new Date("2025-01-10"),
+                status: "na",
+                birds_affected: 50000,
+            },
+        ];
+
+        beforeEach(async () => {
+            const siteDetailsService = new SiteDetailsService();
+            await siteDetailsService.upsertSiteDetails(siteDetails);
+        });
+
+        it("should return periods grouped by month", async () => {
+            const res = await request(new App().app)
+                .get("/data/sites/timeline?granularity=month")
+                .expect("Content-Type", /json/)
+                .expect(200);
+
+            expect(res.body.data.granularity).toBe("month");
+            expect(res.body.data.periods).toHaveLength(3);
+
+            expect(res.body.data.periods[0]).toEqual({
+                period: "2024-11",
+                new_confirmations: 2,
+                birds_affected: 340000,
+                cumulative_birds_affected: 340000,
+            });
+            expect(res.body.data.periods[1]).toEqual({
+                period: "2024-12",
+                new_confirmations: 2,
+                birds_affected: 6800000,
+                cumulative_birds_affected: 7140000,
+            });
+            expect(res.body.data.periods[2]).toEqual({
+                period: "2025-01",
+                new_confirmations: 1,
+                birds_affected: 50000,
+                cumulative_birds_affected: 7190000,
+            });
+        });
+
+        it("should default to month granularity", async () => {
+            const res = await request(new App().app)
+                .get("/data/sites/timeline")
+                .expect(200);
+
+            expect(res.body.data.granularity).toBe("month");
+        });
+
+        it("should return periods grouped by year", async () => {
+            const res = await request(new App().app)
+                .get("/data/sites/timeline?granularity=year")
+                .expect(200);
+
+            expect(res.body.data.granularity).toBe("year");
+
+            const periods = res.body.data.periods;
+            expect(periods).toHaveLength(2);
+            expect(periods[0].period).toBe("2024");
+            expect(periods[0].new_confirmations).toBe(4);
+            expect(periods[1].period).toBe("2025");
+            expect(periods[1].new_confirmations).toBe(1);
+        });
+
+        it("should return 400 for invalid granularity", async () => {
+            const res = await request(new App().app)
+                .get("/data/sites/timeline?granularity=invalid")
+                .expect(400);
+
+            expect(res.body.error).toContain("Invalid granularity");
+        });
+
+        it("should include metadata in the response", async () => {
+            const res = await request(new App().app)
+                .get("/data/sites/timeline?granularity=month")
+                .expect(200);
+
+            expect(res.body.metadata).toBeDefined();
+            expect(res.body.metadata.last_scraped_date).toBeDefined();
+        });
+    });
 });

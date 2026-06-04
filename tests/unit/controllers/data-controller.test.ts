@@ -5,6 +5,7 @@ import { LastReportDateService } from "../../../src/modules/last-report-date/las
 import { USSummaryService } from "../../../src/modules/us-summary/us-summary.service";
 import { FlockDataUpdateService } from "../../../src/modules/data-updating/flock-data-update.service";
 import { BuildUSSummary } from "../../../src/modules/data-updating/build-us-summary.service";
+import { OutbreakTimelineService } from "../../../src/modules/outbreak-timeline/outbreak-timeline.service";
 import { logger } from "../../../src/utils/winston-logger";
 import { Request, Response } from "express";
 
@@ -1142,6 +1143,143 @@ describe("DataController", () => {
             await controller.receiveUpdatedData(req, res);
 
             expect(res.sendStatus).toHaveBeenCalledWith(500);
+        });
+    });
+
+    // -- getSiteTimeline -------------------------------------------------------
+
+    describe("getSiteTimeline", () => {
+        it("should call getTimeline on the service with the provided granularity", async () => {
+            const serviceSpy = jest
+                .spyOn(
+                    OutbreakTimelineService.prototype,
+                    "getTimeline"
+                )
+                .mockResolvedValueOnce({
+                    granularity: "month",
+                    periods: [],
+                });
+            req = mockRequest({
+                url: "/sites/timeline",
+                query: { granularity: "month" },
+            });
+
+            await controller.getSiteTimeline(req, res);
+
+            expect(serviceSpy).toHaveBeenCalledWith("month");
+        });
+
+        it("should default to month granularity when not specified", async () => {
+            const serviceSpy = jest
+                .spyOn(
+                    OutbreakTimelineService.prototype,
+                    "getTimeline"
+                )
+                .mockResolvedValueOnce({
+                    granularity: "month",
+                    periods: [],
+                });
+            req = mockRequest({ url: "/sites/timeline", query: {} });
+
+            await controller.getSiteTimeline(req, res);
+
+            expect(serviceSpy).toHaveBeenCalledWith("month");
+        });
+
+        it("should respond with timeline data", async () => {
+            const fakeData = {
+                granularity: "month" as const,
+                periods: [
+                    {
+                        period: "2024-11",
+                        new_confirmations: 12,
+                        birds_affected: 340000,
+                        cumulative_birds_affected: 340000,
+                    },
+                ],
+            };
+            jest.spyOn(
+                OutbreakTimelineService.prototype,
+                "getTimeline"
+            ).mockResolvedValueOnce(fakeData);
+            req = mockRequest({
+                url: "/sites/timeline",
+                query: { granularity: "month" },
+            });
+
+            await controller.getSiteTimeline(req, res);
+
+            expect(res.json).toHaveBeenCalledWith({ data: fakeData });
+        });
+
+        it("should return 400 for invalid granularity", async () => {
+            req = mockRequest({
+                url: "/sites/timeline",
+                query: { granularity: "invalid" },
+            });
+
+            await controller.getSiteTimeline(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({
+                error: expect.stringContaining("Invalid granularity"),
+            });
+        });
+
+        it("should not call the service for invalid granularity", async () => {
+            const serviceSpy = jest.spyOn(
+                OutbreakTimelineService.prototype,
+                "getTimeline"
+            );
+            req = mockRequest({
+                url: "/sites/timeline",
+                query: { granularity: "bad" },
+            });
+
+            await controller.getSiteTimeline(req, res);
+
+            expect(serviceSpy).not.toHaveBeenCalled();
+        });
+
+        it("should log the request url", async () => {
+            jest.spyOn(
+                OutbreakTimelineService.prototype,
+                "getTimeline"
+            ).mockResolvedValueOnce({
+                granularity: "month",
+                periods: [],
+            });
+            const logSpy = jest
+                .spyOn(logger, "http")
+                .mockImplementation(() => logger);
+            req = mockRequest({
+                url: "/sites/timeline?granularity=month",
+                query: { granularity: "month" },
+            });
+
+            await controller.getSiteTimeline(req, res);
+
+            expect(logSpy).toHaveBeenCalledWith(
+                "Received Request at Site Timeline: /sites/timeline?granularity=month"
+            );
+        });
+
+        it("should return 500 when the service throws", async () => {
+            jest.spyOn(
+                OutbreakTimelineService.prototype,
+                "getTimeline"
+            ).mockRejectedValueOnce(new Error("Pipeline error"));
+            req = mockRequest({
+                url: "/sites/timeline",
+                query: { granularity: "month" },
+            });
+
+            await controller.getSiteTimeline(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.json).toHaveBeenCalledWith({
+                error: "Failed to fetch outbreak timeline",
+            });
         });
     });
 });

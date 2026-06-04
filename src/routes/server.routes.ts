@@ -160,6 +160,27 @@
  *
  * ---
  *
+ * **GET `/sites/timeline`**
+ *
+ * Retrieve outbreak timeline data with site records grouped into time-bucketed
+ * periods for visualizing outbreak waves (line/area charts).
+ *
+ * Query params:
+ * - `?granularity` — Bucket size: `"week"`, `"month"`, or `"year"` (default: `"month"`).
+ *
+ * Response: `{ data: { granularity, periods: PeriodEntry[] }, metadata }`
+ *
+ * Each `PeriodEntry`:
+ * - `period` — Bucket label (e.g. `"2024-11"`, `"2024-W47"`, `"2024"`)
+ * - `new_confirmations` — Number of newly confirmed sites in that period
+ * - `birds_affected` — Birds affected from sites confirmed in that period
+ * - `cumulative_birds_affected` — Running total of birds_affected across all periods
+ *
+ * Errors:
+ * - `400` — Invalid granularity value
+ *
+ * ---
+ *
  * **GET `/historical-summary`**
  *
  * Retrieve the all-time historical summary of avian influenza statistics.
@@ -267,6 +288,10 @@ router.get("/sites/production-types", async (req: Request, res: Response) => {
 
 router.get("/sites/summary", async (req: Request, res: Response) => {
     dataController.getProductionTypeSummary(req, res);
+});
+
+router.get("/sites/timeline", async (req: Request, res: Response) => {
+    dataController.getSiteTimeline(req, res);
 });
 
 router.get("/sites/:specialId", async (req: Request, res: Response) => {

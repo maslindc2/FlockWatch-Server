@@ -6,6 +6,7 @@ import { LastReportDateService } from "../modules/last-report-date/last-report-d
 import { SiteDetailsService } from "../modules/site-details/site-details.service";
 import { HistoricalSummaryService } from "../modules/historical-summary/historical-summary.service";
 import { StatusSummaryService } from "../modules/status-summary/status-summary.service";
+import { OutbreakTimelineService } from "../modules/outbreak-timeline/outbreak-timeline.service";
 import { FlockDataUpdateService } from "../modules/data-updating/flock-data-update.service";
 import { BuildUSSummary } from "../modules/data-updating/build-us-summary.service";
 import { FlockData } from "../modules/data-updating/flock-data.interface";
@@ -21,6 +22,7 @@ class DataController {
     private siteDetailsService: SiteDetailsService;
     private historicalSummaryService: HistoricalSummaryService;
     private statusSummaryService: StatusSummaryService;
+    private outbreakTimelineService: OutbreakTimelineService;
 
     // Create the service instances that Data Controller will use
     constructor() {
@@ -30,6 +32,7 @@ class DataController {
         this.siteDetailsService = new SiteDetailsService();
         this.historicalSummaryService = new HistoricalSummaryService();
         this.statusSummaryService = new StatusSummaryService();
+        this.outbreakTimelineService = new OutbreakTimelineService();
     }
     /**
      * Get all Avian Influenza cases in the United States
@@ -356,6 +359,40 @@ class DataController {
         } catch (error) {
             logger.error(`Error fetching status summary: ${error}`);
             res.status(500).json({ error: "Failed to fetch status summary" });
+        }
+    }
+
+    /**
+     * Get outbreak timeline data grouped into time-bucketed periods.
+     * Supports ?granularity=week|month|year (default: month).
+     * @param req Clients request that we received with optional ?granularity query param.
+     * @param res Response containing the timeline periods and metadata.
+     */
+    public async getSiteTimeline(req: Request, res: Response) {
+        try {
+            const granularity =
+                (req.query.granularity as string) || "month";
+
+            const validGranularities = ["week", "month", "year"];
+            if (!validGranularities.includes(granularity)) {
+                res.status(400).json({
+                    error: `Invalid granularity. Valid values: ${validGranularities.join(", ")}`,
+                });
+                return;
+            }
+
+            const result =
+                await this.outbreakTimelineService.getTimeline(granularity);
+
+            logger.http(
+                `Received Request at Site Timeline: ${req.url}`
+            );
+            res.json({ data: result });
+        } catch (error) {
+            logger.error("Error fetching outbreak timeline:", error);
+            res.status(500).json({
+                error: "Failed to fetch outbreak timeline",
+            });
         }
     }
 

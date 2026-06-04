@@ -29,6 +29,19 @@ const mockFindChain = (resolvedValue: any) => {
     return { selectMock, leanMock };
 };
 
+// Helper to mock the find().select().sort().skip().limit().lean() chain for paginated queries
+const mockPaginatedFindChain = (leanValue: any) => {
+    const leanMock = jest.fn().mockResolvedValue(leanValue);
+    const limitMock = jest.fn().mockReturnValue({ lean: leanMock });
+    const skipMock = jest.fn().mockReturnValue({ limit: limitMock });
+    const sortMock = jest.fn().mockReturnValue({ skip: skipMock });
+    const selectMock = jest.fn().mockReturnValue({ sort: sortMock });
+    jest.spyOn(SiteDetailsModel.getModel, "find").mockReturnValue({
+        select: selectMock,
+    } as any);
+    return { selectMock, sortMock, skipMock, limitMock, leanMock };
+};
+
 // Helper to mock the findOne().select().lean() chain
 const mockFindOneChain = (resolvedValue: any) => {
     const leanMock = jest.fn().mockResolvedValue(resolvedValue);
@@ -167,7 +180,8 @@ describe("SiteDetailsService", () => {
             const leanMock = jest.fn().mockResolvedValue(resolvedData);
             const limitMock = jest.fn().mockReturnValue({ lean: leanMock });
             const skipMock = jest.fn().mockReturnValue({ limit: limitMock });
-            const selectMock = jest.fn().mockReturnValue({ skip: skipMock });
+            const sortMock = jest.fn().mockReturnValue({ skip: skipMock });
+            const selectMock = jest.fn().mockReturnValue({ sort: sortMock });
             jest.spyOn(SiteDetailsModel.getModel, "find").mockReturnValue({
                 select: selectMock,
             } as any);
@@ -175,8 +189,16 @@ describe("SiteDetailsService", () => {
                 SiteDetailsModel.getModel,
                 "countDocuments"
             ).mockResolvedValue(totalCount);
-            return { selectMock, skipMock, limitMock, leanMock };
+            return { selectMock, sortMock, skipMock, limitMock, leanMock };
         };
+
+        it("should sort results by _id ascending", async () => {
+            const { sortMock } = mockPaginatedQuery([], 0);
+
+            await service.getAllSiteDetailsPaginated(1, 10);
+
+            expect(sortMock).toHaveBeenCalledWith({ _id: 1 });
+        });
 
         it("should return paginated results with correct structure", async () => {
             const sites = [makeEntry(), makeEntry({ special_id: "Skagit 01" })];
@@ -248,9 +270,11 @@ describe("SiteDetailsService", () => {
                 .spyOn(SiteDetailsModel.getModel, "find")
                 .mockReturnValue({
                     select: () => ({
-                        skip: () => ({
-                            limit: () => ({
-                                lean: jest.fn().mockResolvedValue([]),
+                        sort: () => ({
+                            skip: () => ({
+                                limit: () => ({
+                                    lean: jest.fn().mockResolvedValue([]),
+                                }),
                             }),
                         }),
                     }),
@@ -276,7 +300,8 @@ describe("SiteDetailsService", () => {
             const leanMock = jest.fn().mockResolvedValue(resolvedData);
             const limitMock = jest.fn().mockReturnValue({ lean: leanMock });
             const skipMock = jest.fn().mockReturnValue({ limit: limitMock });
-            const selectMock = jest.fn().mockReturnValue({ skip: skipMock });
+            const sortMock = jest.fn().mockReturnValue({ skip: skipMock });
+            const selectMock = jest.fn().mockReturnValue({ sort: sortMock });
             jest.spyOn(SiteDetailsModel.getModel, "find").mockReturnValue({
                 select: selectMock,
             } as any);
@@ -284,7 +309,7 @@ describe("SiteDetailsService", () => {
                 SiteDetailsModel.getModel,
                 "countDocuments"
             ).mockResolvedValue(totalCount);
-            return { selectMock, skipMock, limitMock, leanMock };
+            return { selectMock, sortMock, skipMock, limitMock, leanMock };
         };
 
         it("should filter by status", async () => {
@@ -345,7 +370,8 @@ describe("SiteDetailsService", () => {
             const leanMock = jest.fn().mockResolvedValue(resolvedData);
             const limitMock = jest.fn().mockReturnValue({ lean: leanMock });
             const skipMock = jest.fn().mockReturnValue({ limit: limitMock });
-            const selectMock = jest.fn().mockReturnValue({ skip: skipMock });
+            const sortMock = jest.fn().mockReturnValue({ skip: skipMock });
+            const selectMock = jest.fn().mockReturnValue({ sort: sortMock });
             jest.spyOn(SiteDetailsModel.getModel, "find").mockReturnValue({
                 select: selectMock,
             } as any);
@@ -353,7 +379,7 @@ describe("SiteDetailsService", () => {
                 SiteDetailsModel.getModel,
                 "countDocuments"
             ).mockResolvedValue(totalCount);
-            return { selectMock, skipMock, limitMock, leanMock };
+            return { selectMock, sortMock, skipMock, limitMock, leanMock };
         };
 
         it("should use case-insensitive regex filter for production_type", async () => {
