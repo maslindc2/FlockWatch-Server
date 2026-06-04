@@ -47,6 +47,7 @@ class SiteDetailsService {
             SiteDetailsModel.getModel
                 .find({})
                 .select("-_id -__v")
+                .sort({ _id: 1 })
                 .skip(skip)
                 .limit(limit)
                 .lean<SiteDetails[]>(),
@@ -105,6 +106,7 @@ class SiteDetailsService {
             SiteDetailsModel.getModel
                 .find(filter)
                 .select("-_id -__v")
+                .sort({ _id: 1 })
                 .skip(skip)
                 .limit(limit)
                 .lean<SiteDetails[]>(),
@@ -156,6 +158,7 @@ class SiteDetailsService {
             SiteDetailsModel.getModel
                 .find(filter)
                 .select("-_id -__v")
+                .sort({ _id: 1 })
                 .skip(skip)
                 .limit(limit)
                 .lean<SiteDetails[]>(),
