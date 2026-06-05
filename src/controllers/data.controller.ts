@@ -6,6 +6,7 @@ import { LastReportDateService } from "../modules/last-report-date/last-report-d
 import { SiteDetailsService } from "../modules/site-details/site-details.service";
 import { HistoricalSummaryService } from "../modules/historical-summary/historical-summary.service";
 import { StatusSummaryService } from "../modules/status-summary/status-summary.service";
+import { OutbreakTimelineService } from "../modules/outbreak-timeline/outbreak-timeline.service";
 import { FlockDataUpdateService } from "../modules/data-updating/flock-data-update.service";
 import { BuildUSSummary } from "../modules/data-updating/build-us-summary.service";
 import { FlockData } from "../modules/data-updating/flock-data.interface";
@@ -21,6 +22,7 @@ class DataController {
     private siteDetailsService: SiteDetailsService;
     private historicalSummaryService: HistoricalSummaryService;
     private statusSummaryService: StatusSummaryService;
+    private outbreakTimelineService: OutbreakTimelineService;
 
     // Create the service instances that Data Controller will use
     constructor() {
@@ -30,6 +32,7 @@ class DataController {
         this.siteDetailsService = new SiteDetailsService();
         this.historicalSummaryService = new HistoricalSummaryService();
         this.statusSummaryService = new StatusSummaryService();
+        this.outbreakTimelineService = new OutbreakTimelineService();
     }
     /**
      * Get all Avian Influenza cases in the United States
@@ -214,6 +217,101 @@ class DataController {
     }
 
     /**
+     * Get site details by production type with case-insensitive matching and pagination
+     * @param req Clients request that we received with the production type parameter (supports ?page and ?limit query params)
+     * @param res Response that we will use to send back data retrieved from MongoDB
+     */
+    public async getSitesByProductionType(req: Request, res: Response) {
+        const productionType = req.params.productionType as string;
+        try {
+            if (!productionType || productionType.trim().length === 0) {
+                res.status(400).json({ error: "Invalid production type" });
+                return;
+            }
+            const page = parseInt(req.query.page as string, 10) || 1;
+            const limit = Math.min(
+                parseInt(req.query.limit as string, 10) || 100,
+                500
+            );
+
+            const result =
+                await this.siteDetailsService.getSitesByProductionTypePaginated(
+                    productionType,
+                    page,
+                    limit
+                );
+
+            logger.http(
+                `Received Request at Get Sites By Production Type: ${req.url}`
+            );
+            res.json(result);
+        } catch (error) {
+            logger.error(
+                `Error fetching sites by production type ${productionType}:`,
+                error
+            );
+            res.status(500).json({ error: "Failed to fetch site details" });
+        }
+    }
+
+    /**
+     * Get all distinct production type values
+     * @param req Clients request that we received
+     * @param res Response that we will use to send back data retrieved from MongoDB
+     */
+    public async getProductionTypes(req: Request, res: Response) {
+        try {
+            const productionTypes =
+                await this.siteDetailsService.getDistinctProductionTypes();
+
+            logger.http(`Received Request at Get Production Types: ${req.url}`);
+            res.json({ data: productionTypes });
+        } catch (error) {
+            logger.error("Error fetching production types:", error);
+            res.status(500).json({
+                error: "Failed to fetch production types",
+            });
+        }
+    }
+
+    /**
+     * Get aggregated site summaries grouped by production type, with an optional
+     * query parameter to filter by a specific production type.
+     * @param req Clients request that we received (supports ?production_type query param)
+     * @param res Response that we will use to send back data retrieved from MongoDB
+     */
+    public async getProductionTypeSummary(req: Request, res: Response) {
+        try {
+            const productionType = req.query.production_type as
+                | string
+                | undefined;
+
+            if (
+                productionType !== undefined &&
+                productionType.trim().length === 0
+            ) {
+                res.status(400).json({ error: "Invalid production type" });
+                return;
+            }
+
+            const result =
+                await this.siteDetailsService.getProductionTypeSummary(
+                    productionType || undefined
+                );
+
+            logger.http(
+                `Received Request at Get Production Type Summary: ${req.url}`
+            );
+            res.json({ data: result });
+        } catch (error) {
+            logger.error("Error fetching production type summary:", error);
+            res.status(500).json({
+                error: "Failed to fetch production type summary",
+            });
+        }
+    }
+
+    /**
      * Get the historical summary
      * @param req Clients request that we received
      * @param res Response that we will use to send back data retrieved from MongoDB
@@ -256,6 +354,37 @@ class DataController {
         } catch (error) {
             logger.error(`Error fetching status summary: ${error}`);
             res.status(500).json({ error: "Failed to fetch status summary" });
+        }
+    }
+
+    /**
+     * Get outbreak timeline data grouped into time-bucketed periods.
+     * Supports ?granularity=week|month|year (default: month).
+     * @param req Clients request that we received with optional ?granularity query param.
+     * @param res Response containing the timeline periods and metadata.
+     */
+    public async getSiteTimeline(req: Request, res: Response) {
+        try {
+            const granularity = (req.query.granularity as string) || "month";
+
+            const validGranularities = ["week", "month", "year"];
+            if (!validGranularities.includes(granularity)) {
+                res.status(400).json({
+                    error: `Invalid granularity. Valid values: ${validGranularities.join(", ")}`,
+                });
+                return;
+            }
+
+            const result =
+                await this.outbreakTimelineService.getTimeline(granularity);
+
+            logger.http(`Received Request at Site Timeline: ${req.url}`);
+            res.json({ data: result });
+        } catch (error) {
+            logger.error("Error fetching outbreak timeline:", error);
+            res.status(500).json({
+                error: "Failed to fetch outbreak timeline",
+            });
         }
     }
 

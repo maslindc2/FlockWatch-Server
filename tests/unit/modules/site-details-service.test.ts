@@ -1,6 +1,9 @@
 import { SiteDetailsService } from "../../../src/modules/site-details/site-details.service";
 import { SiteDetailsModel } from "../../../src/modules/site-details/site-details.model";
-import { SiteDetails } from "../../../src/modules/site-details/site-details.interface";
+import {
+    SiteDetails,
+    ProductionTypeSummary,
+} from "../../../src/modules/site-details/site-details.interface";
 import { logger } from "../../../src/utils/winston-logger";
 
 // ---- Factories --------------------------------------------------------------
@@ -164,7 +167,8 @@ describe("SiteDetailsService", () => {
             const leanMock = jest.fn().mockResolvedValue(resolvedData);
             const limitMock = jest.fn().mockReturnValue({ lean: leanMock });
             const skipMock = jest.fn().mockReturnValue({ limit: limitMock });
-            const selectMock = jest.fn().mockReturnValue({ skip: skipMock });
+            const sortMock = jest.fn().mockReturnValue({ skip: skipMock });
+            const selectMock = jest.fn().mockReturnValue({ sort: sortMock });
             jest.spyOn(SiteDetailsModel.getModel, "find").mockReturnValue({
                 select: selectMock,
             } as any);
@@ -172,8 +176,16 @@ describe("SiteDetailsService", () => {
                 SiteDetailsModel.getModel,
                 "countDocuments"
             ).mockResolvedValue(totalCount);
-            return { selectMock, skipMock, limitMock, leanMock };
+            return { selectMock, sortMock, skipMock, limitMock, leanMock };
         };
+
+        it("should sort results by _id ascending", async () => {
+            const { sortMock } = mockPaginatedQuery([], 0);
+
+            await service.getAllSiteDetailsPaginated(1, 10);
+
+            expect(sortMock).toHaveBeenCalledWith({ _id: 1 });
+        });
 
         it("should return paginated results with correct structure", async () => {
             const sites = [makeEntry(), makeEntry({ special_id: "Skagit 01" })];
@@ -245,9 +257,11 @@ describe("SiteDetailsService", () => {
                 .spyOn(SiteDetailsModel.getModel, "find")
                 .mockReturnValue({
                     select: () => ({
-                        skip: () => ({
-                            limit: () => ({
-                                lean: jest.fn().mockResolvedValue([]),
+                        sort: () => ({
+                            skip: () => ({
+                                limit: () => ({
+                                    lean: jest.fn().mockResolvedValue([]),
+                                }),
                             }),
                         }),
                     }),
@@ -273,7 +287,8 @@ describe("SiteDetailsService", () => {
             const leanMock = jest.fn().mockResolvedValue(resolvedData);
             const limitMock = jest.fn().mockReturnValue({ lean: leanMock });
             const skipMock = jest.fn().mockReturnValue({ limit: limitMock });
-            const selectMock = jest.fn().mockReturnValue({ skip: skipMock });
+            const sortMock = jest.fn().mockReturnValue({ skip: skipMock });
+            const selectMock = jest.fn().mockReturnValue({ sort: sortMock });
             jest.spyOn(SiteDetailsModel.getModel, "find").mockReturnValue({
                 select: selectMock,
             } as any);
@@ -281,7 +296,7 @@ describe("SiteDetailsService", () => {
                 SiteDetailsModel.getModel,
                 "countDocuments"
             ).mockResolvedValue(totalCount);
-            return { selectMock, skipMock, limitMock, leanMock };
+            return { selectMock, sortMock, skipMock, limitMock, leanMock };
         };
 
         it("should filter by status", async () => {
@@ -329,6 +344,303 @@ describe("SiteDetailsService", () => {
             await service.getSitesByStatusPaginated("active", 1, 100);
 
             expect(selectMock).toHaveBeenCalledWith("-_id -__v");
+        });
+    });
+
+    // -- getSitesByProductionTypePaginated --------------------------------------
+
+    describe("getSitesByProductionTypePaginated", () => {
+        const mockPaginatedQuery = (
+            resolvedData: SiteDetails[],
+            totalCount: number
+        ) => {
+            const leanMock = jest.fn().mockResolvedValue(resolvedData);
+            const limitMock = jest.fn().mockReturnValue({ lean: leanMock });
+            const skipMock = jest.fn().mockReturnValue({ limit: limitMock });
+            const sortMock = jest.fn().mockReturnValue({ skip: skipMock });
+            const selectMock = jest.fn().mockReturnValue({ sort: sortMock });
+            jest.spyOn(SiteDetailsModel.getModel, "find").mockReturnValue({
+                select: selectMock,
+            } as any);
+            jest.spyOn(
+                SiteDetailsModel.getModel,
+                "countDocuments"
+            ).mockResolvedValue(totalCount);
+            return { selectMock, sortMock, skipMock, limitMock, leanMock };
+        };
+
+        it("should use case-insensitive regex filter for production_type", async () => {
+            mockPaginatedQuery([], 0);
+
+            await service.getSitesByProductionTypePaginated(
+                "Commercial Broiler Breeder",
+                1,
+                10
+            );
+
+            expect(SiteDetailsModel.getModel.find).toHaveBeenCalledWith({
+                production_type: {
+                    $regex: expect.any(RegExp),
+                },
+            });
+            const filter = (SiteDetailsModel.getModel.find as jest.Mock).mock
+                .calls[0][0];
+            expect(filter.production_type.$regex.flags).toBe("i");
+            expect(
+                filter.production_type.$regex.test("Commercial Broiler Breeder")
+            ).toBe(true);
+            expect(
+                filter.production_type.$regex.test("commercial broiler breeder")
+            ).toBe(true);
+        });
+
+        it("should escape special regex characters in production type", async () => {
+            mockPaginatedQuery([], 0);
+
+            await service.getSitesByProductionTypePaginated(
+                "Table Eggs (Layer)",
+                1,
+                10
+            );
+
+            const filter = (SiteDetailsModel.getModel.find as jest.Mock).mock
+                .calls[0][0];
+            expect(
+                filter.production_type.$regex.test("Table Eggs (Layer)")
+            ).toBe(true);
+            expect(filter.production_type.$regex.test("Table Eggs Layer")).toBe(
+                false
+            );
+        });
+
+        it("should return paginated results with correct structure", async () => {
+            const sites = [
+                makeEntry({
+                    special_id: "Elkhart 28",
+                    production_type: "Commercial",
+                }),
+                makeEntry({
+                    special_id: "Skagit 01",
+                    production_type: "Commercial",
+                }),
+            ];
+            mockPaginatedQuery(sites, 50);
+
+            const result = await service.getSitesByProductionTypePaginated(
+                "Commercial",
+                2,
+                10
+            );
+
+            expect(result).toEqual({
+                data: sites,
+                total: 50,
+                page: 2,
+                limit: 10,
+                totalPages: 5,
+            });
+        });
+
+        it("should return empty data when no sites match", async () => {
+            mockPaginatedQuery([], 0);
+
+            const result = await service.getSitesByProductionTypePaginated(
+                "Nonexistent Type",
+                1,
+                100
+            );
+
+            expect(result.data).toEqual([]);
+            expect(result.total).toBe(0);
+            expect(result.totalPages).toBe(0);
+        });
+
+        it("should hide _id and __v fields", async () => {
+            const { selectMock } = mockPaginatedQuery([], 0);
+
+            await service.getSitesByProductionTypePaginated("Test", 1, 100);
+
+            expect(selectMock).toHaveBeenCalledWith("-_id -__v");
+        });
+
+        it("should use default page=1 and limit=100 when not specified", async () => {
+            const { skipMock, limitMock } = mockPaginatedQuery([], 0);
+
+            await service.getSitesByProductionTypePaginated("Test");
+
+            expect(skipMock).toHaveBeenCalledWith(0);
+            expect(limitMock).toHaveBeenCalledWith(100);
+        });
+    });
+
+    // -- getDistinctProductionTypes --------------------------------------------
+
+    describe("getDistinctProductionTypes", () => {
+        const mockDistinct = (resolvedValue: string[]) => {
+            const execMock = jest.fn().mockResolvedValue(resolvedValue);
+            jest.spyOn(SiteDetailsModel.getModel, "distinct").mockReturnValue({
+                exec: execMock,
+            } as any);
+            return execMock;
+        };
+
+        it("should call distinct on production_type field", async () => {
+            mockDistinct([]);
+
+            await service.getDistinctProductionTypes();
+
+            expect(SiteDetailsModel.getModel.distinct).toHaveBeenCalledWith(
+                "production_type"
+            );
+        });
+
+        it("should return distinct production types sorted alphabetically", async () => {
+            mockDistinct([
+                "Commercial Table Eggs",
+                "Backyard Flock",
+                "Commercial Broiler Breeder",
+            ]);
+
+            const result = await service.getDistinctProductionTypes();
+
+            expect(result).toEqual([
+                "Backyard Flock",
+                "Commercial Broiler Breeder",
+                "Commercial Table Eggs",
+            ]);
+        });
+
+        it("should return an empty array when no sites exist", async () => {
+            mockDistinct([]);
+
+            const result = await service.getDistinctProductionTypes();
+
+            expect(result).toEqual([]);
+        });
+    });
+
+    // -- getProductionTypeSummary ----------------------------------------------
+
+    describe("getProductionTypeSummary", () => {
+        const mockAggregate = (resolvedValue: ProductionTypeSummary[]) => {
+            const execMock = jest.fn().mockResolvedValue(resolvedValue);
+            jest.spyOn(SiteDetailsModel.getModel, "aggregate").mockReturnValue({
+                exec: execMock,
+            } as any);
+            return execMock;
+        };
+
+        it("should include a $match stage when productionType is provided", async () => {
+            mockAggregate([]);
+
+            await service.getProductionTypeSummary(
+                "Commercial Broiler Breeder"
+            );
+
+            const pipeline = (SiteDetailsModel.getModel.aggregate as jest.Mock)
+                .mock.calls[0][0];
+            expect(pipeline[0]).toHaveProperty("$match");
+            expect(pipeline[0].$match.production_type.$regex).toBeInstanceOf(
+                RegExp
+            );
+        });
+
+        it("should omit the $match stage when productionType is not provided", async () => {
+            mockAggregate([]);
+
+            await service.getProductionTypeSummary();
+
+            const pipeline = (SiteDetailsModel.getModel.aggregate as jest.Mock)
+                .mock.calls[0][0];
+            expect(pipeline[0]).not.toHaveProperty("$match");
+        });
+
+        it("should use case-insensitive regex filter when productionType is provided", async () => {
+            mockAggregate([]);
+
+            await service.getProductionTypeSummary(
+                "Commercial Broiler Breeder"
+            );
+
+            const pipeline = (SiteDetailsModel.getModel.aggregate as jest.Mock)
+                .mock.calls[0][0];
+            const regex: RegExp = pipeline[0].$match.production_type.$regex;
+            expect(regex.flags).toBe("i");
+            expect(regex.test("Commercial Broiler Breeder")).toBe(true);
+            expect(regex.test("commercial broiler breeder")).toBe(true);
+        });
+
+        it("should escape special regex characters in production type filter", async () => {
+            mockAggregate([]);
+
+            await service.getProductionTypeSummary("Table Eggs (Layer)");
+
+            const pipeline = (SiteDetailsModel.getModel.aggregate as jest.Mock)
+                .mock.calls[0][0];
+            const regex: RegExp = pipeline[0].$match.production_type.$regex;
+            expect(regex.test("Table Eggs (Layer)")).toBe(true);
+            expect(regex.test("Table Eggs Layer")).toBe(false);
+        });
+
+        it("should include $group stage with status $cond expressions", async () => {
+            mockAggregate([]);
+
+            await service.getProductionTypeSummary();
+
+            const pipeline = (SiteDetailsModel.getModel.aggregate as jest.Mock)
+                .mock.calls[0][0];
+            expect(pipeline).toHaveLength(3);
+            expect(pipeline[0].$group).toBeDefined();
+            expect(pipeline[0].$group.active_sites.$sum.$cond).toBeDefined();
+            expect(pipeline[0].$group.released_sites.$sum.$cond).toBeDefined();
+            expect(pipeline[0].$group.na_sites.$sum.$cond).toBeDefined();
+            expect(pipeline[0].$group.active_sites.$sum.$cond).toEqual([
+                { $eq: ["$status", "active"] },
+                1,
+                0,
+            ]);
+        });
+
+        it("should include $project and $sort stages", async () => {
+            mockAggregate([]);
+
+            await service.getProductionTypeSummary();
+
+            const pipeline = (SiteDetailsModel.getModel.aggregate as jest.Mock)
+                .mock.calls[0][0];
+            expect(pipeline[1].$project).toBeDefined();
+            expect(pipeline[2].$sort).toBeDefined();
+        });
+
+        it("should return the aggregated result from the service", async () => {
+            const expected: ProductionTypeSummary[] = [
+                {
+                    production_type: "Commercial Broiler Breeder",
+                    total_sites: 10,
+                    total_birds_affected: 50000,
+                    by_status: { active: 2, released: 7, na: 1 },
+                },
+                {
+                    production_type: "Commercial Table Eggs",
+                    total_sites: 5,
+                    total_birds_affected: 100000,
+                    by_status: { active: 1, released: 3, na: 1 },
+                },
+            ];
+            mockAggregate(expected);
+
+            const result = await service.getProductionTypeSummary();
+
+            expect(result).toEqual(expected);
+        });
+
+        it("should return an empty array when no sites match the production type", async () => {
+            mockAggregate([]);
+
+            const result =
+                await service.getProductionTypeSummary("Nonexistent Type");
+
+            expect(result).toEqual([]);
         });
     });
 

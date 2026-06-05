@@ -57,8 +57,17 @@ AUTO_UPDATE= If set to false, scraper determines when an update is needed. If se
 ```
 
 ### API Routes
-| Endpoint                                | Method | Description                              |
-| --------------------------------------- | ------ | ---------------------------------------- |
-| `/data/flocks-cases`                    | GET    | Get flock cases for all states           |
-| `/data/us-summary/`                     | GET    | Get US All Time and Period Summaries     |
-| `/data/flock-cases/:state-abbreviation` | GET    | Get a single state's flock cases i.e. WA |
+| Endpoint                                           | Method | Description                                      |
+| -------------------------------------------------- | ------ | ------------------------------------------------ |
+| `/data/flock-cases`                                | GET    | Get flock cases for all US states                |
+| `/data/flock-cases/:stateAbbreviation`             | GET    | Get a single state's flock cases (e.g. WA)       |
+| `/data/us-summary`                                 | GET    | Get US all-time totals and rolling period summaries |
+| `/data/sites`                                      | GET    | Get all site details (paginated)                 |
+| `/data/sites/status/:status`                       | GET    | Get site details filtered by status              |
+| `/data/sites/production-type/:productionType`      | GET    | Get site details by production type              |
+| `/data/sites/production-types`                     | GET    | Get all distinct production type values          |
+| `/data/sites/summary`                              | GET    | Get aggregated site summaries by production type |
+| `/data/sites/timeline`                             | GET    | Get outbreak timeline (week/month/year)          |
+| `/data/sites/:specialId`                           | GET    | Get a single site detail by special ID           |
+| `/data/historical-summary`                         | GET    | Get all-time historical summary                  |
+| `/data/status-summary`                             | GET    | Get 30-day rolling status summary                |`

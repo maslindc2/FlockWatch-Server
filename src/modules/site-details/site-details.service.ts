@@ -1,6 +1,7 @@
-import { SiteDetails } from "./site-details.interface";
+import { SiteDetails, ProductionTypeSummary } from "./site-details.interface";
 import { SiteDetailsModel } from "./site-details.model";
 import { logger } from "../../utils/winston-logger";
+import { PipelineStage } from "mongoose";
 
 /**
  * Generic wrapper for paginated query results.
@@ -46,6 +47,7 @@ class SiteDetailsService {
             SiteDetailsModel.getModel
                 .find({})
                 .select("-_id -__v")
+                .sort({ _id: 1 })
                 .skip(skip)
                 .limit(limit)
                 .lean<SiteDetails[]>(),
@@ -104,6 +106,7 @@ class SiteDetailsService {
             SiteDetailsModel.getModel
                 .find(filter)
                 .select("-_id -__v")
+                .sort({ _id: 1 })
                 .skip(skip)
                 .limit(limit)
                 .lean<SiteDetails[]>(),
@@ -117,6 +120,141 @@ class SiteDetailsService {
             limit,
             totalPages: Math.ceil(total / limit),
         };
+    }
+
+    /**
+     * Escape special regex characters to prevent regex injection.
+     * @param str The raw user-provided string to escape.
+     * @returns The escaped string safe for use in a RegExp constructor.
+     */
+    private escapeRegex(str: string): string {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }
+
+    /**
+     * Retrieve site details filtered by production_type using case-insensitive matching,
+     * with pagination.
+     * @param productionType The production type to search for (e.g. "Commercial Broiler Breeder").
+     * @param page Page number (1-indexed, defaults to 1).
+     * @param limit Items per page (defaults to 100, max 500).
+     * @returns PaginatedResult with matching site details.
+     */
+    public async getSitesByProductionTypePaginated(
+        productionType: string,
+        page: number = 1,
+        limit: number = 100
+    ): Promise<PaginatedResult<SiteDetails>> {
+        const skip = (page - 1) * limit;
+        const filter = {
+            production_type: {
+                $regex: new RegExp(
+                    `^${this.escapeRegex(productionType)}$`,
+                    "i"
+                ),
+            },
+        };
+
+        const [data, total] = await Promise.all([
+            SiteDetailsModel.getModel
+                .find(filter)
+                .select("-_id -__v")
+                .sort({ _id: 1 })
+                .skip(skip)
+                .limit(limit)
+                .lean<SiteDetails[]>(),
+            SiteDetailsModel.getModel.countDocuments(filter),
+        ]);
+
+        return {
+            data,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
+    }
+
+    /**
+     * Retrieve all distinct production_type values from the collection,
+     * sorted alphabetically.
+     * @returns Array of unique production type strings.
+     */
+    public async getDistinctProductionTypes(): Promise<string[]> {
+        const types = await SiteDetailsModel.getModel
+            .distinct("production_type")
+            .exec();
+        return types.sort();
+    }
+
+    /**
+     * Retrieve aggregated summaries grouped by production_type, with an optional
+     * case-insensitive filter for a specific production type. Uses MongoDB aggregation
+     * to compute total site counts, total birds affected, and a per-status breakdown
+     * in a single round trip.
+     * @param productionType Optional production type to filter by. When omitted,
+     *                       summaries for all production types are returned.
+     * @returns Array of ProductionTypeSummary objects sorted alphabetically by production_type.
+     */
+    public async getProductionTypeSummary(
+        productionType?: string
+    ): Promise<ProductionTypeSummary[]> {
+        const pipeline: PipelineStage[] = [];
+
+        if (productionType) {
+            pipeline.push({
+                $match: {
+                    production_type: {
+                        $regex: new RegExp(
+                            `^${this.escapeRegex(productionType)}$`,
+                            "i"
+                        ),
+                    },
+                },
+            });
+        }
+
+        pipeline.push(
+            {
+                $group: {
+                    _id: "$production_type",
+                    total_sites: { $sum: 1 },
+                    total_birds_affected: { $sum: "$birds_affected" },
+                    active_sites: {
+                        $sum: {
+                            $cond: [{ $eq: ["$status", "active"] }, 1, 0],
+                        },
+                    },
+                    released_sites: {
+                        $sum: {
+                            $cond: [{ $eq: ["$status", "released"] }, 1, 0],
+                        },
+                    },
+                    na_sites: {
+                        $sum: {
+                            $cond: [{ $eq: ["$status", "na"] }, 1, 0],
+                        },
+                    },
+                },
+            },
+            {
+                $project: {
+                    _id: 0,
+                    production_type: "$_id",
+                    total_sites: 1,
+                    total_birds_affected: 1,
+                    by_status: {
+                        active: "$active_sites",
+                        released: "$released_sites",
+                        na: "$na_sites",
+                    },
+                },
+            },
+            { $sort: { production_type: 1 } }
+        );
+
+        return SiteDetailsModel.getModel
+            .aggregate<ProductionTypeSummary>(pipeline)
+            .exec();
     }
 
     /**

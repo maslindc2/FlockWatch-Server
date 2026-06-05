@@ -146,3 +146,4 @@ mutation/
 
 #vscode settings
 /.vscode/
+.env.keys

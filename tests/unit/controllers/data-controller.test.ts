@@ -5,6 +5,7 @@ import { LastReportDateService } from "../../../src/modules/last-report-date/las
 import { USSummaryService } from "../../../src/modules/us-summary/us-summary.service";
 import { FlockDataUpdateService } from "../../../src/modules/data-updating/flock-data-update.service";
 import { BuildUSSummary } from "../../../src/modules/data-updating/build-us-summary.service";
+import { OutbreakTimelineService } from "../../../src/modules/outbreak-timeline/outbreak-timeline.service";
 import { logger } from "../../../src/utils/winston-logger";
 import { Request, Response } from "express";
 
@@ -472,6 +473,360 @@ describe("DataController", () => {
         });
     });
 
+    // -- getSitesByProductionType ---------------------------------------------
+
+    describe("getSitesByProductionType", () => {
+        const paginatedResult = {
+            data: [],
+            total: 0,
+            page: 1,
+            limit: 100,
+            totalPages: 0,
+        };
+
+        it("should call getSitesByProductionTypePaginated with productionType and default params", async () => {
+            const serviceSpy = jest
+                .spyOn(
+                    SiteDetailsService.prototype,
+                    "getSitesByProductionTypePaginated"
+                )
+                .mockResolvedValueOnce(paginatedResult);
+            req = mockRequest({
+                url: "/sites/production-type/Commercial%20Broiler%20Breeder",
+                params: { productionType: "Commercial Broiler Breeder" },
+                query: {},
+            });
+
+            await controller.getSitesByProductionType(req, res);
+
+            expect(serviceSpy).toHaveBeenCalledWith(
+                "Commercial Broiler Breeder",
+                1,
+                100
+            );
+        });
+
+        it("should pass page and limit from query params", async () => {
+            const serviceSpy = jest
+                .spyOn(
+                    SiteDetailsService.prototype,
+                    "getSitesByProductionTypePaginated"
+                )
+                .mockResolvedValueOnce(paginatedResult);
+            req = mockRequest({
+                url: "/sites/production-type/Table%20Eggs",
+                params: { productionType: "Table Eggs" },
+                query: { page: "3", limit: "25" },
+            });
+
+            await controller.getSitesByProductionType(req, res);
+
+            expect(serviceSpy).toHaveBeenCalledWith("Table Eggs", 3, 25);
+        });
+
+        it("should cap limit at 500", async () => {
+            const serviceSpy = jest
+                .spyOn(
+                    SiteDetailsService.prototype,
+                    "getSitesByProductionTypePaginated"
+                )
+                .mockResolvedValueOnce(paginatedResult);
+            req = mockRequest({
+                url: "/sites/production-type/Test",
+                params: { productionType: "Test" },
+                query: { limit: "9999" },
+            });
+
+            await controller.getSitesByProductionType(req, res);
+
+            expect(serviceSpy).toHaveBeenCalledWith("Test", 1, 500);
+        });
+
+        it("should return 400 for empty production type", async () => {
+            req = mockRequest({
+                url: "/sites/production-type/",
+                params: { productionType: "" },
+            });
+
+            await controller.getSitesByProductionType(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({
+                error: "Invalid production type",
+            });
+        });
+
+        it("should return 400 for whitespace-only production type", async () => {
+            req = mockRequest({
+                url: "/sites/production-type/%20%20",
+                params: { productionType: "   " },
+            });
+
+            await controller.getSitesByProductionType(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({
+                error: "Invalid production type",
+            });
+        });
+
+        it("should respond with the paginated result", async () => {
+            const result = {
+                data: [
+                    {
+                        special_id: "Elkhart 28",
+                        production_type: "Commercial",
+                        birds_affected: 100,
+                    },
+                ],
+                total: 1,
+                page: 1,
+                limit: 100,
+                totalPages: 1,
+            };
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "getSitesByProductionTypePaginated"
+            ).mockResolvedValueOnce(result as any);
+            req = mockRequest({
+                url: "/sites/production-type/Commercial",
+                params: { productionType: "Commercial" },
+                query: {},
+            });
+
+            await controller.getSitesByProductionType(req, res);
+
+            expect(res.json).toHaveBeenCalledWith(result);
+        });
+
+        it("should log the request url", async () => {
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "getSitesByProductionTypePaginated"
+            ).mockResolvedValueOnce(paginatedResult);
+            const logSpy = jest
+                .spyOn(logger, "http")
+                .mockImplementation(() => logger);
+            req = mockRequest({
+                url: "/sites/production-type/Commercial",
+                params: { productionType: "Commercial" },
+                query: {},
+            });
+
+            await controller.getSitesByProductionType(req, res);
+
+            expect(logSpy).toHaveBeenCalledWith(
+                "Received Request at Get Sites By Production Type: /sites/production-type/Commercial"
+            );
+        });
+
+        it("should return 500 when the service throws", async () => {
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "getSitesByProductionTypePaginated"
+            ).mockRejectedValueOnce(new Error("DB error"));
+            req = mockRequest({
+                url: "/sites/production-type/Commercial",
+                params: { productionType: "Commercial" },
+                query: {},
+            });
+
+            await controller.getSitesByProductionType(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.json).toHaveBeenCalledWith({
+                error: "Failed to fetch site details",
+            });
+        });
+    });
+
+    // -- getProductionTypes ----------------------------------------------------
+
+    describe("getProductionTypes", () => {
+        it("should call getDistinctProductionTypes on the service", async () => {
+            const serviceSpy = jest
+                .spyOn(
+                    SiteDetailsService.prototype,
+                    "getDistinctProductionTypes"
+                )
+                .mockResolvedValueOnce([]);
+            req = mockRequest({ url: "/sites/production-types" });
+
+            await controller.getProductionTypes(req, res);
+
+            expect(serviceSpy).toHaveBeenCalledTimes(1);
+        });
+
+        it("should respond with the data from the service", async () => {
+            const productionTypes = [
+                "Backyard Flock",
+                "Commercial Broiler Breeder",
+                "Commercial Table Eggs",
+            ];
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "getDistinctProductionTypes"
+            ).mockResolvedValueOnce(productionTypes);
+            req = mockRequest({ url: "/sites/production-types" });
+
+            await controller.getProductionTypes(req, res);
+
+            expect(res.json).toHaveBeenCalledWith({
+                data: productionTypes,
+            });
+        });
+
+        it("should log the request url", async () => {
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "getDistinctProductionTypes"
+            ).mockResolvedValueOnce([]);
+            const logSpy = jest
+                .spyOn(logger, "http")
+                .mockImplementation(() => logger);
+            req = mockRequest({ url: "/sites/production-types" });
+
+            await controller.getProductionTypes(req, res);
+
+            expect(logSpy).toHaveBeenCalledWith(
+                "Received Request at Get Production Types: /sites/production-types"
+            );
+        });
+
+        it("should return 500 when the service throws", async () => {
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "getDistinctProductionTypes"
+            ).mockRejectedValueOnce(new Error("DB error"));
+            req = mockRequest({ url: "/sites/production-types" });
+
+            await controller.getProductionTypes(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.json).toHaveBeenCalledWith({
+                error: "Failed to fetch production types",
+            });
+        });
+    });
+
+    // -- getProductionTypeSummary ---------------------------------------------
+
+    describe("getProductionTypeSummary", () => {
+        const summaryData = [
+            {
+                production_type: "Commercial Broiler Breeder",
+                total_sites: 10,
+                total_birds_affected: 50000,
+                by_status: { active: 2, released: 7, na: 1 },
+            },
+        ];
+
+        it("should call getProductionTypeSummary on the service with production_type query param", async () => {
+            const serviceSpy = jest
+                .spyOn(SiteDetailsService.prototype, "getProductionTypeSummary")
+                .mockResolvedValueOnce(summaryData);
+            req = mockRequest({
+                url: "/sites/summary",
+                query: {
+                    production_type: "Commercial Broiler Breeder",
+                },
+            });
+
+            await controller.getProductionTypeSummary(req, res);
+
+            expect(serviceSpy).toHaveBeenCalledWith(
+                "Commercial Broiler Breeder"
+            );
+        });
+
+        it("should call getProductionTypeSummary on the service without a filter when query param is absent", async () => {
+            const serviceSpy = jest
+                .spyOn(SiteDetailsService.prototype, "getProductionTypeSummary")
+                .mockResolvedValueOnce(summaryData);
+            req = mockRequest({
+                url: "/sites/summary",
+                query: {},
+            });
+
+            await controller.getProductionTypeSummary(req, res);
+
+            expect(serviceSpy).toHaveBeenCalledWith(undefined);
+        });
+
+        it("should return 400 for empty production_type query param", async () => {
+            req = mockRequest({
+                url: "/sites/summary",
+                query: { production_type: "   " },
+            });
+
+            await controller.getProductionTypeSummary(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({
+                error: "Invalid production type",
+            });
+        });
+
+        it("should respond with the data wrapped in an object", async () => {
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "getProductionTypeSummary"
+            ).mockResolvedValueOnce(summaryData);
+            req = mockRequest({
+                url: "/sites/summary",
+                query: {
+                    production_type: "Commercial Broiler Breeder",
+                },
+            });
+
+            await controller.getProductionTypeSummary(req, res);
+
+            expect(res.json).toHaveBeenCalledWith({
+                data: summaryData,
+            });
+        });
+
+        it("should log the request url", async () => {
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "getProductionTypeSummary"
+            ).mockResolvedValueOnce(summaryData);
+            const logSpy = jest
+                .spyOn(logger, "http")
+                .mockImplementation(() => logger);
+            req = mockRequest({
+                url: "/sites/summary?production_type=Commercial%20Broiler%20Breeder",
+                query: {
+                    production_type: "Commercial Broiler Breeder",
+                },
+            });
+
+            await controller.getProductionTypeSummary(req, res);
+
+            expect(logSpy).toHaveBeenCalledWith(
+                "Received Request at Get Production Type Summary: /sites/summary?production_type=Commercial%20Broiler%20Breeder"
+            );
+        });
+
+        it("should return 500 when the service throws", async () => {
+            jest.spyOn(
+                SiteDetailsService.prototype,
+                "getProductionTypeSummary"
+            ).mockRejectedValueOnce(new Error("DB error"));
+            req = mockRequest({
+                url: "/sites/summary",
+                query: {},
+            });
+
+            await controller.getProductionTypeSummary(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.json).toHaveBeenCalledWith({
+                error: "Failed to fetch production type summary",
+            });
+        });
+    });
+
     // -- getUSSummary ---------------------------------------------------------
 
     describe("getUSSummary", () => {
@@ -782,6 +1137,137 @@ describe("DataController", () => {
             await controller.receiveUpdatedData(req, res);
 
             expect(res.sendStatus).toHaveBeenCalledWith(500);
+        });
+    });
+
+    // -- getSiteTimeline -------------------------------------------------------
+
+    describe("getSiteTimeline", () => {
+        it("should call getTimeline on the service with the provided granularity", async () => {
+            const serviceSpy = jest
+                .spyOn(OutbreakTimelineService.prototype, "getTimeline")
+                .mockResolvedValueOnce({
+                    granularity: "month",
+                    periods: [],
+                });
+            req = mockRequest({
+                url: "/sites/timeline",
+                query: { granularity: "month" },
+            });
+
+            await controller.getSiteTimeline(req, res);
+
+            expect(serviceSpy).toHaveBeenCalledWith("month");
+        });
+
+        it("should default to month granularity when not specified", async () => {
+            const serviceSpy = jest
+                .spyOn(OutbreakTimelineService.prototype, "getTimeline")
+                .mockResolvedValueOnce({
+                    granularity: "month",
+                    periods: [],
+                });
+            req = mockRequest({ url: "/sites/timeline", query: {} });
+
+            await controller.getSiteTimeline(req, res);
+
+            expect(serviceSpy).toHaveBeenCalledWith("month");
+        });
+
+        it("should respond with timeline data", async () => {
+            const fakeData = {
+                granularity: "month" as const,
+                periods: [
+                    {
+                        period: "2024-11",
+                        new_confirmations: 12,
+                        birds_affected: 340000,
+                        cumulative_birds_affected: 340000,
+                    },
+                ],
+            };
+            jest.spyOn(
+                OutbreakTimelineService.prototype,
+                "getTimeline"
+            ).mockResolvedValueOnce(fakeData);
+            req = mockRequest({
+                url: "/sites/timeline",
+                query: { granularity: "month" },
+            });
+
+            await controller.getSiteTimeline(req, res);
+
+            expect(res.json).toHaveBeenCalledWith({ data: fakeData });
+        });
+
+        it("should return 400 for invalid granularity", async () => {
+            req = mockRequest({
+                url: "/sites/timeline",
+                query: { granularity: "invalid" },
+            });
+
+            await controller.getSiteTimeline(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({
+                error: expect.stringContaining("Invalid granularity"),
+            });
+        });
+
+        it("should not call the service for invalid granularity", async () => {
+            const serviceSpy = jest.spyOn(
+                OutbreakTimelineService.prototype,
+                "getTimeline"
+            );
+            req = mockRequest({
+                url: "/sites/timeline",
+                query: { granularity: "bad" },
+            });
+
+            await controller.getSiteTimeline(req, res);
+
+            expect(serviceSpy).not.toHaveBeenCalled();
+        });
+
+        it("should log the request url", async () => {
+            jest.spyOn(
+                OutbreakTimelineService.prototype,
+                "getTimeline"
+            ).mockResolvedValueOnce({
+                granularity: "month",
+                periods: [],
+            });
+            const logSpy = jest
+                .spyOn(logger, "http")
+                .mockImplementation(() => logger);
+            req = mockRequest({
+                url: "/sites/timeline?granularity=month",
+                query: { granularity: "month" },
+            });
+
+            await controller.getSiteTimeline(req, res);
+
+            expect(logSpy).toHaveBeenCalledWith(
+                "Received Request at Site Timeline: /sites/timeline?granularity=month"
+            );
+        });
+
+        it("should return 500 when the service throws", async () => {
+            jest.spyOn(
+                OutbreakTimelineService.prototype,
+                "getTimeline"
+            ).mockRejectedValueOnce(new Error("Pipeline error"));
+            req = mockRequest({
+                url: "/sites/timeline",
+                query: { granularity: "month" },
+            });
+
+            await controller.getSiteTimeline(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.json).toHaveBeenCalledWith({
+                error: "Failed to fetch outbreak timeline",
+            });
         });
     });
 });

@@ -7,6 +7,7 @@ export const connect = async () => {
     // Don't create a new connection if one already exists
     if (mongoose.connection.readyState !== 0) return;
     mongod = await MongoMemoryServer.create();
+    process.env.MONGODB_URI = mongod.getUri();
     await mongoose.connect(mongod.getUri());
 };
 

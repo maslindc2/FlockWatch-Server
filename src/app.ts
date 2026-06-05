@@ -1,3 +1,69 @@
+/**
+ * Express application setup for the FlockWatch server. Configures all
+ * middleware, CORS policies, route mounting, data synchronization lifecycle,
+ * and metadata injection.
+ *
+ * ---
+ *
+ * ## Middleware (applied in registration order)
+ *
+ * | Middleware | Purpose |
+ * |---|---|
+ * | `helmet` | Security headers (X-Frame-Options, CSP, XSS filter, etc.) |
+ * | `compression` | Gzip / brotli response compression |
+ * | `express.json({ limit: "1mb" })` | JSON body parsing with 1 MB limit |
+ * | `express.urlencoded({ extended: false, limit: "1mb" })` | URL-encoded body parsing with 1 MB limit |
+ * | `cors` | Cross-origin resource sharing (see CORS section below) |
+ * | `attachMetadata` | Injects `metadata.last_scraped_date` into every JSON response under `/data` |
+ * | Routes at `/data` | Mounted via `serverRoutes` — see {@link routes/server} |
+ * | `GET /` | Returns welcome message: `{ message: "Nothing here but us Chickens" }` |
+ * | 404 handler | Catch-all that returns `{ error: "Not Found", message: "..." }` |
+ *
+ * ---
+ *
+ * ## CORS Policies
+ *
+ * **Development** (`NODE_ENV=development`):
+ * - Origins: `*` (all origins allowed)
+ * - Methods: `GET`, `POST`
+ * - Headers: `Content-Type`
+ *
+ * **Production** (any other `NODE_ENV`):
+ * - Origins: restricted to `FRONTEND_DOMAIN` and `SCRAPER_DOMAIN` env vars
+ * - Methods: `GET`, `POST`
+ * - Headers: `Content-Type`
+ *
+ * ---
+ *
+ * ## Server Lifecycle (`serverStart`)
+ *
+ * 1. Connect to MongoDB via {@link DatabaseService.connect}
+ * 2. Initialize the last report date via {@link LastReportDateService.initializeLastReportDate}
+ * 3. Check `AUTO_UPDATE` environment variable:
+ *    - `"true"`, `"True"`, or `"TRUE"` — Call {@link FlockDataSyncService.syncIfOutdated}
+ *      to pull fresh data from the scraping service on startup
+ *    - `"false"` — The `POST /data/data-update` route is registered; the scraper
+ *      is responsible for pushing updates
+ * 4. Log `"FlockWatch Server is ready!"`
+ *
+ * ---
+ *
+ * ## Metadata Injection
+ *
+ * The `attachMetadata` middleware intercepts `res.json()` calls on all `/data`
+ * routes and appends a `metadata` property with the `last_scraped_date` from
+ * the database. This allows clients to know how fresh the served data is.
+ *
+ * Example response shape:
+ * ```json
+ * {
+ *   "data": { ... },
+ *   "metadata": { "last_scraped_date": "2026-06-03T..." }
+ * }
+ * ```
+ *
+ * @module app
+ */
 import express, { Application, Request, Response, NextFunction } from "express";
 import helmet from "helmet";
 import compression from "compression";
