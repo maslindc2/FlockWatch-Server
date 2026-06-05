@@ -723,10 +723,7 @@ describe("DataController", () => {
 
         it("should call getProductionTypeSummary on the service with production_type query param", async () => {
             const serviceSpy = jest
-                .spyOn(
-                    SiteDetailsService.prototype,
-                    "getProductionTypeSummary"
-                )
+                .spyOn(SiteDetailsService.prototype, "getProductionTypeSummary")
                 .mockResolvedValueOnce(summaryData);
             req = mockRequest({
                 url: "/sites/summary",
@@ -744,10 +741,7 @@ describe("DataController", () => {
 
         it("should call getProductionTypeSummary on the service without a filter when query param is absent", async () => {
             const serviceSpy = jest
-                .spyOn(
-                    SiteDetailsService.prototype,
-                    "getProductionTypeSummary"
-                )
+                .spyOn(SiteDetailsService.prototype, "getProductionTypeSummary")
                 .mockResolvedValueOnce(summaryData);
             req = mockRequest({
                 url: "/sites/summary",
@@ -1151,10 +1145,7 @@ describe("DataController", () => {
     describe("getSiteTimeline", () => {
         it("should call getTimeline on the service with the provided granularity", async () => {
             const serviceSpy = jest
-                .spyOn(
-                    OutbreakTimelineService.prototype,
-                    "getTimeline"
-                )
+                .spyOn(OutbreakTimelineService.prototype, "getTimeline")
                 .mockResolvedValueOnce({
                     granularity: "month",
                     periods: [],
@@ -1171,10 +1162,7 @@ describe("DataController", () => {
 
         it("should default to month granularity when not specified", async () => {
             const serviceSpy = jest
-                .spyOn(
-                    OutbreakTimelineService.prototype,
-                    "getTimeline"
-                )
+                .spyOn(OutbreakTimelineService.prototype, "getTimeline")
                 .mockResolvedValueOnce({
                     granularity: "month",
                     periods: [],

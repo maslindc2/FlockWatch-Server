@@ -27,8 +27,18 @@ describe("OutbreakTimelineService", () => {
     describe("getTimeline", () => {
         it("should return periods grouped by month by default", async () => {
             const aggResult = [
-                { _id: null, period: "2024-11", new_confirmations: 12, birds_affected: 340000 },
-                { _id: null, period: "2024-12", new_confirmations: 31, birds_affected: 4800000 },
+                {
+                    _id: null,
+                    period: "2024-11",
+                    new_confirmations: 12,
+                    birds_affected: 340000,
+                },
+                {
+                    _id: null,
+                    period: "2024-12",
+                    new_confirmations: 31,
+                    birds_affected: 4800000,
+                },
             ];
             mockAggregate(aggResult);
 
@@ -43,9 +53,24 @@ describe("OutbreakTimelineService", () => {
 
         it("should compute cumulative_birds_affected as a running total", async () => {
             const aggResult = [
-                { _id: null, period: "2024-11", new_confirmations: 5, birds_affected: 100 },
-                { _id: null, period: "2024-12", new_confirmations: 10, birds_affected: 200 },
-                { _id: null, period: "2025-01", new_confirmations: 3, birds_affected: 50 },
+                {
+                    _id: null,
+                    period: "2024-11",
+                    new_confirmations: 5,
+                    birds_affected: 100,
+                },
+                {
+                    _id: null,
+                    period: "2024-12",
+                    new_confirmations: 10,
+                    birds_affected: 200,
+                },
+                {
+                    _id: null,
+                    period: "2025-01",
+                    new_confirmations: 3,
+                    birds_affected: 50,
+                },
             ];
             mockAggregate(aggResult);
 
@@ -61,17 +86,31 @@ describe("OutbreakTimelineService", () => {
 
             await service.getTimeline("month");
 
-            const pipeline = (
-                SiteDetailsModel.getModel.aggregate as jest.Mock
-            ).mock.calls[0][0];
+            const pipeline = (SiteDetailsModel.getModel.aggregate as jest.Mock)
+                .mock.calls[0][0];
             expect(pipeline[2].$sort).toEqual({ period: 1 });
         });
 
         it("should preserve the sort order from the aggregation result", async () => {
             const aggResult = [
-                { _id: null, period: "2024-11", new_confirmations: 5, birds_affected: 100 },
-                { _id: null, period: "2024-12", new_confirmations: 10, birds_affected: 200 },
-                { _id: null, period: "2025-01", new_confirmations: 3, birds_affected: 50 },
+                {
+                    _id: null,
+                    period: "2024-11",
+                    new_confirmations: 5,
+                    birds_affected: 100,
+                },
+                {
+                    _id: null,
+                    period: "2024-12",
+                    new_confirmations: 10,
+                    birds_affected: 200,
+                },
+                {
+                    _id: null,
+                    period: "2025-01",
+                    new_confirmations: 3,
+                    birds_affected: 50,
+                },
             ];
             mockAggregate(aggResult);
 
@@ -94,7 +133,12 @@ describe("OutbreakTimelineService", () => {
 
         it("should handle a single period correctly", async () => {
             const aggResult = [
-                { _id: null, period: "2024-11", new_confirmations: 5, birds_affected: 100 },
+                {
+                    _id: null,
+                    period: "2024-11",
+                    new_confirmations: 5,
+                    birds_affected: 100,
+                },
             ];
             mockAggregate(aggResult);
 
@@ -109,11 +153,9 @@ describe("OutbreakTimelineService", () => {
 
             await service.getTimeline("week");
 
-            const pipeline = (
-                SiteDetailsModel.getModel.aggregate as jest.Mock
-            ).mock.calls[0][0];
-            const format =
-                pipeline[0].$group._id.$dateToString.format;
+            const pipeline = (SiteDetailsModel.getModel.aggregate as jest.Mock)
+                .mock.calls[0][0];
+            const format = pipeline[0].$group._id.$dateToString.format;
             expect(format).toBe("%G-W%V");
         });
 
@@ -122,11 +164,9 @@ describe("OutbreakTimelineService", () => {
 
             await service.getTimeline("month");
 
-            const pipeline = (
-                SiteDetailsModel.getModel.aggregate as jest.Mock
-            ).mock.calls[0][0];
-            const format =
-                pipeline[0].$group._id.$dateToString.format;
+            const pipeline = (SiteDetailsModel.getModel.aggregate as jest.Mock)
+                .mock.calls[0][0];
+            const format = pipeline[0].$group._id.$dateToString.format;
             expect(format).toBe("%Y-%m");
         });
 
@@ -135,18 +175,14 @@ describe("OutbreakTimelineService", () => {
 
             await service.getTimeline("year");
 
-            const pipeline = (
-                SiteDetailsModel.getModel.aggregate as jest.Mock
-            ).mock.calls[0][0];
-            const format =
-                pipeline[0].$group._id.$dateToString.format;
+            const pipeline = (SiteDetailsModel.getModel.aggregate as jest.Mock)
+                .mock.calls[0][0];
+            const format = pipeline[0].$group._id.$dateToString.format;
             expect(format).toBe("%Y");
         });
 
         it("should throw an error for invalid granularity", async () => {
-            await expect(
-                service.getTimeline("quarter")
-            ).rejects.toThrow(
+            await expect(service.getTimeline("quarter")).rejects.toThrow(
                 'Invalid granularity "quarter". Valid values: week, month, year'
             );
         });
@@ -173,9 +209,8 @@ describe("OutbreakTimelineService", () => {
 
             await service.getTimeline("month");
 
-            const pipeline = (
-                SiteDetailsModel.getModel.aggregate as jest.Mock
-            ).mock.calls[0][0];
+            const pipeline = (SiteDetailsModel.getModel.aggregate as jest.Mock)
+                .mock.calls[0][0];
             expect(pipeline[0].$group).toBeDefined();
             expect(pipeline[1].$project).toBeDefined();
             expect(pipeline[2].$sort).toBeDefined();
@@ -186,9 +221,8 @@ describe("OutbreakTimelineService", () => {
 
             await service.getTimeline("month");
 
-            const pipeline = (
-                SiteDetailsModel.getModel.aggregate as jest.Mock
-            ).mock.calls[0][0];
+            const pipeline = (SiteDetailsModel.getModel.aggregate as jest.Mock)
+                .mock.calls[0][0];
             expect(pipeline[0].$group.birds_affected.$sum).toBe(
                 "$birds_affected"
             );
@@ -199,9 +233,8 @@ describe("OutbreakTimelineService", () => {
 
             await service.getTimeline("month");
 
-            const pipeline = (
-                SiteDetailsModel.getModel.aggregate as jest.Mock
-            ).mock.calls[0][0];
+            const pipeline = (SiteDetailsModel.getModel.aggregate as jest.Mock)
+                .mock.calls[0][0];
             expect(pipeline[0].$group.new_confirmations.$sum).toBe(1);
         });
     });

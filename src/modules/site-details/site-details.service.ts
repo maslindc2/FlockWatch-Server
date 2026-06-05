@@ -221,29 +221,17 @@ class SiteDetailsService {
                     total_birds_affected: { $sum: "$birds_affected" },
                     active_sites: {
                         $sum: {
-                            $cond: [
-                                { $eq: ["$status", "active"] },
-                                1,
-                                0,
-                            ],
+                            $cond: [{ $eq: ["$status", "active"] }, 1, 0],
                         },
                     },
                     released_sites: {
                         $sum: {
-                            $cond: [
-                                { $eq: ["$status", "released"] },
-                                1,
-                                0,
-                            ],
+                            $cond: [{ $eq: ["$status", "released"] }, 1, 0],
                         },
                     },
                     na_sites: {
                         $sum: {
-                            $cond: [
-                                { $eq: ["$status", "na"] },
-                                1,
-                                0,
-                            ],
+                            $cond: [{ $eq: ["$status", "na"] }, 1, 0],
                         },
                     },
                 },

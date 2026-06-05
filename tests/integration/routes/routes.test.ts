@@ -443,8 +443,7 @@ describe("Routes integration tests", () => {
             expect(res.body.data).toHaveLength(2);
 
             const broilerSummary = res.body.data.find(
-                (s: any) =>
-                    s.production_type === "Commercial Broiler Breeder"
+                (s: any) => s.production_type === "Commercial Broiler Breeder"
             );
             expect(broilerSummary).toEqual({
                 production_type: "Commercial Broiler Breeder",
@@ -469,9 +468,7 @@ describe("Routes integration tests", () => {
                 .get("/data/sites/summary")
                 .expect(200);
 
-            const types = res.body.data.map(
-                (s: any) => s.production_type
-            );
+            const types = res.body.data.map((s: any) => s.production_type);
             expect(types).toEqual([
                 "Backyard Flock",
                 "Commercial Broiler Breeder",
@@ -480,9 +477,7 @@ describe("Routes integration tests", () => {
 
         it("should filter by production_type query param", async () => {
             const res = await request(new App().app)
-                .get(
-                    "/data/sites/summary?production_type=Backyard%20Flock"
-                )
+                .get("/data/sites/summary?production_type=Backyard%20Flock")
                 .expect(200);
 
             expect(res.body.data).toHaveLength(1);
@@ -496,22 +491,16 @@ describe("Routes integration tests", () => {
 
         it("should be case-insensitive when filtering by production_type", async () => {
             const res = await request(new App().app)
-                .get(
-                    "/data/sites/summary?production_type=BACKYARD%20FLOCK"
-                )
+                .get("/data/sites/summary?production_type=BACKYARD%20FLOCK")
                 .expect(200);
 
             expect(res.body.data).toHaveLength(1);
-            expect(res.body.data[0].production_type).toBe(
-                "Backyard Flock"
-            );
+            expect(res.body.data[0].production_type).toBe("Backyard Flock");
         });
 
         it("should return empty array for non-existent production type", async () => {
             const res = await request(new App().app)
-                .get(
-                    "/data/sites/summary?production_type=Nonexistent%20Type"
-                )
+                .get("/data/sites/summary?production_type=Nonexistent%20Type")
                 .expect(200);
 
             expect(res.body.data).toEqual([]);

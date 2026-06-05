@@ -1,6 +1,9 @@
 import { PipelineStage } from "mongoose";
 import { SiteDetailsModel } from "../site-details/site-details.model";
-import { OutbreakTimelineResponse, PeriodEntry } from "./outbreak-timeline.interface";
+import {
+    OutbreakTimelineResponse,
+    PeriodEntry,
+} from "./outbreak-timeline.interface";
 import { logger } from "../../utils/winston-logger";
 
 /**
@@ -25,7 +28,9 @@ class OutbreakTimelineService {
      * @returns OutbreakTimelineResponse with periods array sorted chronologically.
      * @throws Error if an invalid granularity is provided.
      */
-    public async getTimeline(granularity: string): Promise<OutbreakTimelineResponse> {
+    public async getTimeline(
+        granularity: string
+    ): Promise<OutbreakTimelineResponse> {
         const format = GRANULARITY_FORMATS[granularity as Granularity];
         if (!format) {
             const valid = Object.keys(GRANULARITY_FORMATS).join(", ");
@@ -60,7 +65,9 @@ class OutbreakTimelineService {
 
         try {
             const results = await SiteDetailsModel.getModel
-                .aggregate<Omit<PeriodEntry, "cumulative_birds_affected">>(pipeline)
+                .aggregate<
+                    Omit<PeriodEntry, "cumulative_birds_affected">
+                >(pipeline)
                 .exec();
 
             let cumulative = 0;

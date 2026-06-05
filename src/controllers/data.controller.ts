@@ -264,9 +264,7 @@ class DataController {
             const productionTypes =
                 await this.siteDetailsService.getDistinctProductionTypes();
 
-            logger.http(
-                `Received Request at Get Production Types: ${req.url}`
-            );
+            logger.http(`Received Request at Get Production Types: ${req.url}`);
             res.json({ data: productionTypes });
         } catch (error) {
             logger.error("Error fetching production types:", error);
@@ -306,10 +304,7 @@ class DataController {
             );
             res.json({ data: result });
         } catch (error) {
-            logger.error(
-                "Error fetching production type summary:",
-                error
-            );
+            logger.error("Error fetching production type summary:", error);
             res.status(500).json({
                 error: "Failed to fetch production type summary",
             });
@@ -370,8 +365,7 @@ class DataController {
      */
     public async getSiteTimeline(req: Request, res: Response) {
         try {
-            const granularity =
-                (req.query.granularity as string) || "month";
+            const granularity = (req.query.granularity as string) || "month";
 
             const validGranularities = ["week", "month", "year"];
             if (!validGranularities.includes(granularity)) {
@@ -384,9 +378,7 @@ class DataController {
             const result =
                 await this.outbreakTimelineService.getTimeline(granularity);
 
-            logger.http(
-                `Received Request at Site Timeline: ${req.url}`
-            );
+            logger.http(`Received Request at Site Timeline: ${req.url}`);
             res.json({ data: result });
         } catch (error) {
             logger.error("Error fetching outbreak timeline:", error);

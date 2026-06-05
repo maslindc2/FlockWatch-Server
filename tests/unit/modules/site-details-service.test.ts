@@ -391,26 +391,19 @@ describe("SiteDetailsService", () => {
                 10
             );
 
-            expect(
-                SiteDetailsModel.getModel.find
-            ).toHaveBeenCalledWith({
+            expect(SiteDetailsModel.getModel.find).toHaveBeenCalledWith({
                 production_type: {
                     $regex: expect.any(RegExp),
                 },
             });
-            const filter = (
-                SiteDetailsModel.getModel.find as jest.Mock
-            ).mock.calls[0][0];
+            const filter = (SiteDetailsModel.getModel.find as jest.Mock).mock
+                .calls[0][0];
             expect(filter.production_type.$regex.flags).toBe("i");
             expect(
-                filter.production_type.$regex.test(
-                    "Commercial Broiler Breeder"
-                )
+                filter.production_type.$regex.test("Commercial Broiler Breeder")
             ).toBe(true);
             expect(
-                filter.production_type.$regex.test(
-                    "commercial broiler breeder"
-                )
+                filter.production_type.$regex.test("commercial broiler breeder")
             ).toBe(true);
         });
 
@@ -423,15 +416,14 @@ describe("SiteDetailsService", () => {
                 10
             );
 
-            const filter = (
-                SiteDetailsModel.getModel.find as jest.Mock
-            ).mock.calls[0][0];
+            const filter = (SiteDetailsModel.getModel.find as jest.Mock).mock
+                .calls[0][0];
             expect(
                 filter.production_type.$regex.test("Table Eggs (Layer)")
             ).toBe(true);
-            expect(
-                filter.production_type.$regex.test("Table Eggs Layer")
-            ).toBe(false);
+            expect(filter.production_type.$regex.test("Table Eggs Layer")).toBe(
+                false
+            );
         });
 
         it("should return paginated results with correct structure", async () => {
@@ -447,12 +439,11 @@ describe("SiteDetailsService", () => {
             ];
             mockPaginatedQuery(sites, 50);
 
-            const result =
-                await service.getSitesByProductionTypePaginated(
-                    "Commercial",
-                    2,
-                    10
-                );
+            const result = await service.getSitesByProductionTypePaginated(
+                "Commercial",
+                2,
+                10
+            );
 
             expect(result).toEqual({
                 data: sites,
@@ -466,12 +457,11 @@ describe("SiteDetailsService", () => {
         it("should return empty data when no sites match", async () => {
             mockPaginatedQuery([], 0);
 
-            const result =
-                await service.getSitesByProductionTypePaginated(
-                    "Nonexistent Type",
-                    1,
-                    100
-                );
+            const result = await service.getSitesByProductionTypePaginated(
+                "Nonexistent Type",
+                1,
+                100
+            );
 
             expect(result.data).toEqual([]);
             expect(result.total).toBe(0);
@@ -481,11 +471,7 @@ describe("SiteDetailsService", () => {
         it("should hide _id and __v fields", async () => {
             const { selectMock } = mockPaginatedQuery([], 0);
 
-            await service.getSitesByProductionTypePaginated(
-                "Test",
-                1,
-                100
-            );
+            await service.getSitesByProductionTypePaginated("Test", 1, 100);
 
             expect(selectMock).toHaveBeenCalledWith("-_id -__v");
         });
@@ -505,10 +491,9 @@ describe("SiteDetailsService", () => {
     describe("getDistinctProductionTypes", () => {
         const mockDistinct = (resolvedValue: string[]) => {
             const execMock = jest.fn().mockResolvedValue(resolvedValue);
-            jest.spyOn(
-                SiteDetailsModel.getModel,
-                "distinct"
-            ).mockReturnValue({ exec: execMock } as any);
+            jest.spyOn(SiteDetailsModel.getModel, "distinct").mockReturnValue({
+                exec: execMock,
+            } as any);
             return execMock;
         };
 
@@ -517,9 +502,9 @@ describe("SiteDetailsService", () => {
 
             await service.getDistinctProductionTypes();
 
-            expect(
-                SiteDetailsModel.getModel.distinct
-            ).toHaveBeenCalledWith("production_type");
+            expect(SiteDetailsModel.getModel.distinct).toHaveBeenCalledWith(
+                "production_type"
+            );
         });
 
         it("should return distinct production types sorted alphabetically", async () => {
@@ -552,10 +537,9 @@ describe("SiteDetailsService", () => {
     describe("getProductionTypeSummary", () => {
         const mockAggregate = (resolvedValue: ProductionTypeSummary[]) => {
             const execMock = jest.fn().mockResolvedValue(resolvedValue);
-            jest.spyOn(
-                SiteDetailsModel.getModel,
-                "aggregate"
-            ).mockReturnValue({ exec: execMock } as any);
+            jest.spyOn(SiteDetailsModel.getModel, "aggregate").mockReturnValue({
+                exec: execMock,
+            } as any);
             return execMock;
         };
 
@@ -566,9 +550,8 @@ describe("SiteDetailsService", () => {
                 "Commercial Broiler Breeder"
             );
 
-            const pipeline = (
-                SiteDetailsModel.getModel.aggregate as jest.Mock
-            ).mock.calls[0][0];
+            const pipeline = (SiteDetailsModel.getModel.aggregate as jest.Mock)
+                .mock.calls[0][0];
             expect(pipeline[0]).toHaveProperty("$match");
             expect(pipeline[0].$match.production_type.$regex).toBeInstanceOf(
                 RegExp
@@ -580,9 +563,8 @@ describe("SiteDetailsService", () => {
 
             await service.getProductionTypeSummary();
 
-            const pipeline = (
-                SiteDetailsModel.getModel.aggregate as jest.Mock
-            ).mock.calls[0][0];
+            const pipeline = (SiteDetailsModel.getModel.aggregate as jest.Mock)
+                .mock.calls[0][0];
             expect(pipeline[0]).not.toHaveProperty("$match");
         });
 
@@ -593,11 +575,9 @@ describe("SiteDetailsService", () => {
                 "Commercial Broiler Breeder"
             );
 
-            const pipeline = (
-                SiteDetailsModel.getModel.aggregate as jest.Mock
-            ).mock.calls[0][0];
-            const regex: RegExp =
-                pipeline[0].$match.production_type.$regex;
+            const pipeline = (SiteDetailsModel.getModel.aggregate as jest.Mock)
+                .mock.calls[0][0];
+            const regex: RegExp = pipeline[0].$match.production_type.$regex;
             expect(regex.flags).toBe("i");
             expect(regex.test("Commercial Broiler Breeder")).toBe(true);
             expect(regex.test("commercial broiler breeder")).toBe(true);
@@ -608,11 +588,9 @@ describe("SiteDetailsService", () => {
 
             await service.getProductionTypeSummary("Table Eggs (Layer)");
 
-            const pipeline = (
-                SiteDetailsModel.getModel.aggregate as jest.Mock
-            ).mock.calls[0][0];
-            const regex: RegExp =
-                pipeline[0].$match.production_type.$regex;
+            const pipeline = (SiteDetailsModel.getModel.aggregate as jest.Mock)
+                .mock.calls[0][0];
+            const regex: RegExp = pipeline[0].$match.production_type.$regex;
             expect(regex.test("Table Eggs (Layer)")).toBe(true);
             expect(regex.test("Table Eggs Layer")).toBe(false);
         });
@@ -622,23 +600,18 @@ describe("SiteDetailsService", () => {
 
             await service.getProductionTypeSummary();
 
-            const pipeline = (
-                SiteDetailsModel.getModel.aggregate as jest.Mock
-            ).mock.calls[0][0];
+            const pipeline = (SiteDetailsModel.getModel.aggregate as jest.Mock)
+                .mock.calls[0][0];
             expect(pipeline).toHaveLength(3);
             expect(pipeline[0].$group).toBeDefined();
-            expect(
-                pipeline[0].$group.active_sites.$sum.$cond
-            ).toBeDefined();
-            expect(
-                pipeline[0].$group.released_sites.$sum.$cond
-            ).toBeDefined();
-            expect(
-                pipeline[0].$group.na_sites.$sum.$cond
-            ).toBeDefined();
-            expect(
-                pipeline[0].$group.active_sites.$sum.$cond
-            ).toEqual([{ $eq: ["$status", "active"] }, 1, 0]);
+            expect(pipeline[0].$group.active_sites.$sum.$cond).toBeDefined();
+            expect(pipeline[0].$group.released_sites.$sum.$cond).toBeDefined();
+            expect(pipeline[0].$group.na_sites.$sum.$cond).toBeDefined();
+            expect(pipeline[0].$group.active_sites.$sum.$cond).toEqual([
+                { $eq: ["$status", "active"] },
+                1,
+                0,
+            ]);
         });
 
         it("should include $project and $sort stages", async () => {
@@ -646,9 +619,8 @@ describe("SiteDetailsService", () => {
 
             await service.getProductionTypeSummary();
 
-            const pipeline = (
-                SiteDetailsModel.getModel.aggregate as jest.Mock
-            ).mock.calls[0][0];
+            const pipeline = (SiteDetailsModel.getModel.aggregate as jest.Mock)
+                .mock.calls[0][0];
             expect(pipeline[1].$project).toBeDefined();
             expect(pipeline[2].$sort).toBeDefined();
         });
@@ -678,9 +650,8 @@ describe("SiteDetailsService", () => {
         it("should return an empty array when no sites match the production type", async () => {
             mockAggregate([]);
 
-            const result = await service.getProductionTypeSummary(
-                "Nonexistent Type"
-            );
+            const result =
+                await service.getProductionTypeSummary("Nonexistent Type");
 
             expect(result).toEqual([]);
         });
