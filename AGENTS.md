@@ -59,6 +59,7 @@ src/
     flock-cases-by-state/ — Per-state case data
     historical-summary/   — All-time summary
     last-report-date/     — Scrape timestamp + auth_id
+    outbreak-timeline/    — Time-bucketed outbreak wave data
     site-details/         — Premises-level details
     status-summary/       — 30-day rolling status
     us-summary/           — Nationwide all-time + period summaries
