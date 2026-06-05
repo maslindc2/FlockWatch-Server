@@ -29,19 +29,6 @@ const mockFindChain = (resolvedValue: any) => {
     return { selectMock, leanMock };
 };
 
-// Helper to mock the find().select().sort().skip().limit().lean() chain for paginated queries
-const mockPaginatedFindChain = (leanValue: any) => {
-    const leanMock = jest.fn().mockResolvedValue(leanValue);
-    const limitMock = jest.fn().mockReturnValue({ lean: leanMock });
-    const skipMock = jest.fn().mockReturnValue({ limit: limitMock });
-    const sortMock = jest.fn().mockReturnValue({ skip: skipMock });
-    const selectMock = jest.fn().mockReturnValue({ sort: sortMock });
-    jest.spyOn(SiteDetailsModel.getModel, "find").mockReturnValue({
-        select: selectMock,
-    } as any);
-    return { selectMock, sortMock, skipMock, limitMock, leanMock };
-};
-
 // Helper to mock the findOne().select().lean() chain
 const mockFindOneChain = (resolvedValue: any) => {
     const leanMock = jest.fn().mockResolvedValue(resolvedValue);
