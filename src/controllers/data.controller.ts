@@ -283,8 +283,7 @@ class DataController {
     public async getProductionTypeSummary(req: Request, res: Response) {
         try {
             const productionType = req.query.production_type as
-                | string
-                | undefined;
+                string | undefined;
 
             if (
                 productionType !== undefined &&
