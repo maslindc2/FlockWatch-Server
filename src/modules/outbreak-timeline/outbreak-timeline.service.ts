@@ -65,9 +65,9 @@ class OutbreakTimelineService {
 
         try {
             const results = await SiteDetailsModel.getModel
-                .aggregate<
-                    Omit<PeriodEntry, "cumulative_birds_affected">
-                >(pipeline)
+                .aggregate<Omit<PeriodEntry, "cumulative_birds_affected">>(
+                    pipeline
+                )
                 .exec();
 
             let cumulative = 0;
