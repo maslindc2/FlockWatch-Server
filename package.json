@@ -1,6 +1,6 @@
 {
     "name": "flockwatch-server",
-    "version": "0.8.0",
+    "version": "0.9.1",
     "description": "",
     "main": "index.js",
     "scripts": {
@@ -39,7 +39,7 @@
         "zod": "^4.4.3"
     },
     "devDependencies": {
-        "@dotenvx/dotenvx": "^1.75.0",
+        "@dotenvx/dotenvx": "^2.1.4",
         "@eslint/js": "^10.0.1",
         "@stryker-mutator/jest-runner": "^9.1.1",
         "@types/compression": "^1.8.1",
@@ -60,7 +60,7 @@
         "ts-node": "^10.9.2",
         "typedoc": "^0.28.19",
         "typescript": "^6.0.3",
-        "typescript-eslint": "^8.61.1"
+        "typescript-eslint": "^8.62.1"
     },
     "allowScripts": {
         "mongodb-memory-server@11.2.0": true,
