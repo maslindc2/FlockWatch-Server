@@ -1,6 +1,6 @@
 {
     "name": "flockwatch-server",
-    "version": "0.9.10",
+    "version": "0.9.11",
     "description": "",
     "main": "index.js",
     "scripts": {
@@ -48,7 +48,7 @@
         "@types/jest": "^30.0.0",
         "@types/node": "^26.1.2",
         "@types/supertest": "^7.2.1",
-        "eslint": "^10.5.0",
+        "eslint": "^10.8.0",
         "globals": "^17.7.0",
         "jest": "^30.4.2",
         "jest-util": "^30.4.1",
