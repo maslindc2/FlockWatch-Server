@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.9.12](https://github.com/maslindc2/FlockWatch-Scraping/compare/v0.9.10...v0.9.12) (2026-08-04)
+
 ## [0.9.11](https://github.com/maslindc2/FlockWatch-Scraping/compare/v0.9.9...v0.9.11) (2026-08-04)
 
 ## [0.9.10](https://github.com/maslindc2/FlockWatch-Scraping/compare/v0.9.8...v0.9.10) (2026-07-29)
